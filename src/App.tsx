@@ -108,6 +108,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const filtered = busData.filter(item => {
+      // 判斷出發地是否「以 regionFilter 開頭」
       const matchRegion = regionFilter === '' || item.departure_region.startsWith(regionFilter);
       const matchDest = destFilter === '' || item.dropoff_point.includes(destFilter);
       return matchRegion && matchDest;
@@ -115,6 +116,7 @@ const App: React.FC = () => {
     setFilteredData(filtered);
   }, [regionFilter, destFilter, busData]);
 
+  // 動態複製剪貼簿功能
   const copyToClipboard = () => {
     if (selectedWechatApp) {
       navigator.clipboard.writeText(selectedWechatApp);
@@ -127,14 +129,15 @@ const App: React.FC = () => {
   };
 
   // ==========================================
-  // 更新：智能擷取地區名稱（深圳抽4個字，其他抽2個字）
+  // 更新：如果出發地係「深圳」開頭，就顯示頭 5 個字；否則顯示頭 2 個字
   // ==========================================
-  const getShortRegionName = (name: string) => {
-    if (!name) return '';
-    return name.startsWith('深圳') ? name.substring(0, 4) : name.substring(0, 2);
-  };
-  
-  const regions = Array.from(new Set(busData.map(i => getShortRegionName(i.departure_region)))).filter(Boolean);
+  const regions = Array.from(new Set(busData.map(i => {
+    const region = i.departure_region || '';
+    if (region.startsWith('深圳')) {
+      return region.substring(0, 5);
+    }
+    return region.substring(0, 2);
+  }))).filter(Boolean);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -257,6 +260,7 @@ const App: React.FC = () => {
             {filteredData.map((item, idx) => {
               const isSpecial = /T01[AB]/.test(item.operator);
               
+              // 檢查呢個班次有無微信小程序
               const hasWechatApp = item.wechat_app && item.wechat_app.length > 0;
 
               return (
