@@ -136,8 +136,8 @@ const App: React.FC = () => {
           <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.4rem', fontWeight: 800, letterSpacing: '0.5px' }}>
             深中珠巴士通 
             <span style={{ fontWeight: 400, opacity: 0.9 }}> - </span>
-            {/* 在這裡將「攻略」單獨設定為紅色 */}
-            <span style={{ color: '#ff3b3b', fontWeight: 900, textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>攻略</span>
+            {/* 在這裡將「攻略」改為黃色 (#FFE600)，並加深一點陰影讓它更突出 */}
+            <span style={{ color: '#FFE600', fontWeight: 900, textShadow: '1px 1px 3px rgba(0,0,0,0.4)' }}>攻略</span>
           </h1>
         </div>
         
