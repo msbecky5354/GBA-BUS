@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// 1. 定義資料結構，解決 TypeScript 報錯
+// 定義資料結構
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -23,6 +23,15 @@ const App: React.FC = () => {
   const [regionFilter, setRegionFilter] = useState<string>('');
   const [destFilter, setDestFilter] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
+  
+  // 偵測是否為移動裝置
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +39,6 @@ const App: React.FC = () => {
         const response = await fetch(CSV_URL);
         const csvText = await response.text();
         const lines = csvText.split('\n');
-        
         const result = lines.slice(1).map(line => {
           const values = line.split(',');
           return {
@@ -46,7 +54,6 @@ const App: React.FC = () => {
             source_url: values[9] || ''
           };
         }).filter(item => item.operator.trim() !== '');
-
         setBusData(result);
         setFilteredData(result);
         setLoading(false);
@@ -74,21 +81,41 @@ const App: React.FC = () => {
 
   const regions = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean);
 
+  // 樣式設定
+  const containerStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    backgroundColor: '#f8fafc',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    paddingBottom: '60px'
+  };
+
+  const mainStyle: React.CSSProperties = {
+    maxWidth: isMobile ? '500px' : '1200px',
+    margin: '0 auto',
+    padding: isMobile ? '16px' : '32px'
+  };
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))',
+    gap: '20px'
+  };
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', fontFamily: 'sans-serif', paddingBottom: '40px' }}>
-      {/* Header */}
-      <header style={{ backgroundColor: '#2563eb', color: 'white', padding: '16px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 10 }}>
-        <h1 style={{ margin: 0, fontSize: '1.25rem' }}>深中巴士通</h1>
+    <div style={containerStyle}>
+      <header style={{ backgroundColor: '#1e40af', color: 'white', padding: isMobile ? '16px' : '24px 16px', textAlign: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.75rem', fontWeight: 800 }}>深中巴士通</h1>
+        {!isMobile && <p style={{ margin: '8px 0 0', opacity: 0.9 }}>往返中山巴士資訊一站式查詢</p>}
       </header>
 
-      <main style={{ maxWidth: '500px', margin: '0 auto', padding: '16px' }}>
-        {/* 篩選器 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-          <select style={{ padding: '8px', borderRadius: '8px', border: '1px solid #d1d5db' }} onChange={(e) => setRegionFilter(e.target.value)}>
+      <main style={mainStyle}>
+        {/* 篩選器 - 電腦版更寬 */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
+          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setRegionFilter(e.target.value)}>
             <option value="">所有出發地</option>
             {regions.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
-          <select style={{ padding: '8px', borderRadius: '8px', border: '1px solid #d1d5db' }} onChange={(e) => setDestFilter(e.target.value)}>
+          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setDestFilter(e.target.value)}>
             <option value="">目的地搜尋</option>
             <option value="中山">中山</option>
             <option value="深圳">深圳</option>
@@ -97,32 +124,39 @@ const App: React.FC = () => {
         </div>
 
         {/* 廣告位 */}
-        <div style={{ backgroundColor: '#e5e7eb', height: '90px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '12px', marginBottom: '24px', border: '1px dashed #9ca3af' }}>
-          廣告贊助區塊 (Google AdSense)
+        <div style={{ backgroundColor: '#f1f5f9', height: '100px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px', marginBottom: '32px', border: '2px dashed #cbd5e1' }}>
+          Google AdSense 廣告區塊
         </div>
 
-        {loading ? <p style={{ textAlign: 'center' }}>🚌 正在載入班次...</p> : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {loading ? <p style={{ textAlign: 'center', color: '#64748b' }}>🚌 正在即時同步班次...</p> : (
+          <div style={gridStyle}>
             {filteredData.map((item, idx) => {
               const isSpecial = /T01[AB]/.test(item.operator);
               return (
-                <div key={idx} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: `4px solid ${isSpecial ? '#f97316' : '#2563eb'}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', backgroundColor: isSpecial ? '#ffedd5' : '#dbeafe', color: isSpecial ? '#9a3412' : '#1e40af' }}>
-                      {item.operator}
-                    </span>
-                    <span style={{ color: '#dc2626', fontWeight: 'bold' }}>{item.currency}{item.price}</span>
+                <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', borderTop: `6px solid ${isSpecial ? '#f97316' : '#3b82f6'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 800, padding: '4px 10px', borderRadius: '6px', backgroundColor: isSpecial ? '#ffedd5' : '#eff6ff', color: isSpecial ? '#9a3412' : '#1e40af' }}>
+                        {item.operator}
+                      </span>
+                      <span style={{ color: '#ef4444', fontWeight: 900, fontSize: '1.2rem' }}>{item.currency}{item.price}</span>
+                    </div>
+                    <div style={{ fontSize: '15px', color: '#1e293b', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ marginRight: '8px' }}>📍</span> <strong>{item.pickup_point}</strong>
+                    </div>
+                    <div style={{ fontSize: '15px', color: '#1e293b', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ marginRight: '8px' }}>🏁</span> <strong>{item.dropoff_point}</strong>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#374151', marginBottom: '4px' }}>📍 {item.pickup_point}</div>
-                  <div style={{ fontSize: '14px', color: '#374151', marginBottom: '12px' }}>🏁 {item.dropoff_point}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                      <div>🕒 {item.schedule}</div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                      <div style={{ marginBottom: '4px' }}>🕒 {item.schedule}</div>
                       <div>⏳ 約 {item.estimated_duration}</div>
                     </div>
                     <button 
                       onClick={() => item.booking_remarks.includes('小程序') ? setShowModal(true) : window.open(item.source_url, '_blank')}
-                      style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(37,99,235,0.2)' }}
                     >
                       立即購票
                     </button>
@@ -136,20 +170,21 @@ const App: React.FC = () => {
 
       {/* WeChat Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
-          <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '16px', maxWidth: '300px', textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>💬</div>
-            <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '24px' }}>本服務需於微信預約，請點擊按鈕複製名稱並搜尋。</p>
-            <button onClick={copyToClipboard} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '12px' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '24px', maxWidth: '340px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+            <h3 style={{ margin: '0 0 12px', color: '#1e293b' }}>微信預約提示</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px', lineHeight: 1.5 }}>本服務需透過微信小程式預訂。請點擊下方按鈕複製名稱後，前往微信搜尋即可購票。</p>
+            <button onClick={copyToClipboard} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '14px', fontWeight: 'bold', fontSize: '1rem', marginBottom: '16px', cursor: 'pointer' }}>
               一鍵複製「深巴出行」
             </button>
-            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '12px' }}>關閉</button>
+            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>暫時關閉</button>
           </div>
         </div>
       )}
 
-      <footer style={{ textAlign: 'center', marginTop: '40px', fontSize: '12px', color: '#9ca3af' }}>
-        深中巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6' }}>隱私權政策</a>
+      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0' }}>
+        深中巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
       </footer>
     </div>
   );
