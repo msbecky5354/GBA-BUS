@@ -22,13 +22,16 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [regionFilter, setRegionFilter] = useState<string>('');
   const [destFilter, setDestFilter] = useState<string>('');
-  const [showModal, setShowModal] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  
+  // Modals 狀態控制
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   
-  // 新增：偵測是否顯示返回頂部按鈕
+  // 偵測是否顯示返回頂部按鈕
   const [showBackTop, setShowBackTop] = useState<boolean>(false);
 
   useEffect(() => {
@@ -37,7 +40,6 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 監聽滑動事件以顯示/隱藏返回頂部按鈕
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
@@ -103,7 +105,6 @@ const App: React.FC = () => {
     alert('已複製「深巴出行」，請前往微信搜尋！');
   };
 
-  // 返回頂部功能
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -266,6 +267,7 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* 微信預約彈窗 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '24px', maxWidth: '340px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
@@ -280,6 +282,35 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* 隱私權政策與聲明彈窗 */}
+      {showPrivacyModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', textAlign: 'left' }}>
+            <h2 style={{ marginTop: 0, color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px', fontSize: '1.25rem' }}>隱私權政策與免責聲明</h2>
+            
+            <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
+              <p style={{ fontWeight: 'bold', color: '#1e293b' }}>1. Google AdSense 與 Cookie 的使用</p>
+              <p>本網站使用 Google AdSense 廣告服務。第三方供應商（包括 Google）會使用 Cookie 來放送廣告，這些廣告是根據使用者過往在我們網站或其他網站的瀏覽紀錄來放送。</p>
+              <p>使用者可以前往 <a href="https://myadcenter.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>Google 廣告設定</a> 停用個人化廣告。</p>
+              
+              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>2. 網站分析與追蹤</p>
+              <p>本網站使用 Google Analytics 等分析工具來收集匿名流量數據，以便了解使用者行為並改善網站體驗。</p>
+              
+              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>3. 內容免責聲明</p>
+              <p>本網站提供之巴士班次、路線、票價等資訊僅供參考，所有資料皆以各營運商官方最新公佈為準。本網站對因依賴本站資訊而引致的任何損失，概不負責。</p>
+            </div>
+
+            <button 
+              onClick={() => setShowPrivacyModal(false)} 
+              style={{ width: '100%', backgroundColor: '#B8860B', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', marginTop: '20px', cursor: 'pointer' }}
+            >
+              我明白了，關閉
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 返回頂部按鈕 */}
       {showBackTop && (
         <button 
           onClick={scrollToTop}
@@ -308,11 +339,33 @@ const App: React.FC = () => {
         </button>
       )}
 
-      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '24px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
-        <div style={{ marginBottom: '12px' }}>
-          深中珠巴士通 - 攻略 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+      {/* ========================================
+        更新：全新專業版頁尾設計
+        ======================================== 
+      */}
+      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '32px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+        
+        {/* 資料來源 */}
+        <div style={{ marginBottom: '16px', color: '#94a3b8', fontSize: '12px' }}>
+          資料來源: 各大巴士營運商 · 官方售票平台 · 微信小程式公告
+        </div>
+
+        {/* 四個重要連結 */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('關於我們：\n我們是一群熱愛大灣區出行的開發者，致力於提供最準確、最方便的深中珠巴士整合資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
+          <span style={{ color: '#cbd5e1' }}>|</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('聯絡我們：\n如有任何資料更新或合作建議，請聯絡開發團隊。'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>聯絡我們</a>
+          <span style={{ color: '#cbd5e1' }}>|</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+          <span style={{ color: '#cbd5e1' }}>|</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>服務條款</a>
+        </div>
+
+        <div style={{ marginBottom: '16px' }}>
+          深中珠巴士通 - 攻略 © 2026
         </div>
         
+        {/* 互推連結 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
           <span>開發團隊 - </span>
           <a 
