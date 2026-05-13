@@ -60,7 +60,6 @@ const App: React.FC = () => {
         setFilteredData(result);
         setLoading(false);
         
-        // 設定最後更新時間為當下抓取成功的時間
         const now = new Date();
         const timeString = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
         const dateString = now.toLocaleDateString('zh-HK', { month: 'short', day: 'numeric' });
@@ -115,7 +114,7 @@ const App: React.FC = () => {
       <header style={{ 
         backgroundColor: '#1e40af', 
         color: 'white', 
-        padding: isMobile ? '16px' : '20px 32px', 
+        padding: isMobile ? '12px 16px' : '16px 32px', 
         boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', 
         position: 'sticky', 
         top: 0, 
@@ -125,15 +124,24 @@ const App: React.FC = () => {
         alignItems: 'center'
       }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 800 }}>深中巴士通</h1>
+          {/* 將原本的文字替換為圖片 Logo */}
+          <img 
+            src="/image_48c638.jpg" 
+            alt="深中巴士通" 
+            style={{ 
+              height: isMobile ? '40px' : '50px', 
+              borderRadius: '8px',
+              display: 'block',
+              backgroundColor: 'white' // 讓藍色底的圖示更突出
+            }} 
+          />
         </div>
         
-        {/* 最後更新時間顯示 */}
         {lastUpdated && (
           <div style={{ 
             fontSize: isMobile ? '11px' : '13px', 
             backgroundColor: 'rgba(255,255,255,0.15)', 
-            padding: '4px 10px', 
+            padding: '6px 12px', 
             borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -145,7 +153,6 @@ const App: React.FC = () => {
       </header>
 
       <main style={mainStyle}>
-        {/* 篩選器 */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
           <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setRegionFilter(e.target.value)}>
             <option value="">所有出發地</option>
@@ -159,10 +166,12 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        {/* 廣告位 */}
+        {/* 暫時隱藏廣告位 */}
+        {/*
         <div style={{ backgroundColor: '#f1f5f9', height: '100px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px', marginBottom: '32px', border: '2px dashed #cbd5e1' }}>
           Google AdSense 廣告區塊
         </div>
+        */}
 
         {loading ? <p style={{ textAlign: 'center', color: '#64748b' }}>🚌 正在即時同步班次...</p> : (
           <div style={gridStyle}>
@@ -204,7 +213,6 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* WeChat Modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '24px', maxWidth: '340px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
