@@ -126,9 +126,6 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ==========================================
-  // 更新：如果出發地係「深圳灣」開頭，就擷取頭 5 個字；否則擷取頭 2 個字
-  // ==========================================
   const regions = Array.from(new Set(busData.map(i => {
     const region = i.departure_region || '';
     if (region.startsWith('深圳灣')) {
@@ -154,6 +151,23 @@ const App: React.FC = () => {
     display: 'grid',
     gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))',
     gap: '20px'
+  };
+
+  // 通用的 Select 樣式，包含自定義箭嘴
+  const selectStyle: React.CSSProperties = {
+    padding: '12px 36px 12px 12px', // 右邊預留多啲位放箭嘴
+    borderRadius: '0 10px 10px 10px',
+    border: '1px solid #e2e8f0',
+    width: '100%',
+    backgroundColor: 'white',
+    outline: 'none',
+    fontSize: '15px',
+    cursor: 'pointer',
+    appearance: 'none', // 拎走瀏覽器預設箭嘴
+    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 12px center',
+    backgroundSize: '16px'
   };
 
   return (
@@ -192,28 +206,35 @@ const App: React.FC = () => {
       </header>
 
       <main style={mainStyle}>
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
+          
+          {/* 出發過濾器 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '240px' }}>
             <span style={{ backgroundColor: '#FFE600', color: '#333', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px 6px 0 0', alignSelf: 'flex-start', boxShadow: '0 -2px 4px rgba(0,0,0,0.05)' }}>
               出發
             </span>
-            <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setRegionFilter(e.target.value)}>
-              <option value="">所有出發地</option>
-              {regions.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select style={selectStyle} onChange={(e) => setRegionFilter(e.target.value)}>
+                <option value="">所有出發地</option>
+                {regions.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
+          {/* 目的地過濾器 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '240px' }}>
             <span style={{ backgroundColor: '#FFE600', color: '#333', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px 6px 0 0', alignSelf: 'flex-start', boxShadow: '0 -2px 4px rgba(0,0,0,0.05)' }}>
               目的地
             </span>
-            <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setDestFilter(e.target.value)}>
-              <option value="">所有目的地</option>
-              <option value="中山">中山</option>
-              <option value="深圳">深圳</option>
-              <option value="珠海">珠海</option>
-              <option value="香港">香港</option>
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select style={selectStyle} onChange={(e) => setDestFilter(e.target.value)}>
+                <option value="">所有目的地</option>
+                <option value="中山">中山</option>
+                <option value="深圳">深圳</option>
+                <option value="珠海">珠海</option>
+                <option value="香港">香港</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -264,7 +285,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Modals, BackTop, Footer 保持不變 */}
+      {/* Modals 保持不變 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '24px', maxWidth: '340px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
@@ -279,7 +300,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 隱私權與服務條款彈窗省略，與之前代碼相同 */}
       {showPrivacyModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', textAlign: 'left' }}>
@@ -313,7 +333,7 @@ const App: React.FC = () => {
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '32px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
         <div style={{ marginBottom: '16px', fontSize: '12px' }}>資料來源: 各大巴士營運商 · 官方售票平台</div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); alert('開發團隊致力於提供最方便的巴士整合資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('關於我們：\n我們是一群熱愛大灣區出行的開發者，致力於提供最準確、最方便的整合資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
           <span>|</span>
           <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
           <span>|</span>
