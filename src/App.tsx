@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// 定義資料結構
+// 定義資料結構，新增 wechat_app
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -12,6 +12,7 @@ interface BusItem {
   currency: string;
   booking_remarks: string;
   source_url: string;
+  wechat_app: string; // 新增欄位
 }
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
@@ -28,6 +29,9 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  
+  // 新增：用嚟記錄使用者點擊咗邊個微信小程序
+  const [selectedWechatApp, setSelectedWechatApp] = useState<string>('');
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -71,22 +75,18 @@ const App: React.FC = () => {
             price: values[6] || '',
             currency: values[7] || '',
             booking_remarks: values[8] || '',
-            source_url: values[9] || ''
+            source_url: values[9] || '',
+            // 讀取第 11 個欄位 (Column K) 作為 WeChatApp 名稱，並清除可能嘅隱藏換行符
+            wechat_app: (values[10] || '').replace(/\r$/, '').trim() 
           };
         }).filter(item => item.operator.trim() !== '');
 
-        // ==========================================
-        // 新增：根據 departure_region 同 pickup_point 排序
-        // ==========================================
+        // 根據 departure_region 同 pickup_point 排序
         result.sort((a, b) => {
-          // 先根據「出發地區」排序 (支援中文字排序)
           const regionCompare = a.departure_region.localeCompare(b.departure_region, 'zh-HK');
-          
           if (regionCompare !== 0) {
-            return regionCompare; // 如果地區唔同，就按地區排
+            return regionCompare; 
           }
-          
-          // 如果「出發地區」一樣，就根據「上車點」排序
           return a.pickup_point.localeCompare(b.pickup_point, 'zh-HK');
         });
         
@@ -116,9 +116,12 @@ const App: React.FC = () => {
     setFilteredData(filtered);
   }, [regionFilter, destFilter, busData]);
 
+  // 動態複製剪貼簿功能
   const copyToClipboard = () => {
-    navigator.clipboard.writeText('深巴出行');
-    alert('已複製「深巴出行」，請前往微信搜尋！');
+    if (selectedWechatApp) {
+      navigator.clipboard.writeText(selectedWechatApp);
+      alert(`已複製「${selectedWechatApp}」，請前往微信搜尋！`);
+    }
   };
 
   const scrollToTop = () => {
@@ -247,6 +250,10 @@ const App: React.FC = () => {
           <div style={gridStyle}>
             {filteredData.map((item, idx) => {
               const isSpecial = /T01[AB]/.test(item.operator);
+              
+              // 檢查呢個班次有無微信小程序
+              const hasWechatApp = item.wechat_app && item.wechat_app.length > 0;
+
               return (
                 <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', borderTop: `6px solid ${isSpecial ? '#f97316' : '#3b82f6'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
@@ -270,10 +277,28 @@ const App: React.FC = () => {
                       <div>⏳ 約 {item.estimated_duration}</div>
                     </div>
                     <button 
-                      onClick={() => item.booking_remarks.includes('小程序') ? setShowModal(true) : window.open(item.source_url, '_blank')}
-                      style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(37,99,235,0.2)' }}
+                      onClick={() => {
+                        if (hasWechatApp) {
+                          setSelectedWechatApp(item.wechat_app);
+                          setShowModal(true);
+                        } else {
+                          window.open(item.source_url, '_blank');
+                        }
+                      }}
+                      style={{ 
+                        // 如果有小程序就轉綠色，否則保持藍色
+                        backgroundColor: hasWechatApp ? '#22c55e' : '#2563eb', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '10px 20px', 
+                        borderRadius: '12px', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer', 
+                        // 陰影顏色跟隨按鈕顏色
+                        boxShadow: hasWechatApp ? '0 4px 6px -1px rgba(34,197,94,0.3)' : '0 4px 6px -1px rgba(37,99,235,0.2)' 
+                      }}
                     >
-                      立即購票
+                      {hasWechatApp ? '微信小程序' : '立即購票'}
                     </button>
                   </div>
                 </div>
@@ -283,7 +308,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* 微信預約彈窗 */}
+      {/* 動態微信預約彈窗 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '24px', maxWidth: '340px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
@@ -291,7 +316,7 @@ const App: React.FC = () => {
             <h3 style={{ margin: '0 0 12px', color: '#1e293b' }}>微信預約提示</h3>
             <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px', lineHeight: 1.5 }}>本服務需透過微信小程式預訂。請點擊下方按鈕複製名稱後，前往微信搜尋即可購票。</p>
             <button onClick={copyToClipboard} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '14px', fontWeight: 'bold', fontSize: '1rem', marginBottom: '16px', cursor: 'pointer' }}>
-              一鍵複製「深巴出行」
+              一鍵複製「{selectedWechatApp}」
             </button>
             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>暫時關閉</button>
           </div>
@@ -385,12 +410,10 @@ const App: React.FC = () => {
 
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '32px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
         
-        {/* 資料來源 */}
         <div style={{ marginBottom: '16px', color: '#94a3b8', fontSize: '12px' }}>
           資料來源: 各大巴士營運商 · 官方售票平台 · 微信小程式公告
         </div>
 
-        {/* 四個重要連結 */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
           <a href="#" onClick={(e) => { e.preventDefault(); alert('關於我們：\n我們是一群熱愛大灣區出行的開發者，致力於提供最準確、最方便的深中珠巴士整合資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
           <span style={{ color: '#cbd5e1' }}>|</span>
@@ -405,7 +428,6 @@ const App: React.FC = () => {
           深中珠巴士通 - 攻略 © 2026
         </div>
         
-        {/* 互推連結 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
           <span>開發團隊 - </span>
           <a 
