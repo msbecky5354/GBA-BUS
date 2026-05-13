@@ -23,13 +23,11 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // 2. 搜索狀態
   const [regionFilter, setRegionFilter] = useState<string>('');
   const [pickupFilter, setPickupFilter] = useState<string>('');
   const [destFilter, setDestFilter] = useState<string>('');
   const [dropoffFilter, setDropoffFilter] = useState<string>('');
   
-  // 3. UI 狀態
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
@@ -50,7 +48,6 @@ const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 4. 讀取數據
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,7 +92,6 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 5. 選單邏輯
   const departureRegions = useMemo(() => Array.from(new Set(busData.map(i => {
     const reg = i.departure_region || '';
     if (reg.startsWith('深圳灣')) return reg.substring(0, 5);
@@ -129,7 +125,7 @@ const App: React.FC = () => {
     setFilteredData(filtered);
   }, [regionFilter, pickupFilter, destFilter, dropoffFilter, busData]);
 
-  // 6. 功能函數
+  // 功能函數
   const handleSwapRegions = () => {
     const temp = regionFilter;
     setRegionFilter(destFilter);
@@ -143,51 +139,19 @@ const App: React.FC = () => {
   };
 
   const handleReset = () => {
-    setRegionFilter('');
-    setPickupFilter('');
-    setDestFilter('');
-    setDropoffFilter('');
+    setRegionFilter(''); setPickupFilter(''); setDestFilter(''); setDropoffFilter('');
   };
 
-  // 7. 樣式與圖標
   const selectStyle: React.CSSProperties = {
-    padding: '10px 32px 10px 12px',
-    borderRadius: '8px',
-    border: '1px solid #e2e8f0',
-    width: '100%',
-    backgroundColor: 'white',
-    fontSize: '14px',
-    appearance: 'none',
+    padding: '10px 32px 10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0',
+    width: '100%', backgroundColor: 'white', fontSize: '14px', appearance: 'none',
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 8px center',
-    backgroundSize: '14px',
-    cursor: 'pointer'
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '14px', cursor: 'pointer'
   };
 
   const tagStyle: React.CSSProperties = {
-    backgroundColor: '#FFE600',
-    color: '#333',
-    fontSize: '11px',
-    fontWeight: 'bold',
-    padding: '2px 8px',
-    borderRadius: '4px',
-    marginBottom: '4px',
-    display: 'inline-block'
-  };
-
-  const swapButtonStyle: React.CSSProperties = {
-    backgroundColor: '#fff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '50%',
-    width: '44px',
-    height: '44px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    backgroundColor: '#FFE600', color: '#333', fontSize: '11px', fontWeight: 'bold',
+    padding: '2px 8px', borderRadius: '4px', marginBottom: '4px', display: 'inline-block'
   };
 
   return (
@@ -203,9 +167,8 @@ const App: React.FC = () => {
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: isMobile ? '16px' : '24px' }}>
         
         {/* 搜索卡片 */}
-        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
             {/* 地區切換 */}
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
@@ -215,7 +178,7 @@ const App: React.FC = () => {
                   {departureRegions.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <button onClick={handleSwapRegions} style={swapButtonStyle}>
+              <button onClick={handleSwapRegions} style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L21 8L16 13M21 8H3M8 21L3 16L8 11M3 16H21" /></svg>
               </button>
               <div style={{ flex: 1 }}>
@@ -226,7 +189,6 @@ const App: React.FC = () => {
                 </select>
               </div>
             </div>
-
             {/* 站點切換 */}
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
@@ -236,7 +198,7 @@ const App: React.FC = () => {
                   {availablePickups.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
-              <button onClick={handleSwapLocations} style={swapButtonStyle}>
+              <button onClick={handleSwapLocations} style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L21 8L16 13M21 8H3M8 21L3 16L8 11M3 16H21" /></svg>
               </button>
               <div style={{ flex: 1 }}>
@@ -247,18 +209,16 @@ const App: React.FC = () => {
                 </select>
               </div>
             </div>
-
-            {/* 紅色重設按鈕 */}
-            <button onClick={handleReset} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <button onClick={handleReset} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-              重設搜尋條件
+              一鍵還原所有搜尋條件
             </button>
           </div>
         </div>
 
-        {/* 班次列表 */}
+        {/* 班次列表 - 重新佈局 */}
         {loading ? <p style={{ textAlign: 'center' }}>🚌 班次同步中...</p> : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => {
               const isSpecial = /T01[AB]/.test(item.operator);
               const hasWechat = item.wechat_app !== '';
@@ -266,34 +226,36 @@ const App: React.FC = () => {
                 <div key={idx} style={{ 
                   backgroundColor: 'white', borderRadius: '16px', padding: '18px', 
                   borderTop: `6px solid ${isSpecial ? '#f97316' : '#3b82f6'}`, 
-                  display: 'flex', flexDirection: 'column', 
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                  display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
                 }}>
-                  {/* 第一排：左上 Operator, 右上 Schedule Only */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  {/* 第一排：左 Operator, 右上 Schedule */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '6px', backgroundColor: isSpecial ? '#ffedd5' : '#eff6ff', color: isSpecial ? '#9a3412' : '#1e40af' }}>{item.operator}</span>
                     <span style={{ fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>{item.schedule}</span>
                   </div>
 
-                  {/* 中間：路線與價錢 */}
+                  {/* 中間排：左 路線, 右中 Price */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', marginBottom: '4px' }}>📍 <span style={{ color: '#94a3b8', fontSize: '12px' }}>{item.departure_region} </span><strong>{item.pickup_point}</strong></div>
-                      <div style={{ fontSize: '14px' }}>🏁 <span style={{ color: '#94a3b8', fontSize: '12px' }}>目的地 </span><strong>{item.dropoff_point}</strong></div>
+                      <div style={{ fontSize: '14px', marginBottom: '6px', color: '#334155' }}>📍 <span style={{ color: '#94a3b8', fontSize: '12px' }}>{item.departure_region} </span><strong>{item.pickup_point}</strong></div>
+                      <div style={{ fontSize: '14px', color: '#334155' }}>🏁 <span style={{ color: '#94a3b8', fontSize: '12px' }}>目的地 </span><strong>{item.dropoff_point}</strong></div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ textAlign: 'right', marginLeft: '10px' }}>
                       <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</span>
                       <div style={{ fontSize: '11px', color: '#94a3b8' }}>⏳ 約 {item.estimated_duration}</div>
                     </div>
                   </div>
 
-                  {/* 最後一排：左下 Remarks, 右下 按鈕 */}
+                  {/* 最後排：左下 Remarks, 右下 按鈕 */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                     <div style={{ flex: 1, paddingRight: '10px' }}>
                       <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '2px', fontWeight: 'bold' }}>訂票備註</div>
                       <div style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                     </div>
-                    <button onClick={() => { if (hasWechat) { setSelectedWechatApp(item.wechat_app); setShowModal(true); } else { window.open(item.source_url, '_blank'); } }} style={{ backgroundColor: hasWechat ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    <button 
+                      onClick={() => { if (hasWechat) { setSelectedWechatApp(item.wechat_app); setShowModal(true); } else { window.open(item.source_url, '_blank'); } }} 
+                      style={{ backgroundColor: hasWechat ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
                       {hasWechat ? '微信小程序' : '立即購票'}
                     </button>
                   </div>
@@ -304,13 +266,13 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Modals & BackTop & Footer (保持之前邏輯) */}
+      {/* Modals & BackTop & Footer */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
             <div style={{ fontSize: '40px', marginBottom: '10px' }}>💬</div>
             <h3>微信預約</h3>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>請複製小程序名稱後到微信搜尋購票。</p>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>請複製名稱後到微信搜尋購票。</p>
             <button onClick={() => { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); }} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '10px' }}>一鍵複製「{selectedWechatApp}」</button>
             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>關閉</button>
           </div>
@@ -344,17 +306,11 @@ const App: React.FC = () => {
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '40px 20px', borderTop: '1px solid #e2e8f0', backgroundColor: 'white' }}>
         <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '15px' }}>資料來源: 各大巴士營運商 · 官方售票平台</div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px', fontSize: '13px' }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); alert('深中珠巴士通開發團隊致力於提供便捷資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('開發團隊致力於提供便捷資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>服務條款</a>
         </div>
-        <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '15px' }}>深中珠巴士通 - 攻略 © 2026</div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px', color: '#94a3b8' }}>開發團隊 - </span>
-          <a href="https://zhongshan-food-map.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', color: '#d97706', fontWeight: 'bold', padding: '4px 8px', borderRadius: '8px', backgroundColor: '#fffbeb', border: '1px solid #fef3c7', fontSize: '12px' }}>
-            <img src="/image.png" alt="Food Map" style={{ height: '18px', width: '18px', borderRadius: '4px' }} /> 中山美食地圖
-          </a>
-        </div>
+        <div style={{ color: '#94a3b8', fontSize: '12px' }}>深中珠巴士通 - 攻略 © 2026</div>
       </footer>
     </div>
   );
