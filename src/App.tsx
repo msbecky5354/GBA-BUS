@@ -57,23 +57,21 @@ const App: React.FC = () => {
           for (let i = 0; i < line.length; i++) {
             const char = line[i];
             if (char === '"' && line[i + 1] === '"') {
-              curVal += '"'; // 處理 Excel 內部的轉義引號
+              curVal += '"';
               i++;
             } else if (char === '"') {
-              inQuotes = !inQuotes; // 進入或離開引號區域
+              inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
-              v.push(curVal.trim()); // 遇到真正的分隔逗號
+              v.push(curVal.trim());
               curVal = '';
             } else {
-              curVal += char; // 正常字元
+              curVal += char;
             }
           }
-          v.push(curVal.trim()); // 推入最後一個欄位
+          v.push(curVal.trim());
 
-          // 防呆機制：如果欄位過少，代表資料有問題，直接跳過
           if (v.length < 9) return null;
 
-          // 對應 13 個欄位：0:operator, 1:departure, 2:pickup, 3:dropoff, 4:schedule, 5:FT, 6:LT, 7:duration, 8:price, 9:currency, 10:remarks, 11:url, 12:wechat
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -156,11 +154,11 @@ const App: React.FC = () => {
         {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
-              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '18px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
+              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：固定開車時間 */}
-                <div style={{ position: 'absolute', top: '18px', right: '18px', fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>
+                {/* 右上角：開車時間 (字體已改為 14px) */}
+                <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
                 
@@ -170,10 +168,10 @@ const App: React.FC = () => {
                   <div style={{ fontSize: '14px', color: '#64748b', wordBreak: 'break-word' }}>🏁 {item.dropoff_point}</div>
                 </div>
 
-                {/* 右中位置：價錢 */}
-                <div style={{ position: 'absolute', top: '55%', right: '18px', transform: 'translateY(-50%)', textAlign: 'right' }}>
+                {/* 右中位置：價錢與行車時間 (已移除 ⏳ 約) */}
+                <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>⏳ 約 {item.estimated_duration}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
                 </div>
 
                 {/* 底部：備註與按鈕 */}
