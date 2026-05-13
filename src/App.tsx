@@ -184,15 +184,15 @@ const App: React.FC = () => {
     backgroundColor: 'white',
     border: '1px solid #e2e8f0',
     borderRadius: '50%',
-    width: '44px',
-    height: '44px',
+    width: '48px', // 稍微加大按鈕尺寸
+    height: '48px',
     cursor: 'pointer',
     color: '#B8860B',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
     transition: 'all 0.2s',
     zIndex: 2
   };
@@ -235,10 +235,11 @@ const App: React.FC = () => {
                 onClick={handleSwap} 
                 style={actionButtonStyle}
                 title="切換方向"
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 12px rgba(184, 134, 11, 0.2)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)'; }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMobile ? 'rotate(90deg)' : 'none' }}>
+                {/* 加大加粗的 SVG 圖標 */}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMobile ? 'rotate(90deg)' : 'none' }}>
                   <path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"></path>
                 </svg>
               </button>
@@ -250,7 +251,7 @@ const App: React.FC = () => {
                 onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; }}
                 onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                   <path d="M3 3v5h5"></path>
                 </svg>
@@ -324,7 +325,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Modals & Footer */}
+      {/* Modals & Footer 保持不變 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
