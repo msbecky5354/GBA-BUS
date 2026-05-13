@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (加入 arrival_region)
 interface BusItem {
   operator: string;
   departure_region: string;
   pickup_point: string;
+  arrival_region: string;
   dropoff_point: string;
   schedule: string;
   estimated_duration: string;
@@ -40,7 +41,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 2. 數據抓取與專業 CSV 解析邏輯
+  // 2. 數據抓取與專業 CSV 解析邏輯 (14 欄位精確對位)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +50,6 @@ const App: React.FC = () => {
         const lines = csvText.split('\n').filter(line => line.trim() !== '');
         
         const result = lines.slice(1).map(line => {
-          // 專業 CSV 解析器：完美處理儲存格內包含逗號 (,) 和引號 (") 的情況
           const v: string[] = [];
           let curVal = '';
           let inQuotes = false;
@@ -70,20 +70,24 @@ const App: React.FC = () => {
           }
           v.push(curVal.trim());
 
-          if (v.length < 9) return null;
+          if (v.length < 10) return null;
 
+          // 最新 14 欄對位：
+          // 0:operator, 1:departure_region, 2:pickup_point, 3:arrival_region, 4:dropoff_point, 
+          // 5:schedule, 6:FT, 7:LT, 8:estimated_duration, 9:price, 10:currency, 11:remarks, 12:url, 13:wechat
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
             pickup_point: (v[2] || '').trim(),
-            dropoff_point: (v[3] || '').trim(),
-            schedule: (v[4] || '').trim(),
-            estimated_duration: (v[7] || '').trim(),
-            price: (v[8] || '').trim(),
-            currency: (v[9] || '').trim(),
-            booking_remarks: (v[10] || '').trim(),
-            source_url: (v[11] || '').trim(),
-            wechat_app: v[12] ? v[12].replace(/\r$/, '').trim() : ''
+            arrival_region: (v[3] || '').trim(),  // 新增：落車地區
+            dropoff_point: (v[4] || '').trim(),   // 向後移 1 格
+            schedule: (v[5] || '').trim(),        // 向後移 1 格
+            estimated_duration: (v[8] || '').trim(), // 向後移 1 格
+            price: (v[9] || '').trim(),           // 向後移 1 格
+            currency: (v[10] || '').trim(),       // 向後移 1 格
+            booking_remarks: (v[11] || '').trim(),// 向後移 1 格
+            source_url: (v[12] || '').trim(),     // 向後移 1 格
+            wechat_app: v[13] ? v[13].replace(/\r$/, '').trim() : '' // 向後移 1 格
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
 
@@ -100,17 +104,19 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 搜尋過濾邏輯
-  const departureRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
-  const destinationRegions = useMemo(() => Array.from(new Set(busData.map(i => i.dropoff_point.substring(0, 2)))).filter(Boolean).sort(), [busData]);
-  const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => !regionFilter || i.departure_region.startsWith(regionFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, regionFilter]);
-  const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => !destFilter || i.dropoff_point.startsWith(destFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, destFilter]);
+  // 3. 搜尋過濾邏輯 (利用新欄位優化)
+  // 而家可以直接用 departure_region 同 arrival_region，唔需要再截斷字串
+  const departureRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort(), [busData]);
+  const destinationRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region))).filter(Boolean).sort(), [busData]);
+  
+  const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => !regionFilter || i.departure_region === regionFilter).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, regionFilter]);
+  const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => !destFilter || i.arrival_region === destFilter).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, destFilter]);
 
   useEffect(() => {
     setFilteredData(busData.filter(i => (
-      (!regionFilter || i.departure_region.startsWith(regionFilter)) &&
+      (!regionFilter || i.departure_region === regionFilter) &&
       (!pickupFilter || i.pickup_point === pickupFilter) &&
-      (!destFilter || i.dropoff_point.startsWith(destFilter)) &&
+      (!destFilter || i.arrival_region === destFilter) &&
       (!dropoffFilter || i.dropoff_point === dropoffFilter)
     )));
   }, [regionFilter, pickupFilter, destFilter, dropoffFilter, busData]);
@@ -157,15 +163,19 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 */}
+                {/* 右上角：開車時間 (維持 14px 縮細版) */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
                 
-                {/* 中間：路線資訊 */}
+                {/* 中間：路線資訊 (優化對稱顯示) */}
                 <div style={{ marginBottom: '10px', paddingRight: '70px' }}>
-                  <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>📍 <strong>{item.pickup_point}</strong></div>
-                  <div style={{ fontSize: '14px', color: '#64748b', wordBreak: 'break-word' }}>🏁 {item.dropoff_point}</div>
+                  <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>
+                    📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong>
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#64748b', wordBreak: 'break-word' }}>
+                    🏁 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.arrival_region}</span> <strong>{item.dropoff_point}</strong>
+                  </div>
                 </div>
 
                 {/* 右中位置：價錢與行車時間 */}
