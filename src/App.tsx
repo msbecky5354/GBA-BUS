@@ -1,6 +1,3 @@
-無問題！收到你嘅意思，有時簡簡單單兩個字反而更加清爽。我已經幫你將「📍 出發」同「🏁 目的地」前面嘅 Emoji 拎走晒，變返最乾淨俐落嘅純文字標籤。
-請將你嘅 **src/App.tsx** 全部內容替換為以下最新版本：
-```tsx
 import React, { useState, useEffect } from 'react';
 
 // 定義資料結構，新增 wechat_app
@@ -111,7 +108,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const filtered = busData.filter(item => {
-      const matchRegion = regionFilter === '' || item.departure_region === regionFilter;
+      // ==========================================
+      // 更新：改為判斷出發地是否「以 regionFilter 開頭」
+      // ==========================================
+      const matchRegion = regionFilter === '' || item.departure_region.startsWith(regionFilter);
       const matchDest = destFilter === '' || item.dropoff_point.includes(destFilter);
       return matchRegion && matchDest;
     });
@@ -130,7 +130,10 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const regions = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean);
+  // ==========================================
+  // 更新：利用 substring(0, 2) 淨係拎出發地頭兩個字，然後去除重複
+  // ==========================================
+  const regions = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -220,6 +223,7 @@ const App: React.FC = () => {
             </span>
             <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setRegionFilter(e.target.value)}>
               <option value="">所有出發地</option>
+              {/* 出發地選單而家只會顯示頭兩個字 */}
               {regions.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
@@ -461,5 +465,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-```
