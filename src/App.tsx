@@ -108,9 +108,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const filtered = busData.filter(item => {
-      // ==========================================
-      // 更新：改為判斷出發地是否「以 regionFilter 開頭」
-      // ==========================================
       const matchRegion = regionFilter === '' || item.departure_region.startsWith(regionFilter);
       const matchDest = destFilter === '' || item.dropoff_point.includes(destFilter);
       return matchRegion && matchDest;
@@ -118,7 +115,6 @@ const App: React.FC = () => {
     setFilteredData(filtered);
   }, [regionFilter, destFilter, busData]);
 
-  // 動態複製剪貼簿功能
   const copyToClipboard = () => {
     if (selectedWechatApp) {
       navigator.clipboard.writeText(selectedWechatApp);
@@ -131,9 +127,14 @@ const App: React.FC = () => {
   };
 
   // ==========================================
-  // 更新：利用 substring(0, 2) 淨係拎出發地頭兩個字，然後去除重複
+  // 更新：智能擷取地區名稱（深圳抽4個字，其他抽2個字）
   // ==========================================
-  const regions = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean);
+  const getShortRegionName = (name: string) => {
+    if (!name) return '';
+    return name.startsWith('深圳') ? name.substring(0, 4) : name.substring(0, 2);
+  };
+  
+  const regions = Array.from(new Set(busData.map(i => getShortRegionName(i.departure_region)))).filter(Boolean);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -223,7 +224,6 @@ const App: React.FC = () => {
             </span>
             <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setRegionFilter(e.target.value)}>
               <option value="">所有出發地</option>
-              {/* 出發地選單而家只會顯示頭兩個字 */}
               {regions.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
@@ -257,7 +257,6 @@ const App: React.FC = () => {
             {filteredData.map((item, idx) => {
               const isSpecial = /T01[AB]/.test(item.operator);
               
-              // 檢查呢個班次有無微信小程序
               const hasWechatApp = item.wechat_app && item.wechat_app.length > 0;
 
               return (
