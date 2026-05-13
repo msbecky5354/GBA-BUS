@@ -136,7 +136,6 @@ const App: React.FC = () => {
           <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.4rem', fontWeight: 800, letterSpacing: '0.5px' }}>
             深中珠巴士通 
             <span style={{ fontWeight: 400, opacity: 0.9 }}> - </span>
-            {/* 在這裡將「攻略」改為黃色 (#FFE600)，並加深一點陰影讓它更突出 */}
             <span style={{ color: '#FFE600', fontWeight: 900, textShadow: '1px 1px 3px rgba(0,0,0,0.4)' }}>攻略</span>
           </h1>
         </div>
@@ -229,8 +228,40 @@ const App: React.FC = () => {
       )}
 
       
-      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0' }}>
-        深中珠巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+      {/* 頁尾更新：加入開發團隊與互推連結 */}
+      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '24px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+        <div style={{ marginBottom: '12px' }}>
+          深中珠巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+        </div>
+        
+        {/* 開發團隊區塊 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <span>開發團隊 - </span>
+          <a 
+            href="https://zhongshan-food-map.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              textDecoration: 'none', 
+              color: '#d97706', // 配合美食地圖嘅暖色調
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              borderRadius: '8px',
+              backgroundColor: '#fffbeb',
+              border: '1px solid #fef3c7'
+            }}
+          >
+            <img 
+              src="/image.png" 
+              alt="中山美食地圖 Logo" 
+              style={{ height: '20px', width: '20px', borderRadius: '4px', objectFit: 'cover' }} 
+            />
+            中山美食地圖
+          </a>
+        </div>
       </footer>
     </div>
   );
