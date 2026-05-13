@@ -26,7 +26,8 @@ const App: React.FC = () => {
   
   // Modals 狀態控制
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false); // 隱私權政策
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);     // 新增：服務條款
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -282,26 +283,54 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 隱私權政策與聲明彈窗 */}
+      {/* 隱私權政策彈窗 */}
       {showPrivacyModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', textAlign: 'left' }}>
-            <h2 style={{ marginTop: 0, color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px', fontSize: '1.25rem' }}>隱私權政策與免責聲明</h2>
+            <h2 style={{ marginTop: 0, color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px', fontSize: '1.25rem' }}>隱私權政策 (Privacy Policy)</h2>
             
             <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
               <p style={{ fontWeight: 'bold', color: '#1e293b' }}>1. Google AdSense 與 Cookie 的使用</p>
               <p>本網站使用 Google AdSense 廣告服務。第三方供應商（包括 Google）會使用 Cookie 來放送廣告，這些廣告是根據使用者過往在我們網站或其他網站的瀏覽紀錄來放送。</p>
+              <p>Google 使用廣告 Cookie 可讓 Google 及其合作夥伴根據使用者在我們網站和/或網際網路上其他網站的瀏覽紀錄，向使用者放送合適的廣告。</p>
               <p>使用者可以前往 <a href="https://myadcenter.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>Google 廣告設定</a> 停用個人化廣告。</p>
               
               <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>2. 網站分析與追蹤</p>
-              <p>本網站使用 Google Analytics 等分析工具來收集匿名流量數據，以便了解使用者行為並改善網站體驗。</p>
+              <p>本網站使用 Google Analytics 等分析工具來收集匿名流量數據，以便了解使用者行為並改善網站體驗。這些資料不包含可識別個人的敏感資訊。</p>
               
-              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>3. 內容免責聲明</p>
-              <p>本網站提供之巴士班次、路線、票價等資訊僅供參考，所有資料皆以各營運商官方最新公佈為準。本網站對因依賴本站資訊而引致的任何損失，概不負責。</p>
+              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>3. 外部連結</p>
+              <p>本網站包含前往第三方網站（如購票平台）的連結。我們對這些外部網站的隱私政策或內容概不負責。建議使用者在離開本網站時，先閱讀該等網站的隱私政策。</p>
             </div>
 
             <button 
               onClick={() => setShowPrivacyModal(false)} 
+              style={{ width: '100%', backgroundColor: '#B8860B', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', marginTop: '20px', cursor: 'pointer' }}
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 服務條款彈窗 */}
+      {showTermsModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', textAlign: 'left' }}>
+            <h2 style={{ marginTop: 0, color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px', fontSize: '1.25rem' }}>服務條款與免責聲明 (Terms of Service)</h2>
+            
+            <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
+              <p style={{ fontWeight: 'bold', color: '#1e293b' }}>1. 資訊準確性</p>
+              <p>「深中珠巴士通 - 攻略」是一個提供巴士路線及班次整合的資訊平台。雖然我們致力確保資料的準確性，但巴士班次、路線、票價及時間表可能會因應營運商的決定、天氣或交通狀況而隨時更改。所有資料皆以各營運商官方最新公佈為準。</p>
+              
+              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>2. 購票及交易</p>
+              <p>本網站並不直接提供售票服務。點擊「立即購票」後，使用者將被跳轉至第三方的官方網站或微信小程式。所有交易及售後服務（如退票、改簽）均由該第三方平台負責，本網站概不介入亦不承擔任何責任。</p>
+              
+              <p style={{ fontWeight: 'bold', color: '#1e293b', marginTop: '16px' }}>3. 責任限制</p>
+              <p>使用者因依賴本網站資訊而引致的任何直接、間接損失或行程延誤，本開發團隊概不負責。使用本網站即代表閣下同意自行承擔相關風險。</p>
+            </div>
+
+            <button 
+              onClick={() => setShowTermsModal(false)} 
               style={{ width: '100%', backgroundColor: '#B8860B', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', marginTop: '20px', cursor: 'pointer' }}
             >
               我明白了，關閉
@@ -339,10 +368,6 @@ const App: React.FC = () => {
         </button>
       )}
 
-      {/* ========================================
-        更新：全新專業版頁尾設計
-        ======================================== 
-      */}
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '32px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
         
         {/* 資料來源 */}
@@ -358,7 +383,7 @@ const App: React.FC = () => {
           <span style={{ color: '#cbd5e1' }}>|</span>
           <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
           <span style={{ color: '#cbd5e1' }}>|</span>
-          <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>服務條款</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>服務條款</a>
         </div>
 
         <div style={{ marginBottom: '16px' }}>
