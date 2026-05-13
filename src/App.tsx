@@ -147,7 +147,7 @@ const App: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img 
             src="/image_48c638.jpg" 
-            alt="深中珠巴士通 Logo" 
+            alt="深中珠巴士通 - 攻略 Logo" 
             style={{ 
               height: isMobile ? '36px' : '44px', 
               borderRadius: '8px',
@@ -280,16 +280,12 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* ========================================
-          更新：電腦版浮標會緊貼卡片邊緣
-          ======================================== */}
       {showBackTop && (
         <button 
           onClick={scrollToTop}
           style={{
             position: 'fixed',
             bottom: '40px',
-            // 神奇的計算：如果是手機，固定右邊 20px；電腦版的話，計算畫面一半減去 660px 讓它緊貼卡片。
             right: isMobile ? '20px' : 'max(20px, calc(50vw - 660px))', 
             backgroundColor: '#B8860B', 
             color: 'white',
@@ -304,7 +300,7 @@ const App: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'right 0.3s ease' // 讓放大縮小視窗時按鈕移動更順滑
+            transition: 'right 0.3s ease'
           }}
           aria-label="返回頂部"
         >
@@ -314,7 +310,7 @@ const App: React.FC = () => {
 
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '24px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
         <div style={{ marginBottom: '12px' }}>
-          深中珠巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+          深中珠巴士通 - 攻略 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
