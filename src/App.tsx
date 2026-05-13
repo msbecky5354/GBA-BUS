@@ -111,7 +111,7 @@ const App: React.FC = () => {
   return (
     <div style={containerStyle}>
       <header style={{ 
-        backgroundColor: 'linear-gradient(135deg, #d4af37 0%, #aa771c 100%)', 
+        backgroundColor: '#B8860B', 
         color: 'white', 
         padding: isMobile ? '12px 16px' : '16px 32px', 
         boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', 
