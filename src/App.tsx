@@ -37,7 +37,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 新增：監聽滑動事件以顯示/隱藏返回頂部按鈕
+  // 監聽滑動事件以顯示/隱藏返回頂部按鈕
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
@@ -103,7 +103,7 @@ const App: React.FC = () => {
     alert('已複製「深巴出行」，請前往微信搜尋！');
   };
 
-  // 新增：返回頂部功能
+  // 返回頂部功能
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -181,12 +181,8 @@ const App: React.FC = () => {
 
       <main style={mainStyle}>
         
-        {/* ========================================
-            更新：Filter 區塊加入左上角黃色標籤
-            ======================================== */}
         <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
           
-          {/* 出發 區塊 */}
           <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
             <span style={{ 
               backgroundColor: '#FFE600', 
@@ -206,7 +202,6 @@ const App: React.FC = () => {
             </select>
           </div>
 
-          {/* 目的地 區塊 */}
           <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
             <span style={{ 
               backgroundColor: '#FFE600', 
@@ -286,28 +281,30 @@ const App: React.FC = () => {
       )}
 
       {/* ========================================
-          新增：返回頂部浮標 (右下角)
+          更新：電腦版浮標會緊貼卡片邊緣
           ======================================== */}
       {showBackTop && (
         <button 
           onClick={scrollToTop}
           style={{
             position: 'fixed',
-            bottom: '30px',
-            right: '20px',
-            backgroundColor: '#B8860B', // 配合標題嘅金色
+            bottom: '40px',
+            // 神奇的計算：如果是手機，固定右邊 20px；電腦版的話，計算畫面一半減去 660px 讓它緊貼卡片。
+            right: isMobile ? '20px' : 'max(20px, calc(50vw - 660px))', 
+            backgroundColor: '#B8860B', 
             color: 'white',
             border: 'none',
             borderRadius: '50%',
-            width: '45px',
-            height: '45px',
-            fontSize: '20px',
+            width: '50px',
+            height: '50px',
+            fontSize: '22px',
             cursor: 'pointer',
             boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
             zIndex: 90,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'right 0.3s ease' // 讓放大縮小視窗時按鈕移動更順滑
           }}
           aria-label="返回頂部"
         >
