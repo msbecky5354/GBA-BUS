@@ -26,8 +26,8 @@ const App: React.FC = () => {
   
   // Modals 狀態控制
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false); // 隱私權政策
-  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);     // 新增：服務條款
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -59,7 +59,7 @@ const App: React.FC = () => {
         const response = await fetch(CSV_URL);
         const csvText = await response.text();
         const lines = csvText.split('\n');
-        const result = lines.slice(1).map(line => {
+        let result = lines.slice(1).map(line => {
           const values = line.split(',');
           return {
             operator: values[0] || '',
@@ -74,6 +74,21 @@ const App: React.FC = () => {
             source_url: values[9] || ''
           };
         }).filter(item => item.operator.trim() !== '');
+
+        // ==========================================
+        // 新增：根據 departure_region 同 pickup_point 排序
+        // ==========================================
+        result.sort((a, b) => {
+          // 先根據「出發地區」排序 (支援中文字排序)
+          const regionCompare = a.departure_region.localeCompare(b.departure_region, 'zh-HK');
+          
+          if (regionCompare !== 0) {
+            return regionCompare; // 如果地區唔同，就按地區排
+          }
+          
+          // 如果「出發地區」一樣，就根據「上車點」排序
+          return a.pickup_point.localeCompare(b.pickup_point, 'zh-HK');
+        });
         
         setBusData(result);
         setFilteredData(result);
