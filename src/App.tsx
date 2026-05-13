@@ -24,7 +24,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // 搜索狀態 (升級為 3 級連動)
+  // 搜索狀態 (3 級連動)
   const [depRegionFilter, setDepRegionFilter] = useState('');
   const [depTownFilter, setDepTownFilter] = useState('');
   const [pickupFilter, setPickupFilter] = useState('');
@@ -106,19 +106,15 @@ const App: React.FC = () => {
   }, []);
 
   // 3. 三級搜尋過濾邏輯
-  // 第一級：地區 (擷取頭兩個字)
   const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
 
-  // 第二級：城鎮 (根據第一級地區過濾)
   const depTowns = useMemo(() => Array.from(new Set(busData.filter(i => !depRegionFilter || i.departure_region.startsWith(depRegionFilter)).map(i => i.departure_region))).filter(Boolean).sort(), [busData, depRegionFilter]);
   const arrTowns = useMemo(() => Array.from(new Set(busData.filter(i => !arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)).map(i => i.arrival_region))).filter(Boolean).sort(), [busData, arrRegionFilter]);
   
-  // 第三級：站點 (根據第一、第二級過濾)
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region.startsWith(depRegionFilter)) && (!depTownFilter || i.departure_region === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)) && (!arrTownFilter || i.arrival_region === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
 
-  // 更新顯示資料
   useEffect(() => {
     setFilteredData(busData.filter(i => (
       (!depRegionFilter || i.departure_region.startsWith(depRegionFilter)) &&
@@ -153,11 +149,21 @@ const App: React.FC = () => {
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   
-  const SwapIcon = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-    </svg>
-  );
+  // 獨立按鈕樣式 (確保置中與大小)
+  const swapBtnStyle: React.CSSProperties = {
+    width: '42px', 
+    height: '42px', 
+    borderRadius: '50%', 
+    border: '1px solid #e2e8f0', 
+    backgroundColor: 'white', 
+    cursor: 'pointer', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    flexShrink: 0, 
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+    color: '#B8860B'
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px', fontFamily: 'sans-serif' }}>
@@ -174,21 +180,33 @@ const App: React.FC = () => {
             {/* 第一級：地區 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有地區</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <button onClick={handleSwapRegions} style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><SwapIcon /></button>
+              <button onClick={handleSwapRegions} style={swapBtnStyle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                </svg>
+              </button>
               <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有地區</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
             </div>
 
             {/* 第二級：城鎮 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有城鎮</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <button onClick={handleSwapTowns} style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><SwapIcon /></button>
+              <button onClick={handleSwapTowns} style={swapBtnStyle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                </svg>
+              </button>
               <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有城鎮</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
             </div>
 
             {/* 第三級：站點 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">所有站點</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-              <button onClick={handleSwapPoints} style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><SwapIcon /></button>
+              <button onClick={handleSwapPoints} style={swapBtnStyle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                </svg>
+              </button>
               <div style={{ flex: 1 }}><span style={labelStyle}>落車站點</span><select style={selectStyle} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}><option value="">所有站點</option>{availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
             </div>
 
@@ -203,7 +221,7 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 */}
+                {/* 右上角：開車時間 (14px 適中) */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
@@ -218,7 +236,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 */}
+                {/* 右中位置：價錢與行車時間 (已移除 ⏳) */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
