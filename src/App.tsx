@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 資料結構定義
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -33,7 +33,7 @@ const App: React.FC = () => {
   
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // 2. 讀取數據 (根據 13 欄位精確對位)
+  // 2. 數據抓取與精確對位 (13 欄位邏輯)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,10 +43,7 @@ const App: React.FC = () => {
         
         const result = lines.slice(1).map(line => {
           const v = line.split(',');
-          // 精確對位邏輯：
-          // 0:operator, 1:departure, 2:pickup, 3:dropoff, 4:schedule, 
-          // 5:FT (skip), 6:LT (skip), 7:estimated_duration, 8:price, 
-          // 9:currency, 10:booking_remarks, 11:source_url, 12:wechat_app
+          // 對應：0:operator, 1:departure, 2:pickup, 3:dropoff, 4:schedule, 5:FT, 6:LT, 7:duration, 8:price, 9:currency, 10:remarks, 11:url, 12:wechat
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -73,7 +70,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 搜尋連動邏輯
+  // 3. 搜尋過濾邏輯
   const departureRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const destinationRegions = useMemo(() => Array.from(new Set(busData.map(i => i.dropoff_point.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => !regionFilter || i.departure_region.startsWith(regionFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, regionFilter]);
@@ -90,67 +87,75 @@ const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px', fontFamily: 'sans-serif' }}>
-      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>深中珠巴士通 攻略</h1>
+      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 }}>
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
         <div style={{ fontSize: '11px' }}>最後更新: {lastUpdated}</div>
       </header>
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋卡片 */}
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
+        {/* 搜尋卡片區 */}
+        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}><label style={{ fontSize: '11px', fontWeight: 'bold', backgroundColor: '#FFE600', padding: '2px 6px', borderRadius: '4px' }}>出發地區</label><select style={{ width: '100%', padding: '8px', marginTop: '5px' }} value={regionFilter} onChange={e => setRegionFilter(e.target.value)}><option value="">所有</option>{departureRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <button onClick={() => {const t=regionFilter; setRegionFilter(destFilter); setDestFilter(t);}} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #ddd' }}>⇄</button>
-              <div style={{ flex: 1 }}><label style={{ fontSize: '11px', fontWeight: 'bold', backgroundColor: '#FFE600', padding: '2px 6px', borderRadius: '4px' }}>目的地區</label><select style={{ width: '100%', padding: '8px', marginTop: '5px' }} value={destFilter} onChange={e => setDestFilter(e.target.value)}><option value="">所有</option>{destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>出發地區</span><select style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px' }} value={regionFilter} onChange={e => setRegionFilter(e.target.value)}><option value="">所有</option>{departureRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+              <button onClick={() => {const t=regionFilter; setRegionFilter(destFilter); setDestFilter(t);}} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', fontSize: '20px', color: '#B8860B' }}>⇄</button>
+              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>目的地區</span><select style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px' }} value={destFilter} onChange={e => setDestFilter(e.target.value)}><option value="">所有</option>{destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
             </div>
-            <button onClick={() => {setRegionFilter(''); setPickupFilter(''); setDestFilter(''); setDropoffFilter('');}} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold' }}>一鍵還原所有條件</button>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>上車站點</span><select style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px' }} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">不限</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+              <button onClick={() => {const t=pickupFilter; setPickupFilter(dropoffFilter); setDropoffFilter(t);}} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', fontSize: '20px', color: '#B8860B' }}>⇄</button>
+              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>落車站點</span><select style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px' }} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}><option value="">不限</option>{availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+            </div>
+            <button onClick={() => {setRegionFilter(''); setPickupFilter(''); setDestFilter(''); setDropoffFilter('');}} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>一鍵還原所有搜尋條件</button>
           </div>
         </div>
 
-        {/* 列表渲染 */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
-          {filteredData.map((item, idx) => (
-            <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '18px', borderTop: '6px solid #3b82f6', position: 'relative', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', minHeight: '160px' }}>
-              <span style={{ fontSize: '10px', color: '#64748b', border: '1px solid #e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>{item.operator}</span>
-              
-              {/* 右上角：開車時間 (values[4]) */}
-              <div style={{ position: 'absolute', top: '18px', right: '18px', fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>
-                {item.schedule}
-              </div>
+        {/* 班次列表渲染 */}
+        {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+            {filteredData.map((item, idx) => (
+              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '18px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
+                <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', alignSelf: 'flex-start', marginBottom: '10px' }}>{item.operator}</span>
+                
+                {/* 右上角：固定開車時間 */}
+                <div style={{ position: 'absolute', top: '18px', right: '18px', fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>
+                  {item.schedule}
+                </div>
+                
+                {/* 中間：路線資訊 */}
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ fontSize: '14px', marginBottom: '4px', color: '#334155' }}>📍 <strong>{item.pickup_point}</strong></div>
+                  <div style={{ fontSize: '14px', color: '#64748b' }}>🏁 {item.dropoff_point}</div>
+                </div>
 
-              {/* 中間：起點終點 */}
-              <div style={{ marginTop: '12px' }}>
-                <div style={{ fontSize: '14px', marginBottom: '4px' }}>📍 <strong>{item.pickup_point}</strong></div>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>🏁 {item.dropoff_point}</div>
-              </div>
+                {/* 右中位置：價錢 */}
+                <div style={{ position: 'absolute', top: '50%', right: '18px', transform: 'translateY(-50%)', textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8' }}>⏳ 約 {item.estimated_duration}</div>
+                </div>
 
-              {/* 右中：價錢 (values[8] + values[9]) */}
-              <div style={{ position: 'absolute', top: '55%', right: '18px', textAlign: 'right' }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
-                <div style={{ fontSize: '11px', color: '#94a3b8' }}>⏳ {item.estimated_duration}</div>
+                {/* 底部：備註與按鈕 */}
+                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '10px' }}>
+                  <div style={{ flex: 1, paddingRight: '10px' }}>
+                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>訂票備註</div>
+                    <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
+                  </div>
+                  <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>{item.wechat_app ? '微信購票' : '立即購票'}</button>
+                </div>
               </div>
-
-              {/* 底部：左備註，右按鈕 */}
-              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #eee', paddingTop: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#94a3b8', maxWidth: '60%' }}>{item.booking_remarks}</div>
-                <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold' }}>
-                  {item.wechat_app ? '微信購票' : '立即購票'}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      {/* 微信 Modal */}
+      {/* 微信購票彈窗 */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '20px', textAlign: 'center', maxWidth: '300px' }}>
-            <p>請複製小程序名稱：</p>
-            <h3 style={{ color: '#22c55e' }}>{selectedWechatApp}</h3>
-            <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', padding: '12px', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', marginTop: '10px' }}>一鍵複製</button>
-            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', marginTop: '15px', color: '#999' }}>關閉</button>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
+          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#64748b' }}>請複製名稱後到微信搜尋：</p>
+            <h3 style={{ margin: '15px 0', color: '#22c55e' }}>{selectedWechatApp}</h3>
+            <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '10px' }}>一鍵複製</button>
+            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13px' }}>暫時關閉</button>
           </div>
         </div>
       )}
