@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-const BusTable = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+// 定義資料結構類型
+interface BusData {
+  [key: string]: any;
+}
+
+const BusTable: React.FC = () => {
+  const [data, setData] = useState<BusData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   
-  // Your Google Apps Script API
   const API_URL = 'https://script.google.com/macros/s/AKfycbxZbsC7Jz5hZ29WmG3lUHTPO4dhRX-vZxHF1Bz7TAf_jdwgOoLqW8Yhtmy95ie7pgzDDg/exec';
 
   useEffect(() => {
     fetch(API_URL)
       .then(res => res.json())
-      .then(json => {
+      .then((json: BusData[]) => {
         setData(json);
         setLoading(false);
       })
@@ -20,8 +24,8 @@ const BusTable = () => {
       });
   }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '40px', fontSize: '1.2rem' }}>🚌 正在同步深中巴士數據...</div>;
-  if (!data || data.length === 0) return <div style={{ textAlign: 'center', padding: '40px' }}>無法載入資料。</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px' }}>🚌 正在同步深中巴士數據...</div>;
+  if (!data || data.length === 0) return <div style={{ textAlign: 'center', padding: '40px' }}>目前沒有資料或 API 連線錯誤。</div>;
 
   const headers = Object.keys(data[0]);
 
@@ -31,9 +35,7 @@ const BusTable = () => {
         <thead>
           <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
             {headers.map(h => (
-              <th key={h} style={{ padding: '12px 15px', textAlign: 'left', fontWeight: 'bold', color: '#333' }}>
-                {h}
-              </th>
+              <th key={h} style={{ padding: '12px 15px', textAlign: 'left', color: '#333' }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -41,9 +43,7 @@ const BusTable = () => {
           {data.map((row, i) => (
             <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
               {headers.map(h => (
-                <td key={h} style={{ padding: '12px 15px', color: '#555' }}>
-                  {row[h]}
-                </td>
+                <td key={h} style={{ padding: '12px 15px' }}>{row[h]}</td>
               ))}
             </tr>
           ))}
