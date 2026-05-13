@@ -89,7 +89,6 @@ const App: React.FC = () => {
 
   const regions = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean);
 
-  // 樣式設定
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#f8fafc',
@@ -123,31 +122,37 @@ const App: React.FC = () => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <div>
-          {/* 將原本的文字替換為圖片 Logo */}
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img 
             src="/image_48c638.jpg" 
-            alt="深中巴士通" 
+            alt="深中珠巴士通 Logo" 
             style={{ 
-              height: isMobile ? '40px' : '50px', 
+              height: isMobile ? '36px' : '44px', 
               borderRadius: '8px',
-              display: 'block',
-              backgroundColor: 'white' // 讓藍色底的圖示更突出
+              backgroundColor: 'white' 
             }} 
           />
+          <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.4rem', fontWeight: 800, letterSpacing: '0.5px' }}>
+            深中珠巴士通 <span style={{ fontWeight: 400, opacity: 0.9 }}>- 攻略</span>
+          </h1>
         </div>
+        
         
         {lastUpdated && (
           <div style={{ 
             fontSize: isMobile ? '11px' : '13px', 
             backgroundColor: 'rgba(255,255,255,0.15)', 
-            padding: '6px 12px', 
+            padding: '6px 10px', 
             borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '4px',
+            whiteSpace: 'nowrap'
           }}>
-            <span style={{ fontSize: '14px' }}>⏱️</span> {lastUpdated}
+            <span style={{ fontSize: '14px' }}>⏱️</span> 
+            {!isMobile && "最後更新: "}
+            {lastUpdated.replace('最後更新: ', '')}
           </div>
         )}
       </header>
@@ -162,16 +167,10 @@ const App: React.FC = () => {
             <option value="">目的地搜尋</option>
             <option value="中山">中山</option>
             <option value="深圳">深圳</option>
+            <option value="珠海">珠海</option>
             <option value="香港">香港</option>
           </select>
         </div>
-
-        {/* 暫時隱藏廣告位 */}
-        {/*
-        <div style={{ backgroundColor: '#f1f5f9', height: '100px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px', marginBottom: '32px', border: '2px dashed #cbd5e1' }}>
-          Google AdSense 廣告區塊
-        </div>
-        */}
 
         {loading ? <p style={{ textAlign: 'center', color: '#64748b' }}>🚌 正在即時同步班次...</p> : (
           <div style={gridStyle}>
@@ -227,8 +226,9 @@ const App: React.FC = () => {
         </div>
       )}
 
+      
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0' }}>
-        深中巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
+        深中珠巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
       </footer>
     </div>
   );
