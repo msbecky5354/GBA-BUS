@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [regionFilter, setRegionFilter] = useState<string>('');
   const [destFilter, setDestFilter] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -54,9 +55,17 @@ const App: React.FC = () => {
             source_url: values[9] || ''
           };
         }).filter(item => item.operator.trim() !== '');
+        
         setBusData(result);
         setFilteredData(result);
         setLoading(false);
+        
+        // 設定最後更新時間為當下抓取成功的時間
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+        const dateString = now.toLocaleDateString('zh-HK', { month: 'short', day: 'numeric' });
+        setLastUpdated(`最後更新: ${dateString} ${timeString}`);
+
       } catch (error) {
         console.error('Fetch error:', error);
         setLoading(false);
@@ -103,13 +112,40 @@ const App: React.FC = () => {
 
   return (
     <div style={containerStyle}>
-      <header style={{ backgroundColor: '#1e40af', color: 'white', padding: isMobile ? '16px' : '24px 16px', textAlign: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 10 }}>
-        <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.75rem', fontWeight: 800 }}>深中巴士通</h1>
-        {!isMobile && <p style={{ margin: '8px 0 0', opacity: 0.9 }}>往返中山巴士資訊一站式查詢</p>}
+      <header style={{ 
+        backgroundColor: '#1e40af', 
+        color: 'white', 
+        padding: isMobile ? '16px' : '20px 32px', 
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 10,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 800 }}>深中巴士通</h1>
+        </div>
+        
+        {/* 最後更新時間顯示 */}
+        {lastUpdated && (
+          <div style={{ 
+            fontSize: isMobile ? '11px' : '13px', 
+            backgroundColor: 'rgba(255,255,255,0.15)', 
+            padding: '4px 10px', 
+            borderRadius: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <span style={{ fontSize: '14px' }}>⏱️</span> {lastUpdated}
+          </div>
+        )}
       </header>
 
       <main style={mainStyle}>
-        {/* 篩選器 - 電腦版更寬 */}
+        {/* 篩選器 */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
           <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setRegionFilter(e.target.value)}>
             <option value="">所有出發地</option>
