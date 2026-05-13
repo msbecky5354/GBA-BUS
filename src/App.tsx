@@ -27,11 +27,27 @@ const App: React.FC = () => {
   
   // 偵測是否為移動裝置
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
+  // 新增：偵測是否顯示返回頂部按鈕
+  const [showBackTop, setShowBackTop] = useState<boolean>(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // 新增：監聽滑動事件以顯示/隱藏返回頂部按鈕
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackTop(true);
+      } else {
+        setShowBackTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -85,6 +101,11 @@ const App: React.FC = () => {
   const copyToClipboard = () => {
     navigator.clipboard.writeText('深巴出行');
     alert('已複製「深巴出行」，請前往微信搜尋！');
+  };
+
+  // 新增：返回頂部功能
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const regions = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean);
@@ -159,18 +180,55 @@ const App: React.FC = () => {
       </header>
 
       <main style={mainStyle}>
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
-          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setRegionFilter(e.target.value)}>
-            <option value="">所有出發地</option>
-            {regions.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
-          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', width: isMobile ? '100%' : '200px', backgroundColor: 'white' }} onChange={(e) => setDestFilter(e.target.value)}>
-            <option value="">目的地搜尋</option>
-            <option value="中山">中山</option>
-            <option value="深圳">深圳</option>
-            <option value="珠海">珠海</option>
-            <option value="香港">香港</option>
-          </select>
+        
+        {/* ========================================
+            更新：Filter 區塊加入左上角黃色標籤
+            ======================================== */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center' }}>
+          
+          {/* 出發 區塊 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
+            <span style={{ 
+              backgroundColor: '#FFE600', 
+              color: '#333', 
+              fontSize: '12px', 
+              fontWeight: 'bold', 
+              padding: '4px 10px', 
+              borderRadius: '6px 6px 0 0', 
+              alignSelf: 'flex-start',
+              boxShadow: '0 -2px 4px rgba(0,0,0,0.05)'
+            }}>
+              📍 出發
+            </span>
+            <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setRegionFilter(e.target.value)}>
+              <option value="">所有出發地</option>
+              {regions.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+
+          {/* 目的地 區塊 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? '100%' : '220px' }}>
+            <span style={{ 
+              backgroundColor: '#FFE600', 
+              color: '#333', 
+              fontSize: '12px', 
+              fontWeight: 'bold', 
+              padding: '4px 10px', 
+              borderRadius: '6px 6px 0 0', 
+              alignSelf: 'flex-start',
+              boxShadow: '0 -2px 4px rgba(0,0,0,0.05)'
+            }}>
+              🏁 目的地
+            </span>
+            <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setDestFilter(e.target.value)}>
+              <option value="">所有目的地</option>
+              <option value="中山">中山</option>
+              <option value="深圳">深圳</option>
+              <option value="珠海">珠海</option>
+              <option value="香港">香港</option>
+            </select>
+          </div>
+          
         </div>
 
         {loading ? <p style={{ textAlign: 'center', color: '#64748b' }}>🚌 正在即時同步班次...</p> : (
@@ -227,14 +285,41 @@ const App: React.FC = () => {
         </div>
       )}
 
-      
-      {/* 頁尾更新：加入開發團隊與互推連結 */}
+      {/* ========================================
+          新增：返回頂部浮標 (右下角)
+          ======================================== */}
+      {showBackTop && (
+        <button 
+          onClick={scrollToTop}
+          style={{
+            position: 'fixed',
+            bottom: '30px',
+            right: '20px',
+            backgroundColor: '#B8860B', // 配合標題嘅金色
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '45px',
+            height: '45px',
+            fontSize: '20px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+            zIndex: 90,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          aria-label="返回頂部"
+        >
+          ⬆️
+        </button>
+      )}
+
       <footer style={{ textAlign: 'center', marginTop: '40px', padding: '24px 20px', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
         <div style={{ marginBottom: '12px' }}>
           深中珠巴士通 © 2026 | <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
         </div>
         
-        {/* 開發團隊區塊 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
           <span>開發團隊 - </span>
           <a 
@@ -246,7 +331,7 @@ const App: React.FC = () => {
               alignItems: 'center', 
               gap: '6px', 
               textDecoration: 'none', 
-              color: '#d97706', // 配合美食地圖嘅暖色調
+              color: '#d97706',
               fontWeight: 'bold',
               padding: '4px 8px',
               borderRadius: '8px',
