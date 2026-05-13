@@ -23,32 +23,18 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
+  // 搜索狀態
   const [regionFilter, setRegionFilter] = useState<string>('');
   const [pickupFilter, setPickupFilter] = useState<string>('');
   const [destFilter, setDestFilter] = useState<string>('');
   const [dropoffFilter, setDropoffFilter] = useState<string>('');
   
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
-  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   const [selectedWechatApp, setSelectedWechatApp] = useState<string>('');
   
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [showBackTop, setShowBackTop] = useState<boolean>(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => setShowBackTop(window.scrollY > 300);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // 4. 讀取數據 (根據 13 欄位精確對照)
+  // 讀取數據 (根據 13 欄位精確對位)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,148 +43,124 @@ const App: React.FC = () => {
         const lines = csvText.split('\n');
         
         const result = lines.slice(1).map(line => {
-          const values = line.split(',');
-          // 欄位映射：
-          // 0:operator, 1:departure, 2:pickup, 3:dropoff, 4:schedule, 5:FT, 6:LT, 
-          // 7:duration, 8:price, 9:currency, 10:remarks, 11:url, 12:wechat
+          const v = line.split(',');
+          // 對應：0:operator, 1:departure, 2:pickup, 3:dropoff, 4:schedule, 5:FT, 6:LT, 7:duration, 8:price, 9:currency, 10:remarks, 11:url, 12:wechat
           return {
-            operator: (values[0] || '').trim(),
-            departure_region: (values[1] || '').trim(),
-            pickup_point: (values[2] || '').trim(),
-            dropoff_point: (values[3] || '').trim(),
-            schedule: (values[4] || '').trim(),
-            estimated_duration: (values[7] || '').trim(),
-            price: (values[8] || '').trim(),
-            currency: (values[9] || '').trim(),
-            booking_remarks: (values[10] || '').trim(),
-            source_url: (values[11] || '').trim(),
-            wechat_app: (values[12] || '').replace(/\r$/, '').trim()
+            operator: (v[0] || '').trim(),
+            departure_region: (v[1] || '').trim(),
+            pickup_point: (v[2] || '').trim(),
+            dropoff_point: (v[3] || '').trim(),
+            schedule: (v[4] || '').trim(),
+            estimated_duration: (v[7] || '').trim(),
+            price: (v[8] || '').trim(),
+            currency: (v[9] || '').trim(),
+            booking_remarks: (v[10] || '').trim(),
+            source_url: (v[11] || '').trim(),
+            wechat_app: (v[12] || '').replace(/\r$/, '').trim()
           };
         }).filter(item => item.operator !== '');
 
-        result.sort((a, b) => {
-          const regComp = a.departure_region.localeCompare(b.departure_region, 'zh-HK');
-          return regComp !== 0 ? regComp : a.pickup_point.localeCompare(b.pickup_point, 'zh-HK');
-        });
-        
+        result.sort((a, b) => a.departure_region.localeCompare(b.departure_region, 'zh-HK'));
         setBusData(result);
         setFilteredData(result);
         setLoading(false);
-        const now = new Date();
-        setLastUpdated(`${now.toLocaleDateString('zh-HK')} ${now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' })}`);
+        setLastUpdated(new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' }));
       } catch (error) {
-        console.error('Fetch error:', error);
+        console.error(error);
         setLoading(false);
       }
     };
     fetchData();
   }, []);
 
-  // 計算選單內容
+  // 過濾邏輯
+  useEffect(() => {
+    setFilteredData(busData.filter(i => (
+      (!regionFilter || i.departure_region.startsWith(regionFilter)) &&
+      (!pickupFilter || i.pickup_point === pickupFilter) &&
+      (!destFilter || i.dropoff_point.startsWith(destFilter)) &&
+      (!dropoffFilter || i.dropoff_point === dropoffFilter)
+    )));
+  }, [regionFilter, pickupFilter, destFilter, dropoffFilter, busData]);
+
+  // 選單內容
   const departureRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.startsWith('深圳灣') ? i.departure_region.substring(0, 5) : i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const destinationRegions = useMemo(() => Array.from(new Set(busData.map(i => i.dropoff_point.startsWith('深圳灣') ? i.dropoff_point.substring(0, 5) : i.dropoff_point.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => !regionFilter || i.departure_region.startsWith(regionFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, regionFilter]);
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => !destFilter || i.dropoff_point.startsWith(destFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, destFilter]);
 
-  // 過濾邏輯
-  useEffect(() => {
-    setFilteredData(busData.filter(item => (
-      (!regionFilter || item.departure_region.startsWith(regionFilter)) &&
-      (!pickupFilter || item.pickup_point === pickupFilter) &&
-      (!destFilter || item.dropoff_point.startsWith(destFilter)) &&
-      (!dropoffFilter || item.dropoff_point === dropoffFilter)
-    )));
-  }, [regionFilter, pickupFilter, destFilter, dropoffFilter, busData]);
-
-  const handleSwapRegions = () => { const t = regionFilter; setRegionFilter(destFilter); setDestFilter(t); };
-  const handleSwapLocations = () => { const t = pickupFilter; setPickupFilter(dropoffFilter); setDropoffFilter(t); };
-  const handleReset = () => { setRegionFilter(''); setPickupFilter(''); setDestFilter(''); setDropoffFilter(''); };
-
-  const selectStyle: React.CSSProperties = { padding: '10px 32px 10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', fontSize: '14px', appearance: 'none', backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '14px', cursor: 'pointer' };
+  const selectStyle: React.CSSProperties = { padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', fontSize: '14px', cursor: 'pointer' };
+  const tagStyle = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' as const, marginBottom: '4px', display: 'inline-block' };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'sans-serif', paddingBottom: '60px' }}>
-      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: isMobile ? '12px 16px' : '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/image_48c638.jpg" alt="Logo" style={{ height: isMobile ? '36px' : '44px', borderRadius: '8px', backgroundColor: 'white' }} />
-          <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 800 }}>深中珠巴士通 - 攻略</h1>
-        </div>
-        <div style={{ fontSize: '11px', opacity: 0.9 }}>⏱️ {lastUpdated}</div>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px', fontFamily: 'sans-serif' }}>
+      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 }}>
+        <h1 style={{ margin: 0, fontSize: '1.1rem' }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
+        <div style={{ fontSize: '11px' }}>⏱️ {lastUpdated}</div>
       </header>
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: isMobile ? '16px' : '24px' }}>
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>出發地區</span><select style={selectStyle} value={regionFilter} onChange={(e) => {setRegionFilter(e.target.value); setPickupFilter('');}}><option value="">所有出發地</option>{departureRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-              <button onClick={handleSwapRegions} style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: '44px', height: '44px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L21 8L16 13M21 8H3M8 21L3 16L8 11M3 16H21" /></svg></button>
-              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>目的地區</span><select style={selectStyle} value={destFilter} onChange={(e) => {setDestFilter(e.target.value); setDropoffFilter('');}}><option value="">所有目的地</option>{destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}><span style={tagStyle}>出發地區</span><select style={selectStyle} value={regionFilter} onChange={e => {setRegionFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{departureRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+              <button onClick={() => {const t=regionFilter; setRegionFilter(destFilter); setDestFilter(t);}} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer' }}>⇄</button>
+              <div style={{ flex: 1 }}><span style={tagStyle}>目的地區</span><select style={selectStyle} value={destFilter} onChange={e => {setDestFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>出發站點</span><select style={selectStyle} value={pickupFilter} onChange={(e) => setPickupFilter(e.target.value)}><option value="">不限地點</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-              <button onClick={handleSwapLocations} style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: '44px', height: '44px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L21 8L16 13M21 8H3M8 21L3 16L8 11M3 16H21" /></svg></button>
-              <div style={{ flex: 1 }}><span style={{ backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>落車站點</span><select style={selectStyle} value={dropoffFilter} onChange={(e) => setDropoffFilter(e.target.value)}><option value="">不限地點</option>{availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}><span style={tagStyle}>上車站點</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">不限</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+              <button onClick={() => {const t=pickupFilter; setPickupFilter(dropoffFilter); setDropoffFilter(t);}} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer' }}>⇄</button>
+              <div style={{ flex: 1 }}><span style={tagStyle}>落車站點</span><select style={selectStyle} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}><option value="">不限</option>{availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
             </div>
-            <button onClick={handleReset} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.3)' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>一鍵還原所有搜尋條件</button>
+            <button onClick={() => {setRegionFilter(''); setPickupFilter(''); setDestFilter(''); setDropoffFilter('');}} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>一鍵還原所有條件</button>
           </div>
         </div>
 
         {loading ? <p style={{ textAlign: 'center' }}>🚌 同步中...</p> : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-            {filteredData.map((item, idx) => {
-              const isSpecial = /T01[AB]/.test(item.operator);
-              return (
-                <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '18px', borderTop: `6px solid ${isSpecial ? '#f97316' : '#3b82f6'}`, display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', position: 'relative' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '6px', backgroundColor: isSpecial ? '#ffedd5' : '#eff6ff', color: isSpecial ? '#9a3412' : '#1e40af' }}>{item.operator}</span>
-                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>{item.schedule}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', marginBottom: '6px', color: '#334155' }}>📍 <span style={{ color: '#94a3b8', fontSize: '12px' }}>{item.departure_region} </span><strong>{item.pickup_point}</strong></div>
-                      <div style={{ fontSize: '14px', color: '#334155' }}>🏁 <span style={{ color: '#94a3b8', fontSize: '12px' }}>目的地 </span><strong>{item.dropoff_point}</strong></div>
-                    </div>
-                    <div style={{ textAlign: 'right', marginLeft: '10px' }}>
-                      <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</span>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>⏳ 約 {item.estimated_duration}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
-                    <div style={{ flex: 1, paddingRight: '10px' }}><div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '2px', fontWeight: 'bold' }}>訂票備註</div><div style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div></div>
-                    <button onClick={() => { if (item.wechat_app) { setSelectedWechatApp(item.wechat_app); setShowModal(true); } else { window.open(item.source_url, '_blank'); } }} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>{item.wechat_app ? '微信小程序' : '立即購票'}</button>
-                  </div>
+            {filteredData.map((item, idx) => (
+              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '18px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
+                <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', padding: '2px 6px', borderRadius: '4px', alignSelf: 'flex-start', marginBottom: '10px' }}>{item.operator}</span>
+                
+                {/* 右上角：時間 */}
+                <div style={{ position: 'absolute', top: '18px', right: '18px', fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>{item.schedule}</div>
+                
+                {/* 中間：路線 */}
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ fontSize: '14px', marginBottom: '4px' }}>📍 <span style={{ color: '#94a3b8', fontSize: '12px' }}>{item.departure_region} </span><strong>{item.pickup_point}</strong></div>
+                  <div style={{ fontSize: '14px' }}>🏁 <span style={{ color: '#94a3b8', fontSize: '12px' }}>目的地 </span><strong>{item.dropoff_point}</strong></div>
                 </div>
-              );
-            })}
+
+                {/* 右中位置：價錢 */}
+                <div style={{ position: 'absolute', top: '50%', right: '18px', transform: 'translateY(-50%)', textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8' }}>⏳ {item.estimated_duration}</div>
+                </div>
+
+                {/* 底部：左備註，右按鈕 */}
+                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '10px' }}>
+                  <div style={{ flex: 1, paddingRight: '10px' }}>
+                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>訂票備註</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{item.booking_remarks || '--'}</div>
+                  </div>
+                  <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>{item.wechat_app ? '微信購票' : '立即購票'}</button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
 
-      {/* 微信彈窗 */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '10px' }}>💬</div>
-            <h3 style={{ margin: '0 0 10px' }}>微信預約</h3>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>請複製小程序名稱後到微信搜尋購票。</p>
-            <button onClick={() => { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); }} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '10px', cursor: 'pointer' }}>一鍵複製「{selectedWechatApp}」</button>
-            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '13px' }}>關閉</button>
+            <h3>微信預約</h3>
+            <p style={{ fontSize: '13px', color: '#64748b' }}>請複製名稱後到微信搜尋：</p>
+            <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '10px' }}>一鍵複製「{selectedWechatApp}」</button>
+            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13px' }}>關閉</button>
           </div>
         </div>
       )}
-
-      {/* 頁尾連結 */}
-      <footer style={{ textAlign: 'center', marginTop: '40px', padding: '40px 20px', borderTop: '1px solid #e2e8f0', backgroundColor: 'white' }}>
-        <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '15px' }}>資料來源: 各大巴士營運商 · 官方售票平台</div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px', fontSize: '13px' }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); alert('深中珠巴士通開發團隊致力於提供便捷資訊！'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>關於我們</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>隱私權政策</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>服務條款</a>
-        </div>
-        <div style={{ color: '#94a3b8', fontSize: '12px' }}>深中珠巴士通 - 攻略 © 2026</div>
-      </footer>
-
-      {showBackTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: isMobile ? '15px' : 'max(15px, calc(50vw - 520px))', backgroundColor: '#B8860B', color: 'white', border: 'none', borderRadius: '50%', width: '45px', height: '45px', cursor: 'pointer', zIndex: 40, boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>⬆️</button>}
     </div>
   );
 };
