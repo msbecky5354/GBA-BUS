@@ -157,7 +157,7 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 (字體已改為 14px) */}
+                {/* 右上角：開車時間 */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
@@ -168,7 +168,7 @@ const App: React.FC = () => {
                   <div style={{ fontSize: '14px', color: '#64748b', wordBreak: 'break-word' }}>🏁 {item.dropoff_point}</div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 (已移除 ⏳ 約) */}
+                {/* 右中位置：價錢與行車時間 */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
@@ -177,7 +177,7 @@ const App: React.FC = () => {
                 {/* 底部：備註與按鈕 */}
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '2px' }}>訂票備註</div>
+                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '2px' }}>巴士路線</div>
                     <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                   </div>
                   <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
