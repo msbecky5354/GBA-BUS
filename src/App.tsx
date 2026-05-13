@@ -1,3 +1,6 @@
+無問題！收到你嘅意思，有時簡簡單單兩個字反而更加清爽。我已經幫你將「📍 出發」同「🏁 目的地」前面嘅 Emoji 拎走晒，變返最乾淨俐落嘅純文字標籤。
+請將你嘅 **src/App.tsx** 全部內容替換為以下最新版本：
+```tsx
 import React, { useState, useEffect } from 'react';
 
 // 定義資料結構，新增 wechat_app
@@ -30,7 +33,7 @@ const App: React.FC = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   
-  // 新增：用嚟記錄使用者點擊咗邊個微信小程序
+  // 記錄使用者點擊咗邊個微信小程序
   const [selectedWechatApp, setSelectedWechatApp] = useState<string>('');
   
   // 偵測是否為移動裝置
@@ -76,7 +79,6 @@ const App: React.FC = () => {
             currency: values[7] || '',
             booking_remarks: values[8] || '',
             source_url: values[9] || '',
-            // 讀取第 11 個欄位 (Column K) 作為 WeChatApp 名稱，並清除可能嘅隱藏換行符
             wechat_app: (values[10] || '').replace(/\r$/, '').trim() 
           };
         }).filter(item => item.operator.trim() !== '');
@@ -214,7 +216,7 @@ const App: React.FC = () => {
               alignSelf: 'flex-start',
               boxShadow: '0 -2px 4px rgba(0,0,0,0.05)'
             }}>
-              📍 出發
+              出發
             </span>
             <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setRegionFilter(e.target.value)}>
               <option value="">所有出發地</option>
@@ -233,7 +235,7 @@ const App: React.FC = () => {
               alignSelf: 'flex-start',
               boxShadow: '0 -2px 4px rgba(0,0,0,0.05)'
             }}>
-              🏁 目的地
+              目的地
             </span>
             <select style={{ padding: '12px', borderRadius: '0 10px 10px 10px', border: '1px solid #e2e8f0', width: '100%', backgroundColor: 'white', outline: 'none' }} onChange={(e) => setDestFilter(e.target.value)}>
               <option value="">所有目的地</option>
@@ -286,7 +288,6 @@ const App: React.FC = () => {
                         }
                       }}
                       style={{ 
-                        // 如果有小程序就轉綠色，否則保持藍色
                         backgroundColor: hasWechatApp ? '#22c55e' : '#2563eb', 
                         color: 'white', 
                         border: 'none', 
@@ -294,7 +295,6 @@ const App: React.FC = () => {
                         borderRadius: '12px', 
                         fontWeight: 'bold', 
                         cursor: 'pointer', 
-                        // 陰影顏色跟隨按鈕顏色
                         boxShadow: hasWechatApp ? '0 4px 6px -1px rgba(34,197,94,0.3)' : '0 4px 6px -1px rgba(37,99,235,0.2)' 
                       }}
                     >
@@ -461,3 +461,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+```
