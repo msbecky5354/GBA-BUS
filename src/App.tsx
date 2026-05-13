@@ -130,13 +130,17 @@ const App: React.FC = () => {
   }, [regionFilter, pickupFilter, destFilter, dropoffFilter, busData]);
 
   // 6. 功能按鈕
-  const handleSwap = () => {
-    const oldReg = regionFilter;
-    const oldPick = pickupFilter;
+  const handleSwapRegions = () => {
+    const temp = regionFilter;
     setRegionFilter(destFilter);
+    setDestFilter(temp);
+    // 地區變咗，地點通常要重設，或者一併換？呢度選擇對調大區
+  };
+
+  const handleSwapLocations = () => {
+    const temp = pickupFilter;
     setPickupFilter(dropoffFilter);
-    setDestFilter(oldReg);
-    setDropoffFilter(oldPick);
+    setDropoffFilter(temp);
   };
 
   const handleReset = () => {
@@ -180,12 +184,12 @@ const App: React.FC = () => {
     display: 'inline-block'
   };
 
-  const actionButtonStyle: React.CSSProperties = {
+  const swapButtonStyle: React.CSSProperties = {
     backgroundColor: 'white',
     border: '1px solid #e2e8f0',
     borderRadius: '50%',
-    width: '48px', // 稍微加大按鈕尺寸
-    height: '48px',
+    width: '40px',
+    height: '40px',
     cursor: 'pointer',
     color: '#B8860B',
     display: 'flex',
@@ -197,12 +201,30 @@ const App: React.FC = () => {
     zIndex: 2
   };
 
+  const resetButtonStyle: React.CSSProperties = {
+    backgroundColor: '#ef4444',
+    color: 'white',
+    border: 'none',
+    padding: '10px 24px',
+    borderRadius: '12px',
+    fontWeight: 'bold',
+    fontSize: '14px',
+    cursor: 'pointer',
+    width: '100%',
+    marginTop: '20px',
+    boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.3)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'sans-serif', paddingBottom: '60px' }}>
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: isMobile ? '12px 16px' : '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/image_48c638.jpg" alt="Logo" style={{ height: isMobile ? '36px' : '44px', borderRadius: '8px', backgroundColor: 'white' }} />
-          <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
+          <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.4rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
         </div>
         <div style={{ fontSize: '12px', opacity: 0.9 }}>⏱️ {lastUpdated}</div>
       </header>
@@ -210,62 +232,51 @@ const App: React.FC = () => {
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: isMobile ? '16px' : '24px' }}>
         
         {/* 搜索卡片 */}
-        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', marginBottom: '24px', position: 'relative' }}>
-          <div style={{ display: 'flex', gap: '20px', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}>
+        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* 出發 */}
-            <div style={{ flex: 1, width: '100%' }}>
-              <span style={tagStyle}>出發地區</span>
-              <select style={selectStyle} value={regionFilter} onChange={(e) => {setRegionFilter(e.target.value); setPickupFilter('');}}>
-                <option value="">所有出發地</option>
-                {departureRegions.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-              <div style={{ marginTop: '12px' }}>
-                <span style={tagStyle}>上車站點</span>
+            {/* 第一行：地區切換 */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}>
+                <span style={tagStyle}>出發地區</span>
+                <select style={selectStyle} value={regionFilter} onChange={(e) => {setRegionFilter(e.target.value); setPickupFilter('');}}>
+                  <option value="">所有出發地</option>
+                  {departureRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              
+              <button onClick={handleSwapRegions} style={swapButtonStyle} title="對調地區">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+              </button>
+
+              <div style={{ flex: 1 }}>
+                <span style={tagStyle}>目的地區</span>
+                <select style={selectStyle} value={destFilter} onChange={(e) => {setDestFilter(e.target.value); setDropoffFilter('');}}>
+                  <option value="">所有目的地</option>
+                  {destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* 第二行：站點切換 */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}>
+                <span style={tagStyle}>出發站點</span>
                 <select style={selectStyle} value={pickupFilter} onChange={(e) => setPickupFilter(e.target.value)}>
                   <option value="">不限地點</option>
                   {availablePickups.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
-            </div>
 
-            {/* 功能按鈕組 (Switch + Reset) */}
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '12px', marginTop: isMobile ? '0' : '20px' }}>
-              <button 
-                onClick={handleSwap} 
-                style={actionButtonStyle}
-                title="切換方向"
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 12px rgba(184, 134, 11, 0.2)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)'; }}
-              >
-                {/* 加大加粗的 SVG 圖標 */}
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMobile ? 'rotate(90deg)' : 'none' }}>
+              <button onClick={handleSwapLocations} style={swapButtonStyle} title="對調站點">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"></path>
                 </svg>
               </button>
 
-              <button 
-                onClick={handleReset} 
-                style={actionButtonStyle}
-                title="重設所有過濾"
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-              >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                </svg>
-              </button>
-            </div>
-
-            {/* 目的地 */}
-            <div style={{ flex: 1, width: '100%' }}>
-              <span style={tagStyle}>目的地區</span>
-              <select style={selectStyle} value={destFilter} onChange={(e) => {setDestFilter(e.target.value); setDropoffFilter('');}}>
-                <option value="">所有目的地</option>
-                {destinationRegions.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-              <div style={{ marginTop: '12px' }}>
+              <div style={{ flex: 1 }}>
                 <span style={tagStyle}>落車站點</span>
                 <select style={selectStyle} value={dropoffFilter} onChange={(e) => setDropoffFilter(e.target.value)}>
                   <option value="">不限地點</option>
@@ -273,6 +284,16 @@ const App: React.FC = () => {
                 </select>
               </div>
             </div>
+
+            {/* 紅色重設按鈕 */}
+            <button onClick={handleReset} style={resetButtonStyle}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              重設搜尋條件
+            </button>
+
           </div>
         </div>
 
@@ -325,7 +346,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Modals & Footer 保持不變 */}
+      {/* Modals & Footer */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100, backdropFilter: 'blur(4px)' }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
