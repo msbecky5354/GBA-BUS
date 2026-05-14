@@ -141,7 +141,6 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-  // 出發城鎮排序：根據 sort_dr 降序 (Descending)
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -155,7 +154,6 @@ const App: React.FC = () => {
       .map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 目的城鎮排序：根據 sort_ar 降序 (Descending)
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -220,8 +218,8 @@ const App: React.FC = () => {
     if (content) setNoticeInfo({ title, content });
   };
 
-  const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
-  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
+  const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
+  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#334155' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
   return (
@@ -238,8 +236,9 @@ const App: React.FC = () => {
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
+        {/* 搜尋卡片：底色改為淺灰色 #f1f5f9 */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
-          <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ backgroundColor: '#f1f5f9', padding: '24px', borderRadius: '20px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
