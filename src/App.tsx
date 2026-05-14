@@ -39,7 +39,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 確保箭頭圖標清晰可見
+// 互換箭頭圖標元件
 const SwapIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <path d="M7 10l5-5 5 5" /><path d="M12 5v14" /><path d="M17 14l-5 5-5-5" />
@@ -169,20 +169,58 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
+  // --- 更新：4 個聲明的具體內容 ---
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
       case 'about':
-        content = <><p><strong>「深中珠巴士通攻略」</strong>致力於為旅客提供最新、最齊全的跨市巴士資訊。</p><p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立整合平台，非官方營運商。</p></>;
+        content = (
+          <>
+            <p><strong>「深中珠巴士通攻略」</strong> 是一個專為往返深圳、中山、珠海及周邊地區旅客設計的資訊整合平台。</p>
+            <p>我們致力於蒐集各大巴士營運商的最新數據，幫助您一站式搜尋跨市巴士路線、班次時間及購票方式，讓您的出行更加輕鬆便捷。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立運作的第三方攻略平台，並非官方巴士營運商。</p>
+          </>
+        );
         setNoticeInfo({ title: '關於我們', content }); break;
       case 'contact':
-        content = <><p>如果您對本網站有任何建議，歡迎聯絡：</p><ul><li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></li></ul></>;
+        content = (
+          <>
+            <p>如果您對本攻略有任何建議，或發現班次資訊需要更新，歡迎加入我們的社群討論：</p>
+            <ul style={{ lineHeight: '2' }}>
+              <li>
+                <strong>Facebook 群組：</strong> 
+                <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>
+                   中山美食地圖群組
+                </a>
+              </li>
+            </ul>
+            <p>感謝您的支持與協助，讓我們能持續完善這份巴士通攻略！</p>
+          </>
+        );
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <p>本站使用 Google Analytics 及 AdSense。這些服務可能會使用 Cookies 來分析流量及提供廣告。</p>;
+        content = (
+          <>
+            <p>本站極為重視您的隱私，特此說明我們的資訊處理方式：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>數據收集：</strong>本站為純資訊展示平台，不會主動收集您的個人身份識別資料。</li>
+              <li><strong>第三方分析與廣告：</strong>本站使用 Google Analytics 及 Google AdSense 服務。這些服務會透過 Cookies 收集匿名訪問數據，用於優化網站體驗及提供相關廣告。</li>
+              <li><strong>外部連結：</strong>本站提供的購票連結或微信小程式名稱均指向第三方平台。點擊後之隱私權保護將受該平台之政策管轄，與本站無涉。</li>
+            </ul>
+          </>
+        );
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <p>使用本站即代表您同意「深中珠巴士通攻略」之條款：所有資訊僅供參考，實際情況請以官方公佈為準。</p>;
+        content = (
+          <>
+            <p>使用「深中珠巴士通攻略」代表您同意以下條款：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>內容僅供參考：</strong>本站所載之班次、票價、站點及路線資訊均蒐集自公開網絡，本站並不保證其 100% 準確性或及時性。</li>
+              <li><strong>核實義務：</strong>強烈建議您在實際購票或出發前，向相關巴士營運商官方核實最新資訊。</li>
+              <li><strong>免責聲明：</strong>對於因依賴本站資訊而產生的任何延誤、損失或不便，本站及其團隊概不承擔任何法律責任。</li>
+            </ul>
+          </>
+        );
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
@@ -194,6 +232,7 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', position: 'relative' }}>
       
+      {/* Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -207,6 +246,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
         
+        {/* 搜尋卡片 */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             
@@ -238,6 +278,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
+        {/* 班次列表 */}
         {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
@@ -262,24 +303,32 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* Footer */}
       <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center' }}>
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}><AdBanner /></div>
+        
+        {/* 4 個聲明連結 */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={() => showNotice('about')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>關於我們</a> |
           <a onClick={() => showNotice('contact')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>聯絡我們</a> |
           <a onClick={() => showNotice('privacy')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>隱私權政策</a> |
           <a onClick={() => showNotice('terms')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>服務條款</a>
         </div>
+
         <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
+        
+        {/* 開發者資訊 (包含 image.png) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px' }} /><span>中山美食地圖群組團隊</span>
         </div>
       </footer>
 
+      {/* Back to Top */}
       {showBackToTop && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>
       )}
 
+      {/* 聲明內容彈窗 */}
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
@@ -290,6 +339,7 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* 微信購票彈窗 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
