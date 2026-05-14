@@ -18,6 +18,27 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
+// --- 新增：Google AdSense 展示組件 ---
+const AdBanner: React.FC = () => {
+  useEffect(() => {
+    try {
+      // 確保廣告腳本運行
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    } catch (err) {
+      console.error('AdSense Error:', err);
+    }
+  }, []);
+
+  return (
+    <ins className="adsbygoogle"
+         style={{ display: 'block', width: '100%', minHeight: '90px' }}
+         data-ad-client="ca-pub-8256903623772163"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  );
+};
+// ------------------------------------
+
 const App: React.FC = () => {
   const [busData, setBusData] = useState<BusItem[]>([]);
   const [filteredData, setFilteredData] = useState<BusItem[]>([]);
@@ -288,21 +309,18 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* --- 新增：底部免責聲明與 Google Ads 預留區 --- */}
+      {/* --- 新增：頁尾免責聲明及 Google Ads --- */}
       <footer style={{ maxWidth: '1000px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
         
-        {/* Google Ads 廣告位 (你可以將你嘅 Adsense 代碼放喺度) */}
-        <div style={{ minHeight: '90px', backgroundColor: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px dashed #cbd5e1' }}>
-          <span style={{ color: '#94a3b8' }}>[Google Ads 廣告展示區]</span>
-          {/* 請在此處貼上你的 Google AdSense <ins> 代碼 
-            請注意 React 中 class 要改為 className，style 要改為物件格式
-          */}
+        {/* Google Ads 廣告展示區塊 */}
+        <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '20px', overflow: 'hidden' }}>
+          <AdBanner />
         </div>
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
       </footer>
-      {/* --- 底部區域完結 --- */}
+      {/* -------------------------------------- */}
 
       {/* 微信購票彈窗 */}
       {showModal && (
