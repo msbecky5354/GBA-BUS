@@ -1,3 +1,11 @@
+明白！針對「黃色喺淺色底好難睇」嘅視覺問題，我進一步優化咗顏色對比度。
+黃色標籤（如「出發地區」）最怕文字唔夠深。我做咗以下調整：
+ 1. **搜尋區底色**：維持**淺灰色 (#f1f5f9)**，令成個搜尋板塊同白色網頁背景有明顯區分。
+ 2. **標籤文字加深**：將黃色標籤入面嘅文字改為 **純黑色 (#000000)**，確保對比度最高。
+ 3. **下拉選單預設「所有」**：配合你上一段嘅要求，所有選單預設顯示「所有」。
+ 4. **巴士資訊顏色優化**：將卡片底部嘅「巴士資訊」文字顏色由淺黃改為 **深金黃色 (#ca8a04)**，咁樣喺白色卡片上面睇得更清楚，唔會「白朦朦」。
+請替換 **src/App.tsx** 全部內容（已包含所有最新功能與排序邏輯）：
+```tsx
 import React, { useState, useEffect, useMemo } from 'react';
 
 // 1. 定義資料型態
@@ -20,6 +28,7 @@ interface BusItem {
   sort_ar: number;
 }
 
+// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -218,8 +227,10 @@ const App: React.FC = () => {
     if (content) setNoticeInfo({ title, content });
   };
 
+  // 下拉選單樣式
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
-  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#334155' };
+  // 標籤樣式：背景黃色，文字改為純黑色以提升對比
+  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#000000' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
   return (
@@ -236,12 +247,11 @@ const App: React.FC = () => {
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋卡片區域 */}
+        {/* 搜尋範圍：底色改為淺灰色以襯托黃色標籤 */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
           <div style={{ backgroundColor: '#f1f5f9', padding: '24px', borderRadius: '20px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
-              
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span>
                   <select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}>
@@ -255,7 +265,6 @@ const App: React.FC = () => {
                   </select>
                 </div>
               </div>
-
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span>
                   <select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
@@ -269,7 +278,6 @@ const App: React.FC = () => {
                   </select>
                 </div>
               </div>
-
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span>
                   <select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}>
@@ -283,7 +291,6 @@ const App: React.FC = () => {
                   </select>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -316,7 +323,8 @@ const App: React.FC = () => {
 
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
-                    <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊</div>
+                    {/* 巴士資訊文字改用深金色以提升可讀性 */}
+                    <div style={{ fontSize: '10px', color: '#ca8a04', fontWeight: 'bold' }}>巴士資訊</div>
                     <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                   </div>
                   <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>{item.wechat_app ? '微信購票' : '立即購票'}</button>
@@ -367,3 +375,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+```
