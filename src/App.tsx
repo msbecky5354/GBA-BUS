@@ -172,7 +172,7 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 5. 聲明內容定義 (已加入 Facebook 群組連結)
+  // 5. 聲明內容定義 (已刪除電郵及微信，只保留 Facebook 群組連結)
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -192,8 +192,6 @@ const App: React.FC = () => {
             <p>如果您對本網站有任何建議、發現班次資料需要更新，或者有商業合作意向，歡迎透過以下方式與我們聯絡：</p>
             <ul style={{ lineHeight: '2' }}>
               <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>加入我們的 Facebook 討論群組</a></li>
-              <li><strong>電郵：</strong> contact@example.com (可按需要保留或刪除)</li>
-              <li><strong>微信公眾號：</strong> 深中珠巴士通 (可按需要保留或刪除)</li>
             </ul>
             <p>我們會在收到訊息後盡快回覆您。感謝您協助我們完善這份攻略！</p>
           </>
