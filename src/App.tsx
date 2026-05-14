@@ -137,15 +137,17 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾選單邏輯 (含互斥排除)
+  // 3. 過濾選單邏輯 (含深圳 Exception 邏輯)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
-    return arrRegionFilter ? all.filter(r => r !== arrRegionFilter) : all;
+    // 如果目的地選了「非深圳」的地區，出發地才隱藏該地區
+    return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
   }, [busData, arrRegionFilter]);
 
   const arrRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort();
-    return depRegionFilter ? all.filter(r => r !== depRegionFilter) : all;
+    // 如果出發地選了「非深圳」的地區，目的地才隱藏該地區
+    return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
   const depTowns = useMemo(() => {
@@ -277,7 +279,6 @@ const App: React.FC = () => {
 
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
-                    {/* 更新點：巴士資訊 + 黃色 (選用可讀性高的金色黃) */}
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊</div>
                     <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                   </div>
@@ -318,8 +319,7 @@ const App: React.FC = () => {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', textAlign: 'center' }}>
-            <p style={{ fontFamily: GLOBAL_FONT }}>請複製名稱後到微信搜尋：</p>
-            <h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
+            <p style={{ fontFamily: GLOBAL_FONT }}>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
             <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', fontFamily: GLOBAL_FONT }}>一鍵複製</button>
             <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px' }}>暫時關閉</button>
           </div>
