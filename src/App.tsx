@@ -61,8 +61,6 @@ const App: React.FC = () => {
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
 
   const [isMobile, setIsMobile] = useState(false);
-  
-  // --- 新增：返回頂部按鈕顯示狀態 ---
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
@@ -70,7 +68,6 @@ const App: React.FC = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     
-    // 監聽滾動事件，超過 300px 顯示「返回頂部」按鈕
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
     
@@ -227,7 +224,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 5. 聲明內容定義
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -286,7 +282,6 @@ const App: React.FC = () => {
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
-  
   const footerLinkStyle: React.CSSProperties = { color: '#3b82f6', textDecoration: 'none', margin: '0 8px', cursor: 'pointer' };
   const footerDividerStyle: React.CSSProperties = { color: '#cbd5e1' };
 
@@ -295,10 +290,17 @@ const App: React.FC = () => {
       
       {/* 頂部 Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        
+        {/* --- 更新：左上角點擊返回頂部功能 --- */}
+        <div 
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          title="返回頂部"
+        >
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
           <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
         </div>
+
         <div style={{ fontSize: '10px', textAlign: 'right', lineHeight: '1.3' }}>
           <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
           <div>{lastUpdated}</div>
@@ -307,7 +309,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
         
-        {/* --- 更新：將搜尋卡片最大闊度還原為 1000px，保持最佳比例 --- */}
+        {/* 搜尋卡片 (固定闊度保持美觀) */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -383,7 +385,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* 班次列表 */}
+        {/* 班次列表 (寬螢幕優化) */}
         {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
@@ -426,15 +428,12 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* 頁尾免責聲明及 Google Ads */}
       <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
         
-        {/* Google Ads 廣告展示區塊 */}
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}>
           <AdBanner />
         </div>
 
-        {/* 4 個聲明連結 */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={(e) => { e.preventDefault(); showNotice('about'); }} style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
@@ -448,7 +447,6 @@ const App: React.FC = () => {
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
         
-        {/* 開發者資訊 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span>
           <img src="/image.png" alt="Developer Logo" style={{ height: '16px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -456,7 +454,7 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* --- 返回頂部按鈕 --- */}
+      {/* 浮動返回頂部按鈕 */}
       {showBackToTop && (
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
