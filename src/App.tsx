@@ -96,7 +96,13 @@ const App: React.FC = () => {
         setBusData(result);
         setFilteredData(result);
         setLoading(false);
-        setLastUpdated(new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' }));
+        
+        // 組合完整日期與時間
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const timeStr = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+        setLastUpdated(`${dateStr} ${timeStr}`);
+
       } catch (error) {
         console.error("Fetch Error:", error);
         setLoading(false);
@@ -148,29 +154,29 @@ const App: React.FC = () => {
   // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
-  
-  // 獨立按鈕樣式 (確保置中與大小)
-  const swapBtnStyle: React.CSSProperties = {
-    width: '42px', 
-    height: '42px', 
-    borderRadius: '50%', 
-    border: '1px solid #e2e8f0', 
-    backgroundColor: 'white', 
-    cursor: 'pointer', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    flexShrink: 0, 
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-    color: '#B8860B'
-  };
+  const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px', fontFamily: 'sans-serif' }}>
+      
+      {/* --- 頂部 Header 更新區域 --- */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
-        <div style={{ fontSize: '11px' }}>⏱️ {lastUpdated}</div>
+        
+        {/* 左上角：Logo + 標題 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* 如果你有自己嘅 Logo 圖，將網址放喺 src 入面，例如 src="https://example.com/logo.png" */}
+          <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
+        </div>
+
+        {/* 右上角：最後更新日期及時間 */}
+        <div style={{ fontSize: '10px', textAlign: 'right', lineHeight: '1.3' }}>
+          <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
+          <div>{lastUpdated}</div>
+        </div>
+
       </header>
+      {/* --- 頂部 Header 更新區域完結 --- */}
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         {/* 搜尋卡片 */}
@@ -200,7 +206,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* 第二級：城鎮 (根據第一級選擇，隱藏頭兩個字) */}
+            {/* 第二級：城鎮 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>出發城鎮</span>
@@ -265,12 +271,12 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 (14px 適中) */}
+                {/* 右上角：開車時間 */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
                 
-                {/* 中間：路線資訊 (顯示城鎮與具體站點) */}
+                {/* 中間：路線資訊 */}
                 <div style={{ marginBottom: '10px', paddingRight: '70px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>
                     📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong>
@@ -280,7 +286,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 (已移除 ⏳) */}
+                {/* 右中位置：價錢與行車時間 */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
