@@ -227,7 +227,7 @@ const App: React.FC = () => {
       case 'about':
         content = (
           <>
-            <p><strong>「深中珠巴士通」</strong>致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p><strong>「深中珠巴士通攻略」</strong>致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
             <p>我們深知跨境及跨市交通的繁瑣，因此整合了各大巴士營運商的數據，讓您能一站式搜尋並比較最適合的出行方案。</p>
             <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
           </>
@@ -262,7 +262,7 @@ const App: React.FC = () => {
       case 'terms':
         content = (
           <>
-            <p>歡迎使用「深中珠巴士通」。使用本站即代表您同意以下條款：</p>
+            <p>歡迎使用「深中珠巴士通攻略」。使用本站即代表您同意以下條款：</p>
             <ul style={{ lineHeight: '1.8' }}>
               <li><strong>免責聲明：</strong>本站提供的所有巴士班次、票價、路線等資訊僅供參考。雖然我們致力確保資料準確，但不保證資訊的絕對正確性或時效性。購票或出行前請務必向官方核實。</li>
               <li><strong>責任限制：</strong>對於因依賴本站資訊而導致的任何延誤、損失或不便，本站概不負責。</li>
@@ -433,7 +433,7 @@ const App: React.FC = () => {
         </div>
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
-        <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
         
         {/* 開發者資訊 (此處使用 image.png) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
