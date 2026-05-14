@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (嚴格匹配 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,7 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 擴展 Window 型別以支援 AdSense
+// 擴展 Window 型別以支援 AdSense 並防止 Build Error
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -31,7 +31,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense 展示組件
+// Google AdSense
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -249,13 +249,11 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px' }}>
-                {/* 第一行：營運商與時間 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
 
-                {/* 第二行：地址與價格 Flex 佈局 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
@@ -271,7 +269,6 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 第三行：資訊與按鈕 */}
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊 Info</div>
