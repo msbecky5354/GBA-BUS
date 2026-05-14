@@ -128,7 +128,6 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 排序與選單邏輯
   const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
 
@@ -198,7 +197,6 @@ const App: React.FC = () => {
     }
   };
 
-  // 樣式
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
@@ -206,7 +204,6 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', position: 'relative' }}>
       
-      {/* Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -220,14 +217,13 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 搜尋卡片 (已加入右上角重置按鈕) */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             
-            {/* 右上角細粒重置按鈕 */}
+            {/* 右上角重置按鈕 - 已更新為紅色 */}
             <button 
               onClick={handleReset} 
-              style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               🔄 重置
             </button>
