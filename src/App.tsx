@@ -137,16 +137,14 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾選單邏輯 (含深圳 Exception 邏輯)
+  // 3. 過濾選單邏輯 (深圳 Exception)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
-    // 如果目的地選了「非深圳」的地區，出發地才隱藏該地區
     return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
   }, [busData, arrRegionFilter]);
 
   const arrRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort();
-    // 如果出發地選了「非深圳」的地區，目的地才隱藏該地區
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
@@ -198,7 +196,7 @@ const App: React.FC = () => {
         content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 用於分析流量及投放廣告。</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <p>本站資訊僅供參考。強烈建議出發前向官方核實最新資訊。</p>;
+        content = <p>本站資訊僅供參考。強烈建議出發前向各巴士營運商官方核實最新資訊。</p>;
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
@@ -257,7 +255,8 @@ const App: React.FC = () => {
             <p style={{ fontSize: '0.9rem' }}>No such bus schedule found.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
+          /* 更新點：電腦版固定一排顯示 2 張卡片 (repeat(2, 1fr)) */
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
