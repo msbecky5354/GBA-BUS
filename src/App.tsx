@@ -172,7 +172,7 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 5. 聲明內容定義 (已刪除電郵及微信，只保留 Facebook 群組連結)
+  // 5. 聲明內容定義
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -191,7 +191,7 @@ const App: React.FC = () => {
           <>
             <p>如果您對本網站有任何建議、發現班次資料需要更新，或者有商業合作意向，歡迎透過以下方式與我們聯絡：</p>
             <ul style={{ lineHeight: '2' }}>
-              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>加入我們的 Facebook 討論群組</a></li>
+              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></li>
             </ul>
             <p>我們會在收到訊息後盡快回覆您。感謝您協助我們完善這份攻略！</p>
           </>
@@ -386,6 +386,13 @@ const App: React.FC = () => {
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
+        
+        {/* 新增：開發者資訊 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
+          <span>開發者:</span>
+          <img src="/logo.png" alt="Logo" style={{ height: '16px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+          <span>中山美食地圖群組團隊</span>
+        </div>
       </footer>
 
       {/* --- 聲明內容彈窗 --- */}
