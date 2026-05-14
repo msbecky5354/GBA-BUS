@@ -20,7 +20,7 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
-// Google AdSense 展示組件
+// Google AdSense 組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -29,7 +29,6 @@ const AdBanner: React.FC = () => {
       console.error('AdSense Error:', err);
     }
   }, []);
-
   return (
     <ins className="adsbygoogle"
          style={{ display: 'block', width: '100%', minHeight: '90px' }}
@@ -39,7 +38,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 使用你提供的 image_bea913.png 作為交換圖標
+// 交換圖標
 const SwapButtonIcon = () => (
   <img 
     src="/image_bea913.png" 
@@ -85,7 +84,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 使用 cache buster 確保每次都拿到最新 Sheet 數據
         const response = await fetch(`${CSV_URL}&t=${new Date().getTime()}`);
+        
+        // --- 核心更新：嘗試獲取 Google Sheet 的伺服器日期 ---
+        const serverDateHeader = response.headers.get('Date');
+        const updateDate = serverDateHeader ? new Date(serverDateHeader) : new Date();
+        const dateStr = `${updateDate.getFullYear()}-${String(updateDate.getMonth() + 1).padStart(2, '0')}-${String(updateDate.getDate()).padStart(2, '0')}`;
+        const timeStr = updateDate.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+        setLastUpdated(`${dateStr} ${timeStr}`);
+        // ----------------------------------------------
+
         const csvText = await response.text();
         const lines = csvText.split('\n').filter(line => line.trim() !== '');
         
@@ -125,8 +134,6 @@ const App: React.FC = () => {
         setBusData(result);
         setFilteredData(result);
         setLoading(false);
-        const now = new Date();
-        setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' })}`);
       } catch (error) {
         console.error("Fetch Error:", error);
         setLoading(false);
@@ -185,43 +192,16 @@ const App: React.FC = () => {
     let content = null;
     switch (type) {
       case 'about':
-        content = (
-          <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
-            <p>我們整合了各大巴士營運商的數據，讓您的出行更加輕鬆便捷。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立運作的第三方資訊平台，並非官方巴士營運商。</p>
-          </>
-        );
+        content = <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>;
         setNoticeInfo({ title: '關於我們', content }); break;
       case 'contact':
-        content = (
-          <>
-            <p>如果您對本懶人包有任何建議，或發現班次資訊需要更新，歡迎加入我們的社群討論：</p>
-            <ul style={{ lineHeight: '2' }}>
-              <li>
-                <strong>Facebook 群組：</strong> 
-                <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>
-                   中山美食地圖群組
-                </a>
-              </li>
-            </ul>
-          </>
-        );
+        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>;
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。這些服務會使用 Cookies 收集數據以提供相關廣告及分析流量。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務，Cookies 僅用於提供相關廣告及分析流量。</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = (
-          <>
-            <p>使用「深中珠巴士懶人包」代表您同意以下條款：</p>
-            <ul style={{ lineHeight: '1.8' }}>
-              <li><strong>僅供參考：</strong>本站所載資訊不保證 100% 準確或具時效性。</li>
-              <li><strong>核實義務：</strong>強烈建議出發前向營運商核實。</li>
-              <li><strong>免責聲明：</strong>對於因依賴本站資訊造成的損失，本站概不負責。</li>
-            </ul>
-          </>
-        );
+        content = <p>本站資訊僅供參考。強烈建議出發前向各巴士營運商官方核實最新資訊。</p>;
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
@@ -232,8 +212,6 @@ const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif' }}>
-      
-      {/* Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px' }} />
@@ -277,13 +255,13 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
-                {/* Operator: Orange */}
+                {/* 1. Operator: Orange */}
                 <span style={{ fontSize: '10px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
                 {/* Time: Normal Weight */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
                 
-                {/* Route Info: Purple Regions & Blue Points (No Bold) */}
+                {/* 2. Route Info: Purple Region & Blue Points (No Bold) */}
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#2563eb', fontWeight: 'normal' }}>
                     📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region}</span> {item.pickup_point}
@@ -308,47 +286,35 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center' }}>
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}><AdBanner /></div>
-        
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={() => showNotice('about')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>關於我們</a> |
           <a onClick={() => showNotice('contact')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>聯絡我們</a> |
           <a onClick={() => showNotice('privacy')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>隱私權政策</a> |
           <a onClick={() => showNotice('terms')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>服務條款</a>
         </div>
-
         <p>© {new Date().getFullYear()} 深中珠巴士懶人包. All rights reserved.</p>
-        
-        {/* 開發者資訊：使用正確的 Logo 路徑 /image.png */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
-          <span>開發者:</span>
-          <img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} onError={(e) => e.currentTarget.style.display = 'none'} />
-          <span>中山美食地圖群組團隊</span>
+          <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px' }} /><span>中山美食地圖群組團隊</span>
         </div>
       </footer>
 
-      {/* 返回頂部 */}
-      {showBackToTop && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>
-      )}
+      {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 聲明彈窗 */}
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', color: '#334155', lineHeight: '1.6' }}>{noticeInfo.content}</div>
-            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginTop: '25px', cursor: 'pointer', border: 'none' }}>關閉</button>
+            <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
+            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', cursor: 'pointer', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
           </div>
         </div>
       )}
 
-      {/* 微信彈窗 */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
-          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', textAlign: 'center' }}>
             <p>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
             <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none' }}>一鍵複製</button>
             <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px' }}>暫時關閉</button>
