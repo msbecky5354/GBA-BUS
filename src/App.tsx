@@ -39,6 +39,25 @@ const AdBanner: React.FC = () => {
   );
 };
 
+// --- 新增：互換箭頭圖標元件 ---
+const SwapIcon = () => (
+  <svg 
+    width="20" 
+    height="20" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    style={{ color: '#B8860B' }} // 使用深金色
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M7 10l5-5 5 5" />
+    <path d="M12 5v14" />
+    <path d="M17 14l-5 5-5-5" />
+  </svg>
+);
+
 const App: React.FC = () => {
   const [busData, setBusData] = useState<BusItem[]>([]);
   const [filteredData, setFilteredData] = useState<BusItem[]>([]);
@@ -163,7 +182,7 @@ const App: React.FC = () => {
     )));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
-  // 4. 交換邏輯
+  // 4. 交換與重置邏輯
   const handleSwapRegions = () => {
     const t1 = depRegionFilter; setDepRegionFilter(arrRegionFilter); setArrRegionFilter(t1);
     const t2 = depTownFilter; setDepTownFilter(arrTownFilter); setArrTownFilter(t2);
@@ -200,10 +219,11 @@ const App: React.FC = () => {
     }
   };
 
-  // 樣式常數 (優化後的 Swap 按鈕)
+  // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   
+  // --- 更新：Swap 按鈕樣式 (增加陰影令其浮出) ---
   const swapBtnStyle: React.CSSProperties = { 
     width: '36px', 
     height: '36px', 
@@ -215,22 +235,14 @@ const App: React.FC = () => {
     alignItems: 'center', 
     justifyContent: 'center', 
     flexShrink: 0, 
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)', 
-    color: '#B8860B',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)', // 加咗陰影
     transition: 'transform 0.2s, background-color 0.2s'
   };
-  
-  // Swap 圖標 SVG
-  const SwapIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 10l5-5 5 5" /><path d="M12 5v14" /><path d="M17 14l-5 5-5-5" />
-    </svg>
-  );
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', position: 'relative' }}>
       
-      {/* Header */}
+      {/* Header (撳 Logo/字返最頂) */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -257,7 +269,8 @@ const App: React.FC = () => {
             </button>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
-              {/* 第一級：地區 */}
+              
+              {/* 第一級：地區 (已加返圖標) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span>
                   <select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}>
@@ -272,7 +285,7 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* 第二級：城鎮 */}
+              {/* 第二級：城鎮 (已加返圖標) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span>
                   <select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
@@ -287,7 +300,7 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* 第三級：站點 */}
+              {/* 第三級：站點 (已加返圖標) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span>
                   <select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}>
@@ -345,9 +358,9 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* Back to Top */}
+      {/* 返回頂部按鈕 */}
       {showBackToTop && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>
       )}
 
       {/* 聲明內容彈窗 */}
