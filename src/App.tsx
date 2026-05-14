@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (適配 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,6 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
+// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -191,7 +192,7 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 跳轉高德地圖函數
+  // 跳轉高德地圖
   const openAmap = (region: string, town: string, point: string) => {
     const keyword = `${region}${town}${point}`;
     const url = `https://www.amap.com/search?query=${encodeURIComponent(keyword)}`;
@@ -206,8 +207,7 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
-            <p>我們整合了各大巴士營運商的數據，讓您一站式搜尋出行方案。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新跨市巴士資訊。</p>
             <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立資訊平台，並非官方營運商。</p>
           </>
         );
@@ -222,7 +222,7 @@ const App: React.FC = () => {
         break;
       case 'terms':
         title = '服務條款';
-        content = <p>本站資訊僅供參考。購票或出行前請務必向官方營運商核實最新資訊。</p>;
+        content = <p>本站資訊僅供參考。出行前請務必向官方營運商核實最新資訊。</p>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -309,12 +309,10 @@ const App: React.FC = () => {
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town.length > 2 ? item.departure_town.substring(2) : item.departure_town}</span> {item.pickup_point}
-                      {/* 高德地圖按鈕 */}
-                      <button onClick={() => openAmap(item.departure_region, item.departure_town, item.pickup_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town.length > 2 ? item.arrival_town.substring(2) : item.arrival_town}</span> {item.dropoff_point}
-                      {/* 同樣為落車站加入地圖功能 */}
+                      {/* 只在落車站點顯示地圖按鈕 */}
                       <button onClick={() => openAmap(item.arrival_region, item.arrival_town, item.dropoff_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                   </div>
