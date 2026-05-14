@@ -23,7 +23,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 // 專業中文字體組合
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense 展示組件
+// Google AdSense 組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -41,7 +41,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 使用 image_bea913.png 作為交換圖標
+// 交換圖標
 const SwapButtonIcon = () => (
   <img 
     src="/image_bea913.png" 
@@ -83,20 +83,17 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // 2. 數據抓取
+  // 2. 數據抓取 (獲取伺服器更新時間)
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${CSV_URL}&t=${new Date().getTime()}`);
         const serverDateHeader = response.headers.get('Date');
         const updateDate = serverDateHeader ? new Date(serverDateHeader) : new Date();
-        const dateStr = `${updateDate.getFullYear()}-${String(updateDate.getMonth() + 1).padStart(2, '0')}-${String(updateDate.getDate()).padStart(2, '0')}`;
-        const timeStr = updateDate.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-        setLastUpdated(`${dateStr} ${timeStr}`);
+        setLastUpdated(`${updateDate.getFullYear()}-${String(updateDate.getMonth() + 1).padStart(2, '0')}-${String(updateDate.getDate()).padStart(2, '0')} ${updateDate.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false })}`);
 
         const csvText = await response.text();
         const lines = csvText.split('\n').filter(line => line.trim() !== '');
-        
         const result = lines.slice(1).map(line => {
           const v: string[] = [];
           let curVal = '';
@@ -110,7 +107,6 @@ const App: React.FC = () => {
           }
           v.push(curVal.trim());
           if (v.length < 10) return null;
-
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -141,7 +137,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾邏輯 (含互斥排除)
+  // 3. 過濾選單邏輯 (含互斥排除)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
     return arrRegionFilter ? all.filter(r => r !== arrRegionFilter) : all;
@@ -191,23 +187,23 @@ const App: React.FC = () => {
     let content = null;
     switch (type) {
       case 'about':
-        content = <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線資訊。</p>;
+        content = <p>「深中珠巴士懶人包」致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>;
         setNoticeInfo({ title: '關於我們', content }); break;
       case 'contact':
         content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>;
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <p>本站資訊僅供參考，強烈建議出發前向營運商核實。</p>;
+        content = <p>本站資訊僅供參考，強烈建議出發前向官方核實最新資訊。對依賴本站造成的延誤不負法律責任。</p>;
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
 
   // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
-  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', letterSpacing: '0.05em' };
+  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
   return (
@@ -221,12 +217,11 @@ const App: React.FC = () => {
         </div>
         <div style={{ fontSize: '10px', textAlign: 'right' }}>
           <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
-          <div style={{ letterSpacing: '0' }}>{lastUpdated}</div>
+          <div>{lastUpdated}</div>
         </div>
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋卡片 */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold', fontFamily: GLOBAL_FONT }}>🔄 重置</button>
@@ -254,10 +249,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* 班次列表 */}
-        {loading ? (
-          <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p>
-        ) : filteredData.length === 0 ? (
+        {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : filteredData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
             <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🔍</div>
             <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>暫無相關巴士班次</p>
@@ -267,24 +259,21 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
-                {/* 1. Operator: Orange */}
-                <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold', letterSpacing: '0.02em' }}>{item.operator}</span>
-                
-                {/* Time: No Bold */}
+                <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
                 
-                {/* 2. Route Info: Purple Regions & Blue Points (No Bold) */}
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
+                  {/* Pickup & Dropoff unified to 15px, No Bold, Blue Color */}
                   <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', fontWeight: 'normal' }}>
                     📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region}</span> {item.pickup_point}
                   </div>
-                  <div style={{ fontSize: '14px', color: '#2563eb', fontWeight: 'normal' }}>
+                  <div style={{ fontSize: '15px', color: '#2563eb', fontWeight: 'normal' }}>
                     🏁 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.arrival_region}</span> {item.dropoff_point}
                   </div>
                 </div>
 
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
-                  <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span><span style={{ fontSize: '26px' }}>{item.price}</span></div>
+                  <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span><span style={{ fontSize: '24px' }}>{item.price}</span></div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
                 </div>
 
