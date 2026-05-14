@@ -157,28 +157,20 @@ const App: React.FC = () => {
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px', fontFamily: 'sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column' }}>
       
-      {/* --- 頂部 Header 更新區域 --- */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        
-        {/* 左上角：Logo + 標題 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* 如果你有自己嘅 Logo 圖，將網址放喺 src 入面，例如 src="https://example.com/logo.png" */}
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
           <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
         </div>
-
-        {/* 右上角：最後更新日期及時間 */}
         <div style={{ fontSize: '10px', textAlign: 'right', lineHeight: '1.3' }}>
           <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
           <div>{lastUpdated}</div>
         </div>
-
       </header>
-      {/* --- 頂部 Header 更新區域完結 --- */}
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
         {/* 搜尋卡片 */}
         <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -271,12 +263,12 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 */}
+                {/* 右上角：開車時間 (14px 適中) */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
                 
-                {/* 中間：路線資訊 */}
+                {/* 中間：路線資訊 (顯示城鎮與具體站點) */}
                 <div style={{ marginBottom: '10px', paddingRight: '70px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>
                     📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong>
@@ -286,7 +278,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 */}
+                {/* 右中位置：價錢與行車時間 (已移除 ⏳) */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
@@ -307,6 +299,13 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* --- 新增：頁尾 Footer --- */}
+      <footer style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8', fontSize: '12px', borderTop: '1px solid #e2e8f0', marginTop: 'auto', backgroundColor: '#f8fafc' }}>
+        <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>深中珠巴士通攻略 © {new Date().getFullYear()}</p>
+        <p style={{ margin: 0, lineHeight: '1.5' }}>免責聲明：本網站提供的所有班次及票價資訊僅供參考，實際營運情況可能因營辦商安排而有所變動。強烈建議乘客在購票或出發前，向相關官方渠道核實最新資訊。</p>
+      </footer>
+      {/* --- Footer 完結 --- */}
 
       {/* 微信購票彈窗 */}
       {showModal && (
