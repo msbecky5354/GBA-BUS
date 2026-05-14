@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (嚴格匹配 TypeScript 構建要求)
 interface BusItem {
   operator: string;
   departure_region: string;
-  departure_town: string; // Column C
+  departure_town: string;
   pickup_point: string;
   arrival_region: string;
-  arrival_town: string;   // Column F
+  arrival_town: string;
   dropoff_point: string;
   schedule: string;
   estimated_duration: string;
@@ -24,6 +24,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
+// Google AdSense
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try { ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({}); } catch (err) {}
@@ -89,7 +90,8 @@ const App: React.FC = () => {
             else { curVal += char; }
           }
           v.push(curVal.trim());
-          if (v.length < 10) return null;
+          if (v.length < 14) return null; // 確保基本數據長度
+
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -115,6 +117,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
+  // 互斥選單邏輯
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
     return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
@@ -156,13 +159,14 @@ const App: React.FC = () => {
 
   const showNotice = (type: string) => {
     let content = null;
+    let title = '';
     switch (type) {
-      case 'about': content = <p>「深中珠巴士懶人包」致力於提供最新、最齊全的跨市巴士資訊。</p>; break;
-      case 'contact': content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank">中山美食地圖群組</a></p>; break;
-      case 'privacy': content = <p>本站使用 Google Analytics 及 AdSense 服務。</p>; break;
-      case 'terms': content = <p>本站資訊僅供參考，強烈建議出發前向營運商核實。</p>; break;
+      case 'about': title = '關於我們'; content = <p>「深中珠巴士懶人包」致力於提供最新跨市巴士資訊。</p>; break;
+      case 'contact': title = '聯絡我們'; content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer">中山美食地圖群組</a></p>; break;
+      case 'privacy': title = '隱私權政策'; content = <p>本站使用 Google Analytics 及 AdSense 服務。</p>; break;
+      case 'terms': title = '服務條款'; content = <p>資訊僅供參考，請向營運商核實。</p>; break;
     }
-    if (content) setNoticeInfo({ title: '資訊', content });
+    if (content) setNoticeInfo({ title, content });
   };
 
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
@@ -212,13 +216,11 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '200px' }}>
-                {/* Top Row: Operator & Schedule */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
 
-                {/* Middle Row: Address & Price */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
@@ -234,7 +236,6 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom Row: Info & Button */}
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊 Info</div>
