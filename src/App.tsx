@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (對應 18 個欄位結構)
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -10,7 +10,6 @@ interface BusItem {
   arrival_town: string;
   dropoff_point: string;
   schedule: string;
-  // FT, LT 暫不顯示但需佔位以正確解析後續欄位
   estimated_duration: string;
   price: string;
   currency: string;
@@ -21,16 +20,27 @@ interface BusItem {
   sort_ar: number;
 }
 
+// 擴展 Window 型別以支援 AdSense
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
-      const ads = (window as any).adsbygoogle;
-      if (ads) ads.push({});
-    } catch (err) {}
+      if (window.adsbygoogle) {
+        window.adsbygoogle.push({});
+      }
+    } catch (err) {
+      console.error('AdSense Error:', err);
+    }
   }, []);
   return (
     <ins className="adsbygoogle"
@@ -42,7 +52,7 @@ const AdBanner: React.FC = () => {
 };
 
 const SwapButtonIcon = () => (
-  <img src="/image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
+  <img src="/image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
 );
 
 const App: React.FC = () => {
@@ -70,7 +80,10 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
-    return () => { window.removeEventListener('resize', handleResize); window.removeEventListener('scroll', handleScroll); };
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -93,7 +106,7 @@ const App: React.FC = () => {
             else { curVal += char; }
           }
           v.push(curVal.trim());
-          if (v.length < 18) return null; 
+          if (v.length < 18) return null;
 
           return {
             operator: (v[0] || '').trim(),
@@ -104,18 +117,24 @@ const App: React.FC = () => {
             arrival_town: (v[5] || '').trim(),
             dropoff_point: (v[6] || '').trim(),
             schedule: (v[7] || '').trim(),
-            estimated_duration: (v[10] || '').trim(), // Index shifted by 2 due to FT/LT
-            price: (v[11] || '').trim(),              // Index shifted
-            currency: (v[12] || '').trim(),           // Index shifted
-            booking_remarks: (v[13] || '').trim(),    // Index shifted
-            source_url: (v[14] || '').trim(),         // Index shifted
-            wechat_app: (v[15] || '').replace(/\r$/, '').trim(), // Index shifted
-            sort_dr: parseInt((v[16] || '').trim(), 10) || -9999, // Index shifted
-            sort_ar: parseInt((v[17] || '').trim(), 10) || -9999  // Index shifted
+            estimated_duration: (v[10] || '').trim(),
+            price: (v[11] || '').trim(),
+            currency: (v[12] || '').trim(),
+            booking_remarks: (v[13] || '').trim(),
+            source_url: (v[14] || '').trim(),
+            wechat_app: (v[15] || '').replace(/\r$/, '').trim(),
+            sort_dr: parseInt((v[16] || '').trim(), 10) || -9999,
+            sort_ar: parseInt((v[17] || '').trim(), 10) || -9999
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
-        setBusData(result); setFilteredData(result); setLoading(false);
-      } catch (error) { setLoading(false); }
+        
+        setBusData(result);
+        setFilteredData(result);
+        setLoading(false);
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -132,15 +151,26 @@ const App: React.FC = () => {
 
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || -9999, i.sort_dr)); });
+    busData.forEach(i => {
+      if (!depRegionFilter || i.departure_region === depRegionFilter) {
+        townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || -9999, i.sort_dr));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => a[1] !== b[1] ? b[1] - a[1] : a[0].localeCompare(b[0], 'zh-HK')).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || -9999, i.sort_ar)); });
+    busData.forEach(i => {
+      if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
+        townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || -9999, i.sort_ar));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => a[1] !== b[1] ? b[1] - a[1] : a[0].localeCompare(b[0], 'zh-HK')).map(e => e[0]);
   }, [busData, arrRegionFilter]);
+
+  const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
+  const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
 
   useEffect(() => {
     setFilteredData(busData.filter(i => (
@@ -156,7 +186,8 @@ const App: React.FC = () => {
   };
 
   const handleReset = () => {
-    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter(''); setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
+    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
+    setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
   const showNotice = (type: string) => {
@@ -217,12 +248,14 @@ const App: React.FC = () => {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
-              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '200px' }}>
+              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px' }}>
+                {/* 第一行：營運商與時間 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
 
+                {/* 第二行：地址與價格 Flex 佈局 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
@@ -232,12 +265,13 @@ const App: React.FC = () => {
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town.length > 2 ? item.arrival_town.substring(2) : item.arrival_town}</span> {item.dropoff_point}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right', minWidth: '100px' }}>
+                  <div style={{ textAlign: 'right', minWidth: '90px' }}>
                     <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span><span style={{ fontSize: '24px' }}>{item.price}</span></div>
                     <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
                   </div>
                 </div>
 
+                {/* 第三行：資訊與按鈕 */}
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊 Info</div>
@@ -281,7 +315,7 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', textAlign: 'center' }}>
             <p>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
-            <button onClick={() => {navigator.clipboard.writeText(selectedWechatApp); alert('已複製！');}} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none' }}>一鍵複製</button>
+            <button onClick={() => { if (navigator.clipboard) { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); } }} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none' }}>一鍵複製</button>
             <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px' }}>暫時關閉</button>
           </div>
         </div>
