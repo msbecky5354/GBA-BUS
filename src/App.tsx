@@ -31,7 +31,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense 組件
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -191,7 +191,7 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線資訊。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新跨市巴士路線資訊。</p>
             <p>我們整合各大巴士營運商數據，讓您一站式搜尋出行方案。</p>
             <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
           </>
@@ -207,16 +207,16 @@ const App: React.FC = () => {
         break;
       case 'terms':
         title = '服務條款';
-        content = <p>本站資訊僅供參考。購票前請務必向官方營運商核實最新資訊。對因依賴本站造成的延誤不負責任。</p>;
+        content = <p>本站資訊僅供參考。購票前請務必向官方營運商核實最新資訊。</p>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
   };
 
-  // 鎖定文字顏色，防止變成淺色
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', color: '#1e293b', fontFamily: GLOBAL_FONT };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#1e293b' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
+  const mapLinkStyle: React.CSSProperties = { textDecoration: 'none', color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '2px' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
@@ -269,10 +269,14 @@ const App: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
-                      📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point}
+                      <a href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={mapLinkStyle}>
+                        📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 🗺️
+                      </a>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
-                      🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
+                      <a href={`https://www.amap.com/search?query=${item.arrival_region}${item.arrival_town}${item.dropoff_point}`} target="_blank" rel="noreferrer" style={mapLinkStyle}>
+                        🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point} 🗺️
+                      </a>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', minWidth: '90px' }}>
