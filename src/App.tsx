@@ -20,7 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 防止 Vercel Build Error 的型別宣告
+// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -31,7 +31,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -81,7 +81,6 @@ const App: React.FC = () => {
     return () => { window.removeEventListener('resize', handleResize); window.removeEventListener('scroll', handleScroll); };
   }, []);
 
-  // 解析數據
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -132,7 +131,6 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 互斥地區選單
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
     return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
@@ -143,7 +141,6 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-  // 出發城鎮：按 Sort_DR 降序
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -154,7 +151,6 @@ const App: React.FC = () => {
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 目的城鎮：按 Sort_AR 降序
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -175,23 +171,21 @@ const App: React.FC = () => {
     )));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
-  // --- 核心修正：全路徑同步交換 ---
+  // 全路徑交換
   const handleFullSwap = () => {
-    // 獲取當前所有狀態的快照
-    const currentDepR = depRegionFilter;
-    const currentDepT = depTownFilter;
-    const currentDepP = pickupFilter;
-    const currentArrR = arrRegionFilter;
-    const currentArrT = arrTownFilter;
-    const currentArrP = dropoffFilter;
+    const curDepR = depRegionFilter;
+    const curDepT = depTownFilter;
+    const curDepP = pickupFilter;
+    const curArrR = arrRegionFilter;
+    const curArrT = arrTownFilter;
+    const curArrP = dropoffFilter;
 
-    // 一次性同步對調所有狀態
-    setDepRegionFilter(currentArrR);
-    setArrRegionFilter(currentDepR);
-    setDepTownFilter(currentArrT);
-    setArrTownFilter(currentDepT);
-    setPickupFilter(currentArrP);
-    setDropoffFilter(currentDepP);
+    setDepRegionFilter(curArrR);
+    setArrRegionFilter(curDepR);
+    setDepTownFilter(curArrT);
+    setArrTownFilter(curDepT);
+    setPickupFilter(curArrP);
+    setDropoffFilter(curDepP);
   };
 
   const handleReset = () => {
@@ -207,23 +201,49 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
-            <p>我們整合了各大巴士營運商的數據，讓您一站式搜尋出行方案。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立資訊平台，並非官方營運商。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們深知跨境及跨市交通的繁瑣，因此整合了各大巴士營運商的數據，讓您能一站式搜尋並比較最適合的出行方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
           </>
         );
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = (
+          <>
+            <p>如果您對本懶人包有任何建議、發現班次資料需要更新，或者有商業合作意向，歡迎透過以下方式與我們聯絡：</p>
+            <ul style={{ lineHeight: '2' }}>
+              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></li>
+            </ul>
+            <p>我們會在收到訊息後盡快回覆您。感謝您協助我們完善這份懶人包！</p>
+          </>
+        );
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及提供相關廣告。</p>;
+        content = (
+          <>
+            <p>本隱私權政策旨在說明我們如何處理您的資訊：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>資訊收集：</strong>本站主要為資訊展示平台，一般情況下不會主動要求使用者提供個人身分識別資訊。</li>
+              <li><strong>第三方服務與 Cookies：</strong>本站使用了 Google Analytics 及 Google AdSense。這些服務會使用 Cookies 來收集訪問數據，以提供相關廣告及分析流量。</li>
+              <li><strong>外部連結：</strong>點擊購票連結後，您的隱私將受該第三方網站的政策管轄，本站不對其行為負責。</li>
+            </ul>
+          </>
+        );
         break;
       case 'terms':
         title = '服務條款';
-        content = <p>本站資訊僅供參考。購票或出行前請務必向官方營運商核實最新資訊。</p>;
+        content = (
+          <>
+            <p>歡迎使用「深中珠巴士懶人包」。使用本站即代表您同意以下條款：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>免責聲明：</strong>本站提供的所有巴士班次、票價、路線等資訊僅供參考。雖然我們致力確保資料準確，但不保證資訊的絕對正確性。購票前請務必向官方核實。</li>
+              <li><strong>責任限制：</strong>對於因依賴本站資訊而導致的任何延誤、損失或不便，本站概不負責。</li>
+              <li><strong>版權聲明：</strong>本站的介面設計及資料整合方式受版權保護。未經許可，請勿擅自抓取或複製本站作商業用途。</li>
+            </ul>
+          </>
+        );
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -251,22 +271,16 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
-              
-              {/* 第一層：地區 */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發地與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
-
-              {/* 第二層：城鎮 (已修正 Swap 按鈕與完整名稱顯示) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發地與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
-
-              {/* 第三層：站點 (無 Swap) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">所有</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
                 <div style={{ width: '32px', flexShrink: 0 }} />
