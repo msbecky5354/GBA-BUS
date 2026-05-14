@@ -61,12 +61,23 @@ const App: React.FC = () => {
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
 
   const [isMobile, setIsMobile] = useState(false);
+  
+  // --- 新增：返回頂部按鈕顯示狀態 ---
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    // 監聽滾動事件，超過 300px 顯示「返回頂部」按鈕
+    const handleScroll = () => setShowBackToTop(window.scrollY > 300);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // 2. 數據抓取
@@ -280,7 +291,7 @@ const App: React.FC = () => {
   const footerDividerStyle: React.CSSProperties = { color: '#cbd5e1' };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', position: 'relative' }}>
       
       {/* 頂部 Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -295,77 +306,80 @@ const App: React.FC = () => {
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋卡片 */}
-        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>出發地區</span>
-                <select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}>
-                  <option value="">所有地區</option>
-                  {depRegions.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
+        
+        {/* --- 更新：將搜尋卡片最大闊度還原為 1000px，保持最佳比例 --- */}
+        <div style={{ maxWidth: '1000px', margin: '0 auto 24px' }}>
+          <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>出發地區</span>
+                  <select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}>
+                    <option value="">所有地區</option>
+                    {depRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <button onClick={handleSwapRegions} style={swapBtnStyle}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                  </svg>
+                </button>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>目的地區</span>
+                  <select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}>
+                    <option value="">所有地區</option>
+                    {arrRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
               </div>
-              <button onClick={handleSwapRegions} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
-              </button>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>目的地區</span>
-                <select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}>
-                  <option value="">所有地區</option>
-                  {arrRegions.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>出發城鎮</span>
-                <select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
-                  <option value="">所有城鎮</option>
-                  {depTowns.map(r => <option key={r} value={r}>{depRegionFilter ? r.substring(2) : r}</option>)}
-                </select>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>出發城鎮</span>
+                  <select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
+                    <option value="">所有城鎮</option>
+                    {depTowns.map(r => <option key={r} value={r}>{depRegionFilter ? r.substring(2) : r}</option>)}
+                  </select>
+                </div>
+                <button onClick={handleSwapTowns} style={swapBtnStyle}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                  </svg>
+                </button>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>目的城鎮</span>
+                  <select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}>
+                    <option value="">所有城鎮</option>
+                    {arrTowns.map(r => <option key={r} value={r}>{arrRegionFilter ? r.substring(2) : r}</option>)}
+                  </select>
+                </div>
               </div>
-              <button onClick={handleSwapTowns} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
-              </button>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>目的城鎮</span>
-                <select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}>
-                  <option value="">所有城鎮</option>
-                  {arrTowns.map(r => <option key={r} value={r}>{arrRegionFilter ? r.substring(2) : r}</option>)}
-                </select>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>上車站點</span>
-                <select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}>
-                  <option value="">所有站點</option>
-                  {availablePickups.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>上車站點</span>
+                  <select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}>
+                    <option value="">所有站點</option>
+                    {availablePickups.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <button onClick={handleSwapPoints} style={swapBtnStyle}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
+                  </svg>
+                </button>
+                <div style={{ flex: 1 }}>
+                  <span style={labelStyle}>落車站點</span>
+                  <select style={selectStyle} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}>
+                    <option value="">所有站點</option>
+                    {availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
               </div>
-              <button onClick={handleSwapPoints} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
-              </button>
-              <div style={{ flex: 1 }}>
-                <span style={labelStyle}>落車站點</span>
-                <select style={selectStyle} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}>
-                  <option value="">所有站點</option>
-                  {availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-            </div>
 
-            <button onClick={handleReset} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' }}>一鍵還原所有搜尋條件</button>
+              <button onClick={handleReset} style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' }}>一鍵還原所有搜尋條件</button>
+            </div>
           </div>
         </div>
 
@@ -380,7 +394,6 @@ const App: React.FC = () => {
                   {item.schedule}
                 </div>
                 
-                {/* 中間：路線資訊 (加大了 paddingRight 避免撞價錢) */}
                 <div style={{ marginBottom: '10px', paddingRight: '100px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>
                     📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong>
@@ -390,7 +403,6 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 (優化了貨幣及數字比例) */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontWeight: '900', color: '#ef4444' }}>
                     <span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span>
@@ -414,12 +426,15 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* 頁尾免責聲明及 Google Ads */}
       <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
         
+        {/* Google Ads 廣告展示區塊 */}
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}>
           <AdBanner />
         </div>
 
+        {/* 4 個聲明連結 */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={(e) => { e.preventDefault(); showNotice('about'); }} style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
@@ -433,6 +448,7 @@ const App: React.FC = () => {
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
         
+        {/* 開發者資訊 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span>
           <img src="/image.png" alt="Developer Logo" style={{ height: '16px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -440,6 +456,20 @@ const App: React.FC = () => {
         </div>
       </footer>
 
+      {/* --- 返回頂部按鈕 --- */}
+      {showBackToTop && (
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 90 }}
+          title="返回頂部"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+        </button>
+      )}
+
+      {/* 聲明內容彈窗 */}
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', textAlign: 'left', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
@@ -454,6 +484,7 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* 微信購票彈窗 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
