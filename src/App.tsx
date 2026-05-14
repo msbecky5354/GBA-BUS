@@ -100,7 +100,6 @@ const App: React.FC = () => {
 
           if (v.length < 10) return null;
 
-          // 提取 Sort_DR (第O欄, index 14) 及 Sort_AR (第P欄, index 15)
           const parsedSortDR = parseInt((v[14] || '').trim(), 10);
           const parsedSortAR = parseInt((v[15] || '').trim(), 10);
 
@@ -117,7 +116,6 @@ const App: React.FC = () => {
             booking_remarks: (v[11] || '').trim(),
             source_url: (v[12] || '').trim(),
             wechat_app: v[13] ? v[13].replace(/\r$/, '').trim() : '',
-            // 降冪排序：預設設為極小數(-9999)，確保無數字的選項排在最底
             sort_dr: isNaN(parsedSortDR) ? -9999 : parsedSortDR,
             sort_ar: isNaN(parsedSortAR) ? -9999 : parsedSortAR
           };
@@ -145,7 +143,6 @@ const App: React.FC = () => {
   const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
 
-  // 第二級 (出發城鎮) - 降冪排序 (Descending: b - a)
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -160,13 +157,12 @@ const App: React.FC = () => {
     return Array.from(townMap.entries())
       .filter(e => Boolean(e[0]))
       .sort((a, b) => {
-        if (a[1] !== b[1]) return b[1] - a[1]; // 由大到細
+        if (a[1] !== b[1]) return b[1] - a[1];
         return a[0].localeCompare(b[0], 'zh-HK');
       })
       .map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 第二級 (目的城鎮) - 降冪排序 (Descending: b - a)
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -181,7 +177,7 @@ const App: React.FC = () => {
     return Array.from(townMap.entries())
       .filter(e => Boolean(e[0]))
       .sort((a, b) => {
-        if (a[1] !== b[1]) return b[1] - a[1]; // 由大到細
+        if (a[1] !== b[1]) return b[1] - a[1];
         return a[0].localeCompare(b[0], 'zh-HK');
       })
       .map(e => e[0]);
@@ -298,7 +294,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
+      {/* 擴闊主容器至 1280px */}
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
         {/* 搜尋卡片 */}
         <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -373,9 +370,9 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* 班次列表 */}
+        {/* 班次列表 (優化 Grid 比例，適合顯示 4 行) */}
         {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
@@ -413,15 +410,15 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* 頁尾免責聲明及 Google Ads */}
-      <footer style={{ maxWidth: '1000px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
+      {/* 擴闊頁尾至 1280px */}
+      <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
         
         {/* Google Ads 廣告展示區塊 */}
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}>
           <AdBanner />
         </div>
 
-        {/* 4 個聲明連結 (點擊彈出內容) */}
+        {/* 4 個聲明連結 */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={(e) => { e.preventDefault(); showNotice('about'); }} style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
@@ -435,7 +432,7 @@ const App: React.FC = () => {
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
         
-        {/* 開發者資訊 (此處使用 image.png) */}
+        {/* 開發者資訊 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span>
           <img src="/image.png" alt="Developer Logo" style={{ height: '16px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
