@@ -18,6 +18,33 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
+// --- 新增：Google AdSense 廣告組件 ---
+const AdSenseUnit: React.FC = () => {
+  useEffect(() => {
+    try {
+      // 確保每次加載組件時推播廣告
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    } catch (e) {
+      console.error("AdSense error:", e);
+    }
+  }, []);
+
+  return (
+    <div style={{ textAlign: 'center', margin: '20px auto', maxWidth: '1000px', overflow: 'hidden' }}>
+      <span style={{ fontSize: '10px', color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>- 廣告 Advertisement -</span>
+      <ins className="adsbygoogle"
+           style={{ display: 'block' }}
+           // 👇 記得換成你嘅 Google AdSense Publisher ID (例如 ca-pub-1234567890) 👇
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" 
+           // 👇 記得換成你申請嘅廣告單元 Slot ID 👇
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  );
+};
+// --- 廣告組件完結 ---
+
 const App: React.FC = () => {
   const [busData, setBusData] = useState<BusItem[]>([]);
   const [filteredData, setFilteredData] = useState<BusItem[]>([]);
@@ -97,7 +124,6 @@ const App: React.FC = () => {
         setFilteredData(result);
         setLoading(false);
         
-        // 組合完整日期與時間
         const now = new Date();
         const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const timeStr = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
@@ -151,13 +177,12 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '0', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column' }}>
       
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -175,7 +200,6 @@ const App: React.FC = () => {
         <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             
-            {/* 第一級：地區 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>出發地區</span>
@@ -185,9 +209,7 @@ const App: React.FC = () => {
                 </select>
               </div>
               <button onClick={handleSwapRegions} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" /></svg>
               </button>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>目的地區</span>
@@ -198,38 +220,26 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* 第二級：城鎮 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>出發城鎮</span>
                 <select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
                   <option value="">所有城鎮</option>
-                  {depTowns.map(r => (
-                    <option key={r} value={r}>
-                      {depRegionFilter ? r.substring(2) : r}
-                    </option>
-                  ))}
+                  {depTowns.map(r => <option key={r} value={r}>{depRegionFilter ? r.substring(2) : r}</option>)}
                 </select>
               </div>
               <button onClick={handleSwapTowns} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" /></svg>
               </button>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>目的城鎮</span>
                 <select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}>
                   <option value="">所有城鎮</option>
-                  {arrTowns.map(r => (
-                    <option key={r} value={r}>
-                      {arrRegionFilter ? r.substring(2) : r}
-                    </option>
-                  ))}
+                  {arrTowns.map(r => <option key={r} value={r}>{arrRegionFilter ? r.substring(2) : r}</option>)}
                 </select>
               </div>
             </div>
 
-            {/* 第三級：站點 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>上車站點</span>
@@ -239,9 +249,7 @@ const App: React.FC = () => {
                 </select>
               </div>
               <button onClick={handleSwapPoints} style={swapBtnStyle}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" />
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3l4 4-4 4" /><path d="M20 7H4" /><path d="M8 21l-4-4 4-4" /><path d="M4 17h16" /></svg>
               </button>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>落車站點</span>
@@ -263,12 +271,10 @@ const App: React.FC = () => {
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
                 <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* 右上角：開車時間 (14px 適中) */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>
                   {item.schedule}
                 </div>
                 
-                {/* 中間：路線資訊 (顯示城鎮與具體站點) */}
                 <div style={{ marginBottom: '10px', paddingRight: '70px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#334155', wordBreak: 'break-word' }}>
                     📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong>
@@ -278,13 +284,11 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 右中位置：價錢與行車時間 (已移除 ⏳) */}
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ef4444' }}>{item.currency}{item.price}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
                 </div>
 
-                {/* 底部：備註與按鈕 */}
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
                     <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '2px' }}>巴士路線</div>
@@ -300,12 +304,14 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* --- 新增：頁尾 Footer --- */}
+      {/* --- 廣告區塊 --- */}
+      <AdSenseUnit />
+
+      {/* --- 頁尾 Footer --- */}
       <footer style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8', fontSize: '12px', borderTop: '1px solid #e2e8f0', marginTop: 'auto', backgroundColor: '#f8fafc' }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>深中珠巴士通攻略 © {new Date().getFullYear()}</p>
         <p style={{ margin: 0, lineHeight: '1.5' }}>免責聲明：本網站提供的所有班次及票價資訊僅供參考，實際營運情況可能因營辦商安排而有所變動。強烈建議乘客在購票或出發前，向相關官方渠道核實最新資訊。</p>
       </footer>
-      {/* --- Footer 完結 --- */}
 
       {/* 微信購票彈窗 */}
       {showModal && (
