@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (嚴格匹配 TypeScript 構建要求)
+// 1. 定義資料型態 (對應 18 個欄位結構)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -10,6 +10,7 @@ interface BusItem {
   arrival_town: string;
   dropoff_point: string;
   schedule: string;
+  // FT, LT 暫不顯示但需佔位以正確解析後續欄位
   estimated_duration: string;
   price: string;
   currency: string;
@@ -24,10 +25,12 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense
 const AdBanner: React.FC = () => {
   useEffect(() => {
-    try { ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({}); } catch (err) {}
+    try {
+      const ads = (window as any).adsbygoogle;
+      if (ads) ads.push({});
+    } catch (err) {}
   }, []);
   return (
     <ins className="adsbygoogle"
@@ -90,7 +93,7 @@ const App: React.FC = () => {
             else { curVal += char; }
           }
           v.push(curVal.trim());
-          if (v.length < 14) return null; // 確保基本數據長度
+          if (v.length < 18) return null; 
 
           return {
             operator: (v[0] || '').trim(),
@@ -101,14 +104,14 @@ const App: React.FC = () => {
             arrival_town: (v[5] || '').trim(),
             dropoff_point: (v[6] || '').trim(),
             schedule: (v[7] || '').trim(),
-            estimated_duration: (v[8] || '').trim(),
-            price: (v[9] || '').trim(),
-            currency: (v[10] || '').trim(),
-            booking_remarks: (v[11] || '').trim(),
-            source_url: (v[12] || '').trim(),
-            wechat_app: v[13] ? v[13].replace(/\r$/, '').trim() : '',
-            sort_dr: parseInt((v[14] || '').trim(), 10) || -9999,
-            sort_ar: parseInt((v[15] || '').trim(), 10) || -9999
+            estimated_duration: (v[10] || '').trim(), // Index shifted by 2 due to FT/LT
+            price: (v[11] || '').trim(),              // Index shifted
+            currency: (v[12] || '').trim(),           // Index shifted
+            booking_remarks: (v[13] || '').trim(),    // Index shifted
+            source_url: (v[14] || '').trim(),         // Index shifted
+            wechat_app: (v[15] || '').replace(/\r$/, '').trim(), // Index shifted
+            sort_dr: parseInt((v[16] || '').trim(), 10) || -9999, // Index shifted
+            sort_ar: parseInt((v[17] || '').trim(), 10) || -9999  // Index shifted
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
         setBusData(result); setFilteredData(result); setLoading(false);
@@ -117,7 +120,6 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 互斥選單邏輯
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
     return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
