@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (適配 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -205,7 +205,11 @@ const App: React.FC = () => {
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = (
+          <>
+            <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>
+          </>
+        );
         break;
       case 'privacy':
         title = '隱私權政策';
@@ -219,9 +223,9 @@ const App: React.FC = () => {
     if (content) setNoticeInfo({ title, content });
   };
 
-  // 下拉選單樣式
-  const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
-  // 標籤樣式：背景黃色，文字改為純黑色以提升對比
+  // 下拉選單樣式：明確設定 color 為深色
+  const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', color: '#1e293b', fontFamily: GLOBAL_FONT };
+  // 標籤樣式：背景黃色，文字黑色
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#000000' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
@@ -239,7 +243,6 @@ const App: React.FC = () => {
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋範圍：底色改為淺灰色以襯托黃色標籤 */}
         <div style={{ maxWidth: '1000px', margin: '0 auto 24px', position: 'relative' }}>
           <div style={{ backgroundColor: '#f1f5f9', padding: '24px', borderRadius: '20px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -315,7 +318,6 @@ const App: React.FC = () => {
 
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
-                    {/* 巴士資訊文字改用深金色以提升可讀性 */}
                     <div style={{ fontSize: '10px', color: '#ca8a04', fontWeight: 'bold' }}>巴士資訊</div>
                     <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                   </div>
