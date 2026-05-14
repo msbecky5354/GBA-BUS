@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (對應 18 欄位結構)
+// 1. 定義資料型態 (對應最新的 18 欄位結構)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -143,6 +143,7 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
+  // 出發城鎮排序：Sort_DR 降序
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -156,6 +157,7 @@ const App: React.FC = () => {
       .map(e => e[0]);
   }, [busData, depRegionFilter]);
 
+  // 目的城鎮排序：Sort_AR 降序
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -181,7 +183,6 @@ const App: React.FC = () => {
 
   // 全路徑交換邏輯
   const handleFullSwap = () => {
-    // 先暫存目前所有值
     const oldDepR = depRegionFilter;
     const oldDepT = depTownFilter;
     const oldDepP = pickupFilter;
@@ -189,7 +190,6 @@ const App: React.FC = () => {
     const oldArrT = arrTownFilter;
     const oldArrP = dropoffFilter;
 
-    // 同步對調
     setDepRegionFilter(oldArrR);
     setArrRegionFilter(oldDepR);
     setDepTownFilter(oldArrT);
@@ -255,32 +255,25 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
-              
-              {/* 第一層：地區交換 */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發地與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
-
-              {/* 第二層：城鎮交換 (撇除/完整顯示邏輯) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
-                  <option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r.length > 2 ? r.substring(2) : r}</option>)}
+                  <option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}
                 </select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發地與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}>
                   <option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}
                 </select></div>
               </div>
-
-              {/* 第三層：站點 (無交換掣) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">所有</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
                 <div style={{ width: '32px', flexShrink: 0 }} />
                 <div style={{ flex: 1 }}><span style={labelStyle}>落車站點</span><select style={selectStyle} value={dropoffFilter} onChange={e => setDropoffFilter(e.target.value)}><option value="">所有</option>{availableDropoffs.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
               </div>
-
             </div>
           </div>
         </div>
@@ -299,7 +292,7 @@ const App: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
-                      📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town.length > 2 ? item.departure_town.substring(2) : item.departure_town}</span> {item.pickup_point}
+                      📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point}
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
