@@ -39,11 +39,14 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 互換箭頭圖標元件
-const SwapIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8860B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 10l5-5 5 5" /><path d="M12 5v14" /><path d="M17 14l-5 5-5-5" />
-  </svg>
+// --- 更新：使用你提供的 image_bea913.png 作為交換圖標 ---
+const SwapButtonIcon = () => (
+  <img 
+    src="/image_bea913.png" 
+    alt="Swap" 
+    style={{ width: '32px', height: '32px', display: 'block' }} 
+    onError={(e) => e.currentTarget.style.display = 'none'}
+  />
 );
 
 const App: React.FC = () => {
@@ -169,7 +172,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // --- 更新：4 個聲明的具體內容 ---
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -204,8 +206,8 @@ const App: React.FC = () => {
             <p>本站極為重視您的隱私，特此說明我們的資訊處理方式：</p>
             <ul style={{ lineHeight: '1.8' }}>
               <li><strong>數據收集：</strong>本站為純資訊展示平台，不會主動收集您的個人身份識別資料。</li>
-              <li><strong>第三方分析與廣告：</strong>本站使用 Google Analytics 及 Google AdSense 服務。這些服務會透過 Cookies 收集匿名訪問數據，用於優化網站體驗及提供相關廣告。</li>
-              <li><strong>外部連結：</strong>本站提供的購票連結或微信小程式名稱均指向第三方平台。點擊後之隱私權保護將受該平台之政策管轄，與本站無涉。</li>
+              <li><strong>第三方分析與廣告：</strong>本站使用 Google Analytics 及 Google AdSense 服務。</li>
+              <li><strong>外部連結：</strong>本站提供的購票連結均指向第三方平台。點擊後之隱私權保護將受該平台政策管轄。</li>
             </ul>
           </>
         );
@@ -215,9 +217,9 @@ const App: React.FC = () => {
           <>
             <p>使用「深中珠巴士通攻略」代表您同意以下條款：</p>
             <ul style={{ lineHeight: '1.8' }}>
-              <li><strong>內容僅供參考：</strong>本站所載之班次、票價、站點及路線資訊均蒐集自公開網絡，本站並不保證其 100% 準確性或及時性。</li>
-              <li><strong>核實義務：</strong>強烈建議您在實際購票或出發前，向相關巴士營運商官方核實最新資訊。</li>
-              <li><strong>免責聲明：</strong>對於因依賴本站資訊而產生的任何延誤、損失或不便，本站及其團隊概不承擔任何法律責任。</li>
+              <li><strong>內容僅供參考：</strong>本站所載資訊均蒐集自公開網絡，並不保證其 100% 準確性。</li>
+              <li><strong>核實義務：</strong>強烈建議您在出發前，向巴士營運商官方核實最新資訊。</li>
+              <li><strong>免責聲明：</strong>對於因依賴本站資訊而產生的任何延誤或損失，本站概不負責。</li>
             </ul>
           </>
         );
@@ -227,7 +229,20 @@ const App: React.FC = () => {
 
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
-  const swapBtnStyle: React.CSSProperties = { width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 5px rgba(0,0,0,0.1)' };
+  
+  // 更新後的 Swap 按鈕背景樣式 (設為透明，因為圖片自帶背景顏色)
+  const swapBtnStyle: React.CSSProperties = { 
+    width: '32px', 
+    height: '32px', 
+    border: 'none', 
+    backgroundColor: 'transparent', 
+    cursor: 'pointer', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    flexShrink: 0,
+    padding: 0
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif', position: 'relative' }}>
@@ -266,7 +281,8 @@ const App: React.FC = () => {
                       <option value="">所有</option>{row.options.map(r => <option key={r} value={r}>{idx===1 && depRegionFilter ? r.substring(2) : r}</option>)}
                     </select>
                   </div>
-                  <button onClick={row.swap} style={swapBtnStyle}><SwapIcon /></button>
+                  {/* 使用新的圖片圖標按鈕 */}
+                  <button onClick={row.swap} style={swapBtnStyle}><SwapButtonIcon /></button>
                   <div style={{ flex: 1 }}><span style={labelStyle}>{row.label2}</span>
                     <select style={selectStyle} value={row.val2} onChange={e => {row.set2(e.target.value); row.reset2();}}>
                       <option value="">所有</option>{row.options2.map(r => <option key={r} value={r}>{idx===1 && arrRegionFilter ? r.substring(2) : r}</option>)}
@@ -307,7 +323,6 @@ const App: React.FC = () => {
       <footer style={{ maxWidth: '1280px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center' }}>
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}><AdBanner /></div>
         
-        {/* 4 個聲明連結 */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={() => showNotice('about')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>關於我們</a> |
           <a onClick={() => showNotice('contact')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>聯絡我們</a> |
@@ -316,14 +331,12 @@ const App: React.FC = () => {
         </div>
 
         <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
-        
-        {/* 開發者資訊 (包含 image.png) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px' }} /><span>中山美食地圖群組團隊</span>
         </div>
       </footer>
 
-      {/* Back to Top */}
+      {/* 返回頂部按鈕 */}
       {showBackToTop && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>
       )}
@@ -333,7 +346,7 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', color: '#334155' }}>{noticeInfo.content}</div>
+            <div style={{ fontSize: '14px', color: '#334155', lineHeight: '1.6' }}>{noticeInfo.content}</div>
             <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginTop: '25px', cursor: 'pointer', border: 'none' }}>關閉</button>
           </div>
         </div>
