@@ -55,9 +55,7 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedWechatApp, setSelectedWechatApp] = useState('');
   
-  // 顯示頁尾 4 個聲明內容的彈窗狀態
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
-
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -132,9 +130,18 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾邏輯
-  const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
-  const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
+  // 3. 核心過濾選單邏輯 (加入互斥排除)
+  const depRegions = useMemo(() => {
+    const regions = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
+    // 如果目的地已經選咗，喺出發地選單排除佢
+    return arrRegionFilter ? regions.filter(r => r !== arrRegionFilter) : regions;
+  }, [busData, arrRegionFilter]);
+
+  const arrRegions = useMemo(() => {
+    const regions = Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort();
+    // 如果出發地已經選咗，喺目的地選單排除佢 (例如選了中山，目的地選單就無中山)
+    return depRegionFilter ? regions.filter(r => r !== depRegionFilter) : regions;
+  }, [busData, depRegionFilter]);
 
   const depTowns = useMemo(() => Array.from(new Set(busData.filter(i => !depRegionFilter || i.departure_region.startsWith(depRegionFilter)).map(i => i.departure_region))).filter(Boolean).sort(), [busData, depRegionFilter]);
   const arrTowns = useMemo(() => Array.from(new Set(busData.filter(i => !arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)).map(i => i.arrival_region))).filter(Boolean).sort(), [busData, arrRegionFilter]);
@@ -172,7 +179,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 5. 聲明內容定義
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -231,7 +237,6 @@ const App: React.FC = () => {
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
-  
   const footerLinkStyle: React.CSSProperties = { color: '#3b82f6', textDecoration: 'none', margin: '0 8px', cursor: 'pointer' };
   const footerDividerStyle: React.CSSProperties = { color: '#cbd5e1' };
 
@@ -251,7 +256,6 @@ const App: React.FC = () => {
       </header>
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
-        {/* 搜尋卡片 */}
         <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             
@@ -365,15 +369,11 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* 頁尾免責聲明及 Google Ads */}
       <footer style={{ maxWidth: '1000px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
-        
-        {/* Google Ads 廣告展示區塊 */}
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}>
           <AdBanner />
         </div>
 
-        {/* 4 個聲明連結 (點擊彈出內容) */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a onClick={(e) => { e.preventDefault(); showNotice('about'); }} style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
@@ -386,8 +386,6 @@ const App: React.FC = () => {
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
-        
-        {/* 新增：開發者資訊 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span>
           <img src="/logo.png" alt="Logo" style={{ height: '16px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -395,7 +393,6 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* --- 聲明內容彈窗 --- */}
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', textAlign: 'left', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
@@ -410,7 +407,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 微信購票彈窗 */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
