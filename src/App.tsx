@@ -23,7 +23,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 // 專業中文字體組合
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense 組件
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -41,7 +41,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 交換圖標
+// 使用 image_bea913.png 作為交換圖標
 const SwapButtonIcon = () => (
   <img 
     src="/image_bea913.png" 
@@ -83,7 +83,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // 2. 數據抓取 (獲取伺服器更新時間)
+  // 2. 數據抓取
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -193,15 +193,14 @@ const App: React.FC = () => {
         content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>;
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 用於分析流量及投放廣告。</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <p>本站資訊僅供參考，強烈建議出發前向官方核實最新資訊。對依賴本站造成的延誤不負法律責任。</p>;
+        content = <p>本站資訊僅供參考。強烈建議出發前向官方核實最新資訊。</p>;
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
 
-  // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', fontFamily: GLOBAL_FONT };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
@@ -263,7 +262,6 @@ const App: React.FC = () => {
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
                 
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
-                  {/* Pickup & Dropoff unified to 15px, No Bold, Blue Color */}
                   <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', fontWeight: 'normal' }}>
                     📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region}</span> {item.pickup_point}
                   </div>
@@ -278,7 +276,11 @@ const App: React.FC = () => {
                 </div>
 
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
-                  <div style={{ flex: 1, paddingRight: '15px' }}><div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>巴士路線</div><div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div></div>
+                  <div style={{ flex: 1, paddingRight: '15px' }}>
+                    {/* 更新點：巴士資訊 + 黃色 (選用可讀性高的金色黃) */}
+                    <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊</div>
+                    <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
+                  </div>
                   <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', fontFamily: GLOBAL_FONT }}>{item.wechat_app ? '微信購票' : '立即購票'}</button>
                 </div>
               </div>
