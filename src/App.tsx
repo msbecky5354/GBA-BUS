@@ -20,7 +20,7 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
-// Google AdSense 組件
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -29,6 +29,7 @@ const AdBanner: React.FC = () => {
       console.error('AdSense Error:', err);
     }
   }, []);
+
   return (
     <ins className="adsbygoogle"
          style={{ display: 'block', width: '100%', minHeight: '90px' }}
@@ -38,7 +39,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 交換圖標
+// 使用你提供的 image_bea913.png 作為交換圖標
 const SwapButtonIcon = () => (
   <img 
     src="/image_bea913.png" 
@@ -134,7 +135,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾選單邏輯 (含地區互斥)
+  // 3. 過濾選單邏輯 (互斥排除)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
     return arrRegionFilter ? all.filter(r => r !== arrRegionFilter) : all;
@@ -184,16 +185,31 @@ const App: React.FC = () => {
     let content = null;
     switch (type) {
       case 'about':
-        content = <p>「深中珠巴士通攻略」是一個專為旅客設計的資訊整合平台...</p>;
+        content = (
+          <>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們整合了各大巴士營運商的數據，讓您的出行更加輕鬆便捷。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立運作的第三方資訊平台，並非官方巴士營運商。</p>
+          </>
+        );
         setNoticeInfo({ title: '關於我們', content }); break;
       case 'contact':
-        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>;
+        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <p>本站使用 Google Analytics 及 AdSense 服務...</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務。這些服務會使用 Cookies 收集數據以提供相關廣告及分析流量。</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <p>本站資訊僅供參考，強烈建議出發前向營運商核實。</p>;
+        content = (
+          <>
+            <p>使用「深中珠巴士懶人包」代表您同意以下條款：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>僅供參考：</strong>本站所載資訊不保證 100% 準確或具時效性。</li>
+              <li><strong>核實義務：</strong>強烈建議出發前向營運商核實。</li>
+              <li><strong>免責聲明：</strong>對於依賴本站資訊造成的損失，本站概不負責。</li>
+            </ul>
+          </>
+        );
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
@@ -204,10 +220,11 @@ const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif' }}>
+      {/* Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px' }} />
-          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
+          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
         </div>
         <div style={{ fontSize: '10px', textAlign: 'right' }}>
           <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
@@ -247,13 +264,13 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
-                {/* 1. Operator: Orange Color */}
+                {/* Operator: Orange */}
                 <span style={{ fontSize: '10px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
                 
-                {/* Time: Normal Weight */}
+                {/* Time: Normal weight */}
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
                 
-                {/* 2. Route Info: Purple Region & Blue Points (No Bold) */}
+                {/* Route Info: Purple Region & Blue Points (No Bold) */}
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '6px', color: '#2563eb', fontWeight: 'normal' }}>
                     📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region}</span> {item.pickup_point}
@@ -286,7 +303,7 @@ const App: React.FC = () => {
           <a onClick={() => showNotice('privacy')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>隱私權政策</a> |
           <a onClick={() => showNotice('terms')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>服務條款</a>
         </div>
-        <p>© {new Date().getFullYear()} 深中珠巴士通攻略. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} 深中珠巴士懶人包. All rights reserved.</p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
           <span>開發者:</span><img src="/logo.png" alt="Dev Logo" style={{ height: '16px' }} /><span>中山美食地圖群組團隊</span>
         </div>
@@ -299,7 +316,7 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
             <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
-            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', cursor: 'pointer', border: 'none', fontWeight: 'bold' }}>關閉</button>
+            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', cursor: 'pointer', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
           </div>
         </div>
       )}
