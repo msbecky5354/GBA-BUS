@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (14欄位)
+// 1. 定義資料型態 (14欄位 + 排序欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -14,6 +14,8 @@ interface BusItem {
   booking_remarks: string;
   source_url: string;
   wechat_app: string;
+  sort_dr: number;
+  sort_ar: number;
 }
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
@@ -98,6 +100,10 @@ const App: React.FC = () => {
 
           if (v.length < 10) return null;
 
+          // 提取 Sort_DR (第O欄, index 14) 及 Sort_AR (第P欄, index 15)
+          const parsedSortDR = parseInt((v[14] || '').trim(), 10);
+          const parsedSortAR = parseInt((v[15] || '').trim(), 10);
+
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -110,7 +116,10 @@ const App: React.FC = () => {
             currency: (v[10] || '').trim(),
             booking_remarks: (v[11] || '').trim(),
             source_url: (v[12] || '').trim(),
-            wechat_app: v[13] ? v[13].replace(/\r$/, '').trim() : ''
+            wechat_app: v[13] ? v[13].replace(/\r$/, '').trim() : '',
+            // 降冪排序：預設設為極小數(-9999)，確保無數字的選項排在最底
+            sort_dr: isNaN(parsedSortDR) ? -9999 : parsedSortDR,
+            sort_ar: isNaN(parsedSortAR) ? -9999 : parsedSortAR
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
 
@@ -132,12 +141,51 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾邏輯
+  // 3. 過濾及排序邏輯
   const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
 
-  const depTowns = useMemo(() => Array.from(new Set(busData.filter(i => !depRegionFilter || i.departure_region.startsWith(depRegionFilter)).map(i => i.departure_region))).filter(Boolean).sort(), [busData, depRegionFilter]);
-  const arrTowns = useMemo(() => Array.from(new Set(busData.filter(i => !arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)).map(i => i.arrival_region))).filter(Boolean).sort(), [busData, arrRegionFilter]);
+  // 第二級 (出發城鎮) - 降冪排序 (Descending: b - a)
+  const depTowns = useMemo(() => {
+    const townMap = new Map<string, number>();
+    busData.forEach(i => {
+      if (!depRegionFilter || i.departure_region.startsWith(depRegionFilter)) {
+        if (!townMap.has(i.departure_region)) {
+          townMap.set(i.departure_region, i.sort_dr);
+        } else {
+          townMap.set(i.departure_region, Math.max(townMap.get(i.departure_region)!, i.sort_dr));
+        }
+      }
+    });
+    return Array.from(townMap.entries())
+      .filter(e => Boolean(e[0]))
+      .sort((a, b) => {
+        if (a[1] !== b[1]) return b[1] - a[1]; // 由大到細
+        return a[0].localeCompare(b[0], 'zh-HK');
+      })
+      .map(e => e[0]);
+  }, [busData, depRegionFilter]);
+
+  // 第二級 (目的城鎮) - 降冪排序 (Descending: b - a)
+  const arrTowns = useMemo(() => {
+    const townMap = new Map<string, number>();
+    busData.forEach(i => {
+      if (!arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)) {
+        if (!townMap.has(i.arrival_region)) {
+          townMap.set(i.arrival_region, i.sort_ar);
+        } else {
+          townMap.set(i.arrival_region, Math.max(townMap.get(i.arrival_region)!, i.sort_ar));
+        }
+      }
+    });
+    return Array.from(townMap.entries())
+      .filter(e => Boolean(e[0]))
+      .sort((a, b) => {
+        if (a[1] !== b[1]) return b[1] - a[1]; // 由大到細
+        return a[0].localeCompare(b[0], 'zh-HK');
+      })
+      .map(e => e[0]);
+  }, [busData, arrRegionFilter]);
   
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region.startsWith(depRegionFilter)) && (!depTownFilter || i.departure_region === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region.startsWith(arrRegionFilter)) && (!arrTownFilter || i.arrival_region === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
@@ -172,7 +220,7 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 5. 聲明內容定義 (只有Facebook連結)
+  // 5. 聲明內容定義
   const showNotice = (type: string) => {
     let content = null;
     switch (type) {
@@ -241,7 +289,6 @@ const App: React.FC = () => {
       {/* 頂部 Header */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* 頂部繼續使用 logo.png */}
           <img src="/logo.png" alt="Logo" style={{ height: '28px', width: 'auto', display: 'block' }} onError={(e) => e.currentTarget.style.display = 'none'} />
           <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士通 <span style={{ color: '#FFE600' }}>攻略</span></h1>
         </div>
