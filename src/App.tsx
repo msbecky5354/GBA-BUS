@@ -319,7 +319,7 @@ const App: React.FC = () => {
           <AdBanner />
         </div>
 
-        {/* 4 個聲明連結 */}
+        {/* --- 4 個聲明連結 --- */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
           <a href="#" style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
