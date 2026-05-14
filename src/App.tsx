@@ -20,7 +20,7 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
-// Google AdSense 展示組件
+// Google AdSense 組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
@@ -29,7 +29,6 @@ const AdBanner: React.FC = () => {
       console.error('AdSense Error:', err);
     }
   }, []);
-
   return (
     <ins className="adsbygoogle"
          style={{ display: 'block', width: '100%', minHeight: '90px' }}
@@ -39,7 +38,7 @@ const AdBanner: React.FC = () => {
   );
 };
 
-// 使用你提供的 image_bea913.png 作為交換圖標
+// 交換圖標
 const SwapButtonIcon = () => (
   <img 
     src="/image_bea913.png" 
@@ -135,19 +134,16 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // --- 重點邏輯：互斥排除地區 ---
+  // 3. 過濾選單邏輯 (含地區互斥)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort();
-    // 排除掉目的地已選的地區
     return arrRegionFilter ? all.filter(r => r !== arrRegionFilter) : all;
   }, [busData, arrRegionFilter]);
 
   const arrRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort();
-    // 排除掉出發地已選的地區
     return depRegionFilter ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
-  // -------------------------
 
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
@@ -188,16 +184,16 @@ const App: React.FC = () => {
     let content = null;
     switch (type) {
       case 'about':
-        content = <><p><strong>「深中珠巴士通攻略」</strong> 致力於提供最新、最齊全的跨市巴士資訊。</p></>;
+        content = <p>「深中珠巴士通攻略」是一個專為旅客設計的資訊整合平台...</p>;
         setNoticeInfo({ title: '關於我們', content }); break;
       case 'contact':
-        content = <><p>歡迎加入：</p><ul><li><a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></li></ul></>;
+        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>;
         setNoticeInfo({ title: '聯絡我們', content }); break;
       case 'privacy':
-        content = <><p>本站使用 Google AdSense 及 Analytics 服務。</p></>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務...</p>;
         setNoticeInfo({ title: '隱私權政策', content }); break;
       case 'terms':
-        content = <><p>本站資訊僅供參考，強烈建議出發前向營運商核實。</p></>;
+        content = <p>本站資訊僅供參考，強烈建議出發前向營運商核實。</p>;
         setNoticeInfo({ title: '服務條款', content }); break;
     }
   };
@@ -251,16 +247,27 @@ const App: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '180px' }}>
-                <span style={{ fontSize: '10px', backgroundColor: '#eff6ff', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
-                <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>{item.schedule}</div>
+                {/* 1. Operator: Orange Color */}
+                <span style={{ fontSize: '10px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', alignSelf: 'flex-start', marginBottom: '12px', fontWeight: 'bold' }}>{item.operator}</span>
+                
+                {/* Time: Normal Weight */}
+                <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
+                
+                {/* 2. Route Info: Purple Region & Blue Points (No Bold) */}
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
-                  <div style={{ fontSize: '15px', marginBottom: '6px' }}>📍 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.departure_region}</span> <strong>{item.pickup_point}</strong></div>
-                  <div style={{ fontSize: '14px', color: '#64748b' }}>🏁 <span style={{ fontSize: '12px', color: '#94a3b8' }}>{item.arrival_region}</span> <strong>{item.dropoff_point}</strong></div>
+                  <div style={{ fontSize: '15px', marginBottom: '6px', color: '#2563eb', fontWeight: 'normal' }}>
+                    📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region}</span> {item.pickup_point}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#2563eb', fontWeight: 'normal' }}>
+                    🏁 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.arrival_region}</span> {item.dropoff_point}
+                  </div>
                 </div>
+
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
                   <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px' }}>{item.currency}</span><span style={{ fontSize: '24px' }}>{item.price}</span></div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
                 </div>
+
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}><div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>巴士路線</div><div style={{ fontSize: '11px', color: '#64748b' }}>{item.booking_remarks || '--'}</div></div>
                   <button onClick={() => item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')} style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>{item.wechat_app ? '微信購票' : '立即購票'}</button>
@@ -290,8 +297,8 @@ const App: React.FC = () => {
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
-            <h2 style={{ color: '#B8860B' }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{noticeInfo.content}</div>
+            <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
+            <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
             <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', cursor: 'pointer', border: 'none', fontWeight: 'bold' }}>關閉</button>
           </div>
         </div>
