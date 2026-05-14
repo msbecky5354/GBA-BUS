@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (適配 18 欄位)
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,7 +20,6 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -77,7 +76,10 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
-    return () => { window.removeEventListener('resize', handleResize); window.removeEventListener('scroll', handleScroll); };
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -189,6 +191,13 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
+  // 跳轉高德地圖函數
+  const openAmap = (region: string, town: string, point: string) => {
+    const keyword = `${region}${town}${point}`;
+    const url = `https://www.amap.com/search?query=${encodeURIComponent(keyword)}`;
+    window.open(url, '_blank');
+  };
+
   const showNotice = (type: string) => {
     let content = null;
     let title = '';
@@ -205,11 +214,7 @@ const App: React.FC = () => {
         break;
       case 'contact':
         title = '聯絡我們';
-        content = (
-          <>
-            <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>
-          </>
-        );
+        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
@@ -223,11 +228,10 @@ const App: React.FC = () => {
     if (content) setNoticeInfo({ title, content });
   };
 
-  // 下拉選單樣式：明確設定 color 為深色
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', color: '#1e293b', fontFamily: GLOBAL_FONT };
-  // 標籤樣式：背景黃色，文字黑色
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#000000' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
+  const mapBtnStyle: React.CSSProperties = { marginLeft: '6px', padding: '2px 6px', fontSize: '10px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', color: '#3b82f6', cursor: 'pointer', verticalAlign: 'middle', fontWeight: 'bold' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
@@ -305,9 +309,13 @@ const App: React.FC = () => {
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town.length > 2 ? item.departure_town.substring(2) : item.departure_town}</span> {item.pickup_point}
+                      {/* 高德地圖按鈕 */}
+                      <button onClick={() => openAmap(item.departure_region, item.departure_town, item.pickup_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town.length > 2 ? item.arrival_town.substring(2) : item.arrival_town}</span> {item.dropoff_point}
+                      {/* 同樣為落車站加入地圖功能 */}
+                      <button onClick={() => openAmap(item.arrival_region, item.arrival_town, item.dropoff_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', minWidth: '90px' }}>
