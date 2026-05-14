@@ -43,7 +43,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // 搜索狀態 (3 級連動)
+  // 搜索狀態
   const [depRegionFilter, setDepRegionFilter] = useState('');
   const [depTownFilter, setDepTownFilter] = useState('');
   const [pickupFilter, setPickupFilter] = useState('');
@@ -55,6 +55,9 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedWechatApp, setSelectedWechatApp] = useState('');
   
+  // 顯示頁尾 4 個聲明內容的彈窗狀態
+  const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 2. 數據抓取與專業 CSV 解析邏輯
+  // 2. 數據抓取
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -129,7 +132,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 三級搜尋過濾邏輯
+  // 3. 過濾邏輯
   const depRegions = useMemo(() => Array.from(new Set(busData.map(i => i.departure_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
   const arrRegions = useMemo(() => Array.from(new Set(busData.map(i => i.arrival_region.substring(0, 2)))).filter(Boolean).sort(), [busData]);
 
@@ -150,7 +153,7 @@ const App: React.FC = () => {
     )));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
-  // 4. 智能交換邏輯
+  // 4. 操作邏輯
   const handleSwapRegions = () => {
     const t1 = depRegionFilter; setDepRegionFilter(arrRegionFilter); setArrRegionFilter(t1);
     const t2 = depTownFilter; setDepTownFilter(arrTownFilter); setArrTownFilter(t2);
@@ -169,13 +172,69 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
+  // 5. 聲明內容定義 (已加入 Facebook 群組連結)
+  const showNotice = (type: string) => {
+    let content = null;
+    switch (type) {
+      case 'about':
+        content = (
+          <>
+            <p><strong>「深中珠巴士通」</strong>致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們深知跨境及跨市交通的繁瑣，因此整合了各大巴士營運商的數據，讓您能一站式搜尋並比較最適合的出行方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
+          </>
+        );
+        setNoticeInfo({ title: '關於我們', content });
+        break;
+      case 'contact':
+        content = (
+          <>
+            <p>如果您對本網站有任何建議、發現班次資料需要更新，或者有商業合作意向，歡迎透過以下方式與我們聯絡：</p>
+            <ul style={{ lineHeight: '2' }}>
+              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>加入我們的 Facebook 討論群組</a></li>
+              <li><strong>電郵：</strong> contact@example.com (可按需要保留或刪除)</li>
+              <li><strong>微信公眾號：</strong> 深中珠巴士通 (可按需要保留或刪除)</li>
+            </ul>
+            <p>我們會在收到訊息後盡快回覆您。感謝您協助我們完善這份攻略！</p>
+          </>
+        );
+        setNoticeInfo({ title: '聯絡我們', content });
+        break;
+      case 'privacy':
+        content = (
+          <>
+            <p>本隱私權政策旨在說明我們如何處理您的資訊：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>資訊收集：</strong>本站主要為資訊展示平台，一般情況下不會主動要求使用者提供個人身分識別資訊。</li>
+              <li><strong>第三方服務與 Cookies：</strong>本站使用了 Google Analytics（分析）及 Google AdSense（廣告）。這些服務可能會使用 Cookies 來收集您訪問本站的數據，以提供相關廣告及分析流量。</li>
+              <li><strong>外部連結：</strong>本站包含前往微信小程序或第三方購票網站的連結。點擊這些連結後，您的隱私將受該第三方網站的政策管轄，本站不對其行為負責。</li>
+            </ul>
+          </>
+        );
+        setNoticeInfo({ title: '隱私權政策', content });
+        break;
+      case 'terms':
+        content = (
+          <>
+            <p>歡迎使用「深中珠巴士通」。使用本站即代表您同意以下條款：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li><strong>免責聲明：</strong>本站提供的所有巴士班次、票價、路線等資訊僅供參考。雖然我們致力確保資料準確，但不保證資訊的絕對正確性或時效性。購票或出行前請務必向官方核實。</li>
+              <li><strong>責任限制：</strong>對於因依賴本站資訊而導致的任何延誤、損失或不便，本站概不負責。</li>
+              <li><strong>版權聲明：</strong>本站的介面設計及資料整合方式受版權保護。未經許可，請勿擅自抓取或複製本站作商業用途。</li>
+            </ul>
+          </>
+        );
+        setNoticeInfo({ title: '服務條款', content });
+        break;
+    }
+  };
+
   // 樣式常數
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
   
-  // 底部連結樣式
-  const footerLinkStyle: React.CSSProperties = { color: '#3b82f6', textDecoration: 'none', margin: '0 8px' };
+  const footerLinkStyle: React.CSSProperties = { color: '#3b82f6', textDecoration: 'none', margin: '0 8px', cursor: 'pointer' };
   const footerDividerStyle: React.CSSProperties = { color: '#cbd5e1' };
 
   return (
@@ -198,7 +257,6 @@ const App: React.FC = () => {
         <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             
-            {/* 第一級：地區 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>出發地區</span>
@@ -221,7 +279,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* 第二級：城鎮 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>出發城鎮</span>
@@ -244,7 +301,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* 第三級：站點 */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
               <div style={{ flex: 1 }}>
                 <span style={labelStyle}>上車站點</span>
@@ -319,20 +375,35 @@ const App: React.FC = () => {
           <AdBanner />
         </div>
 
-        {/* --- 4 個聲明連結 --- */}
+        {/* 4 個聲明連結 (點擊彈出內容) */}
         <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
-          <a href="#" style={footerLinkStyle}>關於我們</a>
+          <a onClick={(e) => { e.preventDefault(); showNotice('about'); }} style={footerLinkStyle}>關於我們</a>
           <span style={footerDividerStyle}>|</span>
-          <a href="#" style={footerLinkStyle}>聯絡我們</a>
+          <a onClick={(e) => { e.preventDefault(); showNotice('contact'); }} style={footerLinkStyle}>聯絡我們</a>
           <span style={footerDividerStyle}>|</span>
-          <a href="#" style={footerLinkStyle}>隱私權政策</a>
+          <a onClick={(e) => { e.preventDefault(); showNotice('privacy'); }} style={footerLinkStyle}>隱私權政策</a>
           <span style={footerDividerStyle}>|</span>
-          <a href="#" style={footerLinkStyle}>服務條款</a>
+          <a onClick={(e) => { e.preventDefault(); showNotice('terms'); }} style={footerLinkStyle}>服務條款</a>
         </div>
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
       </footer>
+
+      {/* --- 聲明內容彈窗 --- */}
+      {noticeInfo && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
+          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', textAlign: 'left', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 15px 0', color: '#B8860B', fontSize: '1.5rem' }}>{noticeInfo.title}</h2>
+            <div style={{ fontSize: '14px', color: '#334155', lineHeight: '1.6' }}>
+              {noticeInfo.content}
+            </div>
+            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', backgroundColor: '#f1f5f9', color: '#64748b', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', marginTop: '25px', cursor: 'pointer' }}>
+              關閉
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 微信購票彈窗 */}
       {showModal && (
