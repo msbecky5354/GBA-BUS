@@ -192,10 +192,9 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 跳轉高德地圖
-  const openAmap = (region: string, town: string, point: string) => {
-    const keyword = `${region}${town}${point}`;
-    const url = `https://www.amap.com/search?query=${encodeURIComponent(keyword)}`;
+  // 跳轉高德地圖：僅使用站點文字
+  const openAmap = (point: string) => {
+    const url = `https://www.amap.com/search?query=${encodeURIComponent(point)}`;
     window.open(url, '_blank');
   };
 
@@ -207,7 +206,8 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新跨市巴士資訊。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們整合了各大巴士營運商的數據，讓您一站式搜尋出行方案。</p>
             <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立資訊平台，並非官方營運商。</p>
           </>
         );
@@ -309,11 +309,11 @@ const App: React.FC = () => {
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town.length > 2 ? item.departure_town.substring(2) : item.departure_town}</span> {item.pickup_point}
+                      {/* 地圖按鈕已移至此：上車站點旁 */}
+                      <button onClick={() => openAmap(item.pickup_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town.length > 2 ? item.arrival_town.substring(2) : item.arrival_town}</span> {item.dropoff_point}
-                      {/* 只在落車站點顯示地圖按鈕 */}
-                      <button onClick={() => openAmap(item.arrival_region, item.arrival_town, item.dropoff_point)} style={mapBtnStyle}>🗺️ 地圖</button>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', minWidth: '90px' }}>
