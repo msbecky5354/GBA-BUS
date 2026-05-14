@@ -18,11 +18,10 @@ interface BusItem {
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNrq8s8KnMLKW6p1Dr5IHC6GVdljit8L1T9kXjYKXEFDygfGsXeFHoGqHBhINcESxC_/pub?gid=0&single=true&output=csv';
 
-// --- 新增：Google AdSense 展示組件 ---
+// Google AdSense 展示組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
     try {
-      // 確保廣告腳本運行
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
     } catch (err) {
       console.error('AdSense Error:', err);
@@ -37,7 +36,6 @@ const AdBanner: React.FC = () => {
          data-full-width-responsive="true"></ins>
   );
 };
-// ------------------------------------
 
 const App: React.FC = () => {
   const [busData, setBusData] = useState<BusItem[]>([]);
@@ -175,6 +173,10 @@ const App: React.FC = () => {
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white' };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' };
   const swapBtnStyle: React.CSSProperties = { width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', color: '#B8860B' };
+  
+  // 底部連結樣式
+  const footerLinkStyle: React.CSSProperties = { color: '#3b82f6', textDecoration: 'none', margin: '0 8px' };
+  const footerDividerStyle: React.CSSProperties = { color: '#cbd5e1' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: 'sans-serif' }}>
@@ -309,18 +311,28 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* --- 新增：頁尾免責聲明及 Google Ads --- */}
+      {/* 頁尾免責聲明及 Google Ads */}
       <footer style={{ maxWidth: '1000px', margin: '30px auto 0', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center', lineHeight: '1.6' }}>
         
         {/* Google Ads 廣告展示區塊 */}
-        <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '20px', overflow: 'hidden' }}>
+        <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}>
           <AdBanner />
+        </div>
+
+        {/* 4 個聲明連結 */}
+        <div style={{ margin: '15px 0', fontSize: '13px', fontWeight: 'bold' }}>
+          <a href="#" style={footerLinkStyle}>關於我們</a>
+          <span style={footerDividerStyle}>|</span>
+          <a href="#" style={footerLinkStyle}>聯絡我們</a>
+          <span style={footerDividerStyle}>|</span>
+          <a href="#" style={footerLinkStyle}>隱私權政策</a>
+          <span style={footerDividerStyle}>|</span>
+          <a href="#" style={footerLinkStyle}>服務條款</a>
         </div>
 
         <p style={{ marginBottom: '8px' }}><strong>免責聲明：</strong>本網站提供的所有巴士班次、票價、路線及相關資訊僅供參考，不保證其絕對準確性或時效性。實際情況請以各巴士營運商之官方最新公佈為準。</p>
         <p>© {new Date().getFullYear()} 深中珠巴士通. All rights reserved.</p>
       </footer>
-      {/* -------------------------------------- */}
 
       {/* 微信購票彈窗 */}
       {showModal && (
