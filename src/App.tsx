@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (對應新欄位結構)
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
-  departure_town: string; // New: Column C
+  departure_town: string; // Column C
   pickup_point: string;
   arrival_region: string;
-  arrival_town: string;   // New: Column F
+  arrival_town: string;   // Column F
   dropoff_point: string;
   schedule: string;
   estimated_duration: string;
@@ -69,7 +69,6 @@ const App: React.FC = () => {
     return () => { window.removeEventListener('resize', handleResize); window.removeEventListener('scroll', handleScroll); };
   }, []);
 
-  // 2. 數據抓取與解析 (更新 Index)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -77,7 +76,6 @@ const App: React.FC = () => {
         const serverDateHeader = response.headers.get('Date');
         const updateDate = serverDateHeader ? new Date(serverDateHeader) : new Date();
         setLastUpdated(`${updateDate.getFullYear()}-${String(updateDate.getMonth() + 1).padStart(2, '0')}-${String(updateDate.getDate()).padStart(2, '0')} ${updateDate.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false })}`);
-        
         const csvText = await response.text();
         const lines = csvText.split('\n').filter(line => line.trim() !== '');
         const result = lines.slice(1).map(line => {
@@ -91,17 +89,16 @@ const App: React.FC = () => {
           }
           v.push(curVal.trim());
           if (v.length < 10) return null;
-
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
-            departure_town: (v[2] || '').trim(),   // Column C
-            pickup_point: (v[3] || '').trim(),     // Column D
-            arrival_region: (v[4] || '').trim(),   // Column E
-            arrival_town: (v[5] || '').trim(),     // Column F
-            dropoff_point: (v[6] || '').trim(),    // Column G
-            schedule: (v[7] || '').trim(),         // Column H
-            estimated_duration: (v[8] || '').trim(), 
+            departure_town: (v[2] || '').trim(),
+            pickup_point: (v[3] || '').trim(),
+            arrival_region: (v[4] || '').trim(),
+            arrival_town: (v[5] || '').trim(),
+            dropoff_point: (v[6] || '').trim(),
+            schedule: (v[7] || '').trim(),
+            estimated_duration: (v[8] || '').trim(),
             price: (v[9] || '').trim(),
             currency: (v[10] || '').trim(),
             booking_remarks: (v[11] || '').trim(),
@@ -111,7 +108,6 @@ const App: React.FC = () => {
             sort_ar: parseInt((v[15] || '').trim(), 10) || -9999
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
-        
         result.sort((a, b) => a.departure_region.localeCompare(b.departure_region, 'zh-HK'));
         setBusData(result); setFilteredData(result); setLoading(false);
       } catch (error) { setLoading(false); }
@@ -119,7 +115,6 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. 過濾邏輯 (互斥 & 使用新 Town 欄位)
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
     return (arrRegionFilter && arrRegionFilter !== '深圳') ? all.filter(r => r !== arrRegionFilter) : all;
@@ -132,21 +127,13 @@ const App: React.FC = () => {
 
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { 
-      if (!depRegionFilter || i.departure_region === depRegionFilter) {
-        townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || -9999, i.sort_dr));
-      }
-    });
+    busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || -9999, i.sort_dr)); });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => a[1] !== b[1] ? b[1] - a[1] : a[0].localeCompare(b[0], 'zh-HK')).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { 
-      if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
-        townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || -9999, i.sort_ar));
-      }
-    });
+    busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || -9999, i.sort_ar)); });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => a[1] !== b[1] ? b[1] - a[1] : a[0].localeCompare(b[0], 'zh-HK')).map(e => e[0]);
   }, [busData, arrRegionFilter]);
   
@@ -175,7 +162,7 @@ const App: React.FC = () => {
     switch (type) {
       case 'about': content = <p>「深中珠巴士懶人包」致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>; break;
       case 'contact': content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer">中山美食地圖群組</a></p>; break;
-      case 'privacy': content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>; break;
+      case 'privacy': content = <p>本站使用 Google Analytics 及 AdSense 服務。</p>; break;
       case 'terms': content = <p>本站資訊僅供參考。強烈建議出發前向官方核實最新資訊。</p>; break;
     }
     if (content) setNoticeInfo({ title: type === 'about' ? '關於我們' : type === 'contact' ? '聯絡我們' : type === 'privacy' ? '隱私權政策' : '服務條款', content });
@@ -204,18 +191,25 @@ const App: React.FC = () => {
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               
+              {/* Row 1: Region */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區 Region</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的地區 Region</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
 
+              {/* Row 2: Town (撇除頭兩個字) */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮 District</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮 District</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}>
+                  <option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r.substring(2)}</option>)}
+                </select></div>
                 <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
-                <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮 District</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮 District</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}>
+                  <option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r.substring(2)}</option>)}
+                </select></div>
               </div>
 
+              {/* Row 3: Pickup/Dropoff */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>上車站點 Pickup</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">所有</option>{availablePickups.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
                 <div style={{ width: '32px', flexShrink: 0 }} />
@@ -236,10 +230,10 @@ const App: React.FC = () => {
                 <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '14px', fontWeight: 'normal', color: '#1e293b' }}>{item.schedule}</div>
                 <div style={{ marginBottom: '10px', paddingRight: '110px' }}>
                   <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', fontWeight: 'normal' }}>
-                    📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point}
+                    📍 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.departure_region} · {item.departure_town.substring(2)}</span> {item.pickup_point}
                   </div>
                   <div style={{ fontSize: '15px', color: '#2563eb', fontWeight: 'normal' }}>
-                    🏁 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
+                    🏁 <span style={{ fontSize: '12px', color: '#9333ea' }}>{item.arrival_region} · {item.arrival_town.substring(2)}</span> {item.dropoff_point}
                   </div>
                 </div>
                 <div style={{ position: 'absolute', top: '55%', right: '20px', transform: 'translateY(-50%)', textAlign: 'right' }}>
