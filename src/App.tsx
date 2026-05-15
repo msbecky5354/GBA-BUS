@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (對應 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,6 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
+// 擴展 Window 型別以支援 AdSense 並防止 Build Error
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -30,7 +31,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// 廣告組件 (可重用)
+// 廣告組件
 const AdBanner: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
   useEffect(() => {
     try {
@@ -72,7 +73,7 @@ const App: React.FC = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 1200); // 稍微加寬判斷，讓左右廣告有位放
+    setIsMobile(window.innerWidth < 1200);
     const handleResize = () => setIsMobile(window.innerWidth < 1200);
     window.addEventListener('resize', handleResize);
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
@@ -101,6 +102,7 @@ const App: React.FC = () => {
           }
           v.push(curVal.trim());
           if (v.length < 18) return null;
+
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -120,7 +122,10 @@ const App: React.FC = () => {
             sort_ar: parseInt((v[17] || '').trim(), 10) || 0
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
-        setBusData(result); setFilteredData(result); setLoading(false);
+        
+        setBusData(result);
+        setFilteredData(result);
+        setLoading(false);
       } catch (error) { setLoading(false); }
     };
     fetchData();
@@ -136,15 +141,25 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
+  // 出發城鎮：按 Sort_DR 降序
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr)); });
+    busData.forEach(i => {
+      if (!depRegionFilter || i.departure_region === depRegionFilter) {
+        townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
+  // 目的城鎮：按 Sort_AR 降序
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar)); });
+    busData.forEach(i => {
+      if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
+        townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, arrRegionFilter]);
 
@@ -159,13 +174,16 @@ const App: React.FC = () => {
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
   const handleFullSwap = () => {
-    const dR = depRegionFilter, dT = depTownFilter, dP = pickupFilter;
-    const aR = arrRegionFilter, aT = arrTownFilter, aP = dropoffFilter;
-    setDepRegionFilter(aR); setArrRegionFilter(dR); setDepTownFilter(aT); setArrTownFilter(dT); setPickupFilter(aP); setDropoffFilter(dP);
+    const cDepR = depRegionFilter; const cDepT = depTownFilter; const cDepP = pickupFilter;
+    const cArrR = arrRegionFilter; const cArrT = arrTownFilter; const cArrP = dropoffFilter;
+    setDepRegionFilter(cArrR); setArrRegionFilter(cDepR);
+    setDepTownFilter(cArrT); setArrTownFilter(cDepT);
+    setPickupFilter(cArrP); setDropoffFilter(cDepP);
   };
 
   const handleReset = () => {
-    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter(''); setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
+    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
+    setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
   const showNotice = (type: string) => {
@@ -175,32 +193,30 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線資訊。</p>
-            <p>我們整合各大巴士營運商數據，讓您一站式搜尋出行方案。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們整合了各大巴士營運商的數據，讓您能一站式搜尋並比較最適合的出行方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
           </>
         );
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
-        break;
-      case 'privacy':
-        title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
-        break;
-      case 'terms':
-        title = '服務條款';
         content = (
           <>
-            <p>使用本站即代表您同意以下條款：</p>
-            <ul style={{ lineHeight: '1.8' }}>
-              <li>本站資訊僅供參考，購票前請務必向官方核實。</li>
-              <li>對於因依賴本站資訊導致的損失，本站概不負責。</li>
-              <li>本站設計及資料整合受版權保護，未經許可請勿轉載。</li>
+            <p>如果您對本懶人包有任何建議，歡迎透過以下方式與我們聯絡：</p>
+            <ul style={{ lineHeight: '2' }}>
+              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></li>
             </ul>
           </>
         );
+        break;
+      case 'privacy':
+        title = '隱私權政策';
+        content = <p>本站使用了 Google Analytics 及 Google AdSense。這些服務會使用 Cookies 來收集訪問數據，以提供相關廣告及分析流量。外部連結之隱私政策由第三方網站管轄。</p>;
+        break;
+      case 'terms':
+        title = '服務條款';
+        content = <p>本站資訊僅供參考。雖然我們致力確保資料準確，但不保證資訊的絕對正確性。購票前請務必向官方核實。對於任何延誤或損失，本站概不負責。</p>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
