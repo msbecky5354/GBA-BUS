@@ -190,7 +190,7 @@ const App: React.FC = () => {
           <>
             <p>使用本站服務即代表您知悉並同意以下條款：</p>
             <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-              <li><strong>人手輸入誤差：</strong>由於本站數據由人手錄入，雖致力準確，但仍可能存在延遲。購票前請務必點擊連結，以營運商官方最新資訊為準。</li>
+              <li><strong>人手輸入誤差：</strong>由於本站數據由人手錄入，雖致力準確，但仍可能存在延遲。班次及購票詳情請務必以營運商官方最新資訊為準。</li>
               <li><strong>免責聲明：</strong>本站不承擔因資訊不準確而導致的任何行程延誤、損失或法律責任。</li>
               <li><strong style={{ color: '#ef4444' }}>版權所有，嚴禁抓取：</strong>本站數據為團隊心血結晶。未經書面授權，<strong>嚴禁任何形式的自動化爬蟲抓取、商業轉載或二次開發。</strong>如有發現，本團隊保留一切法律追究權利。</li>
             </ul>
@@ -206,7 +206,21 @@ const App: React.FC = () => {
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
+    <div 
+      onContextMenu={(e) => e.preventDefault()} 
+      onCopy={(e) => e.preventDefault()} 
+      style={{ 
+        WebkitUserSelect: 'none', 
+        MozUserSelect: 'none', 
+        msUserSelect: 'none', 
+        userSelect: 'none', 
+        minHeight: '100vh', 
+        backgroundColor: '#f8fafc', 
+        paddingBottom: '20px', 
+        fontFamily: GLOBAL_FONT, 
+        letterSpacing: '0.01em' 
+      }}
+    >
       
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -251,7 +265,6 @@ const App: React.FC = () => {
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             
-            {/* 🌟 修改了重置按鈕：移除中文字，變成純圓形圖標 */}
             <button 
               onClick={handleReset} 
               style={{ 
@@ -314,13 +327,15 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                  <div style={{ flex: 1, paddingRight: '15px' }}>
+                  <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊</div>
                     <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>{item.booking_remarks || '--'}</div>
                   </div>
+                  
+                  {/* 🌟 修改：直接將 wechat_app 名稱顯示在按鈕上 */}
                   <button onClick={(e) => { e.stopPropagation(); item.wechat_app ? (setSelectedWechatApp(item.wechat_app), setShowModal(true)) : window.open(item.source_url, '_blank')}} 
-                          style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
-                    購票
+                          style={{ backgroundColor: item.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '10px 12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    {item.wechat_app ? `微信: ${item.wechat_app}` : '官網連結'}
                   </button>
                 </div>
               </div>
@@ -349,13 +364,16 @@ const App: React.FC = () => {
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
-            ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
-            ✅ 深圳 &rarr; 珠海<br />
-            ✅ 中山 &rarr; 珠海<br />
-            ✅ 深圳市內 &rarr; 深圳機場<br />
+            本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。主要路徑包含：<br /><br />
+            ✅ <strong>深圳 &rarr; 中山</strong>（經深中通道快線）<br />
+            ✅ <strong>深圳 &rarr; 珠海</strong><br />
+            ✅ <strong>中山 &rarr; 珠海</strong><br />
+            ✅ <strong>深圳市內 &rarr; 深圳機場</strong><br /><br />
+            一站式對比各大營運商時間表、票價與購票方式。
           </div>
           <div style={{ marginTop: '50px', paddingTop: '24px', borderTop: '2px dashed #fef3c7', fontSize: '16px', color: '#92400e', lineHeight: '1.8', backgroundColor: '#fffbeb', padding: '20px', borderRadius: '12px' }}>
-            💡 <strong>編者的話：</strong><br />本站數據由團隊人手蒐集，耗費大量血汗時間。請大家支持「中山美食地圖」團隊！
+            💡 <strong>編者的話：</strong><br />
+            本站背後的數據庫並非官方接口同步，而是由團隊<strong>人手、人肉地蒐集</strong>各大營辦商的零散時間表，並逐一輸入更新。這項工作耗費了大量血汗時間與心力。<strong>請大家大力支持「中山美食地圖」團隊！</strong>
           </div>
         </div>
       )}
@@ -364,21 +382,33 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
+          
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
-            <p style={{ fontSize: '17px', lineHeight: '1.8' }}>iPhone: Safari 點擊「分享」&rarr;「加入主畫面」。<br />Android: Chrome 點擊「三個點」&rarr;「安裝應用程式」。</p>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
+            <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#334155', marginTop: '12px', backgroundColor: '#f0f9ff', padding: '15px', borderRadius: '12px' }}>
+              <strong>📱 iPhone (iOS):</strong><br />
+              1. 使用 Safari 打開本站<br />
+              2. 點擊底部的「分享」圖標 (向上箭頭)<br />
+              3. 捲動並選擇<strong>「加入主畫面」</strong>。<br /><br />
+              <strong>🤖 Android:</strong><br />
+              1. 使用 Chrome 打開本站<br />
+              2. 點擊右上角「三個點」菜單<br />
+              3. 選擇<strong>「安裝應用程式」</strong>或「加入主畫面」。
+            </div>
           </div>
+
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>2. 核心功能</h3>
-            {/* 🌟 更新了新手指南，加入對調與重置圖標的說明 */}
-            <ul style={{ fontSize: '17px', lineHeight: '2.2' }}>
-              <li><strong>三層精準搜索：</strong> 地區 &rarr; 城鎮 &rarr; 站點。</li>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
+            <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
+              <li><strong>三層精準搜索：</strong> 地區 &rarr; 城鎮 &rarr; 站點，精確定位。</li>
               <li><strong>全路徑對調：</strong> 點擊 <img src="/image_bea913.png" alt="Swap" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵快速切換往返搜尋。</li>
               <li><strong>一鍵重置：</strong> 點擊 <img src="/reset.png" alt="Reset" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵清除所有過濾條件。</li>
-              <li><strong>一鍵微信購票：</strong> 自動複製官方名稱。</li>
+              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
+              <li><strong>一鍵複製微信：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
               <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
             </ul>
           </div>
+          <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', marginTop: '20px' }}>感謝支持中山美食地圖團隊！</p>
         </div>
       )}
 
@@ -401,9 +431,11 @@ const App: React.FC = () => {
             <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '20px' }}><div style={{ fontSize: '48px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div><div style={{ fontSize: '22px', color: '#64748b' }}>預計耗時: {detailItem.estimated_duration}</div></div>
             <div><div style={{ color: '#EAB308', fontSize: '18px', fontWeight: 'bold' }}>巴士資訊</div><div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6' }}>{detailItem.booking_remarks || '--'}</div></div>
           </div>
+          
+          {/* 🌟 修改：大圖示入面亦直接顯示出小程式名稱 */}
           <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
-                  style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '22px', borderRadius: '20px', fontWeight: 'bold', fontSize: '24px', marginTop: '40px' }}>
-            {detailItem.wechat_app ? '前往微信購票' : '立即線上購票'}
+                  style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '22px', borderRadius: '20px', fontWeight: 'bold', fontSize: '20px', marginTop: '40px', cursor: 'pointer' }}>
+            {detailItem.wechat_app ? `🔍 點擊複製小程序：${detailItem.wechat_app}` : '🌐 前往官網查看'}
           </button>
         </div>
       )}
@@ -412,7 +444,7 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 2000 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{noticeInfo.content}</div>
+            <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
             <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
           </div>
         </div>
@@ -422,8 +454,14 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
             <p>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
-            <button onClick={() => { if (navigator.clipboard) { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); } }} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none' }}>一鍵複製</button>
-            <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px' }}>暫時關閉</button>
+            <button 
+              onCopy={(e) => e.stopPropagation()} 
+              onClick={() => { if (navigator.clipboard) { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); } }} 
+              style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+            >
+              一鍵複製
+            </button>
+            <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px', cursor: 'pointer' }}>暫時關閉</button>
           </div>
         </div>
       )}
