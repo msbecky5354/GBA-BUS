@@ -251,7 +251,6 @@ const App: React.FC = () => {
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             
-            {/* 🌟 已經將 Emoji 換成你上傳的 reset.png 圖片 */}
             <button onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '4px', position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>
               <img src="/reset.png" alt="Reset" style={{ width: '12px', height: '12px' }} />
               重置
@@ -290,7 +289,6 @@ const App: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
-                      {/* 🌟 高德地圖圖標 (amap.png) 已經喺度，點擊跳轉地圖 */}
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
                         <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
@@ -336,38 +334,58 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
+      {/* 🚀 還原：完整版路線概覽 */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
-            ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
-            ✅ 深圳 &rarr; 珠海<br />
-            ✅ 中山 &rarr; 珠海<br />
-            ✅ 深圳市內 &rarr; 深圳機場<br />
+            本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。主要路徑包含：<br /><br />
+            ✅ <strong>深圳 &rarr; 中山</strong>（經深中通道快線）<br />
+            ✅ <strong>深圳 &rarr; 珠海</strong><br />
+            ✅ <strong>中山 &rarr; 珠海</strong><br />
+            ✅ <strong>深圳市內 &rarr; 深圳機場</strong><br /><br />
+            一站式對比各大營運商時間表、票價與購票方式。
           </div>
           <div style={{ marginTop: '50px', paddingTop: '24px', borderTop: '2px dashed #fef3c7', fontSize: '16px', color: '#92400e', lineHeight: '1.8', backgroundColor: '#fffbeb', padding: '20px', borderRadius: '12px' }}>
-            💡 <strong>編者的話：</strong><br />本站數據由團隊人手蒐集，耗費大量血汗時間。請大家支持「中山美食地圖」團隊！
+            💡 <strong>編者的話：</strong><br />
+            本站背後的數據庫並非官方接口同步，而是由團隊<strong>人手、人肉地蒐集</strong>各大營辦商的零散時間表，並逐一輸入更新。這項工作耗費了大量血汗時間與心力。<strong>請大家大力支持「中山美食地圖」團隊！</strong>
           </div>
         </div>
       )}
 
+      {/* 🚀 還原：完整版新手指南 */}
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
+          
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
-            <p style={{ fontSize: '17px', lineHeight: '1.8' }}>iPhone: Safari 點擊「分享」&rarr;「加入主畫面」。<br />Android: Chrome 點擊「三個點」&rarr;「安裝應用程式」。</p>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
+            <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#334155', marginTop: '12px', backgroundColor: '#f0f9ff', padding: '15px', borderRadius: '12px' }}>
+              <strong>📱 iPhone (iOS):</strong><br />
+              1. 使用 Safari 打開本站<br />
+              2. 點擊底部的「分享」圖標 (向上箭頭)<br />
+              3. 捲動並選擇<strong>「加入主畫面」</strong>。<br /><br />
+              <strong>🤖 Android:</strong><br />
+              1. 使用 Chrome 打開本站<br />
+              2. 點擊右上角「三個點」菜單<br />
+              3. 選擇<strong>「安裝應用程式」</strong>或「加入主畫面」。
+            </div>
           </div>
+
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>2. 核心功能</h3>
-            <ul style={{ fontSize: '17px', lineHeight: '2.2' }}>
-              <li>三層精準搜索：地區 &rarr; 城鎮 &rarr; 站點。</li>
-              <li>一鍵微信購票：自動複製官方名稱。</li>
-              <li>放大詳情模式：點擊卡片任何地方即可放大查看超大字體。</li>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
+            <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
+              <li><strong>三層精準搜索：</strong> 地區 &rarr; 城鎮 &rarr; 站點，精確定位。</li>
+              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
+              <li><strong>一鍵微信購票：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
+              <li><strong>全路徑對調：</strong> 點擊 🔄 鍵快速切換往返搜尋。</li>
+              <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
+              <li><strong>血汗數據庫：</strong> 人手蒐集最新班次，保證資訊實用。</li>
             </ul>
           </div>
+          <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', marginTop: '20px' }}>感謝支持中山美食地圖團隊！</p>
         </div>
       )}
 
@@ -382,7 +400,6 @@ const App: React.FC = () => {
             <div>
               <div style={{ color: '#94a3b8', fontSize: '18px' }}>📍 出發站點</div>
               <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
-              {/* 🌟 放大畫面入面嘅高德地圖圖標 (amap.png) */}
               <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '32px', color: '#2563eb', textDecoration: 'none', marginTop: '10px', fontWeight: 900 }}>
                 {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '36px', marginLeft: '12px' }} />
               </a>
