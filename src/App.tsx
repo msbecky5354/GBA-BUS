@@ -66,6 +66,9 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
+  
+  // 新增：通告顯示狀態
+  const [showRouteOverview, setShowRouteOverview] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 1000);
@@ -170,38 +173,19 @@ const App: React.FC = () => {
     switch (type) {
       case 'about':
         title = '關於我們';
-        content = (
-          <>
-            <p><strong>「深中珠巴士懶人包」</strong> 是一個民間資訊整合平台，旨在為穿梭於深圳、中山、珠海及周邊地區的旅客，提供一站式的跨市巴士資訊查詢服務。</p>
-            <p>我們持續收集並更新各大運營商的班次、站點與購票方式。請注意：本站為<strong>獨立公益平台，並非官方售票點或巴士運營商。</strong></p>
-          </>
-        );
+        content = <><p><strong>「深中珠巴士懶人包」</strong> 提供一站式跨市巴士資訊查詢服務。本站為獨立公益平台，並非官方運營商。</p></>;
         break;
       case 'contact':
         title = '聯絡我們';
-        content = (
-          <>
-            <p>如您發現資訊有誤、有新路線建議，或有合作意向，歡迎透過以下方式聯絡我們：</p>
-            <p style={{ marginTop: '10px' }}><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>
-          </>
-        );
+        content = <p>歡迎加入 Facebook 群組：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站集成 Google Analytics 分析流量，並通過 Google AdSense 展示廣告，這些服務會使用 Cookie 來優化內容。本站不接觸您的交易資訊。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 服務。所有交易資料提交均由第三方運營商負責。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = (
-          <>
-            <p>使用本站即代表同意：</p>
-            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-              <li>資訊僅供參考，請務必透過購票連結核實官方最新公告。</li>
-              <li>對於因資訊誤差導致的延誤或損失，本站概不負責。</li>
-              <li>版權所有，未經許可請勿擅自抓取或商業轉載。</li>
-            </ul>
-          </>
-        );
+        content = <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}><li>資訊僅供參考，請以官方公告為準。</li><li>對於行程延誤或損失，本站不承擔法律責任。</li></ul>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -226,17 +210,48 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 新增：頂部路線通告欄 */}
-        <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '16px', padding: '15px 20px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '18px' }}>🚌</span>
-            <strong style={{ fontSize: '15px', color: '#92400e' }}>深中珠跨市路線概覽</strong>
-          </div>
-          <p style={{ fontSize: '13px', color: '#b45309', lineHeight: '1.6', margin: 0 }}>
-            本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。涵蓋核心路徑：<br />
-            ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線） | ✅ <strong>深圳 ⇄ 珠海</strong> | ✅ <strong>中山 ⇄ 珠海</strong><br />
-            一站式搜尋各大營運商時間表、票價及購票連結，助您輕鬆出行！
-          </p>
+        {/* 頂部位置：預留廣告位，目前為按鈕展開路線概覽 */}
+        <div style={{ marginBottom: '24px' }}>
+          <button 
+            onClick={() => setShowRouteOverview(!showRouteOverview)}
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#fffbeb', 
+              border: '1px solid #fef3c7', 
+              borderRadius: '12px', 
+              padding: '12px 20px', 
+              textAlign: 'left', 
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+            }}
+          >
+            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px' }}>🗺️ 點擊查看：最新跨市巴士路線概覽</span>
+            <span style={{ color: '#b45309', transform: showRouteOverview ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s' }}>▼</span>
+          </button>
+
+          {showRouteOverview && (
+            <div style={{ 
+              backgroundColor: 'white', 
+              border: '1px solid #fef3c7', 
+              borderTop: 'none',
+              borderRadius: '0 0 12px 12px', 
+              padding: '20px', 
+              fontSize: '13px', 
+              color: '#b45309', 
+              lineHeight: '1.8',
+              marginTop: '-5px'
+            }}>
+              本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。<br />
+              涵蓋核心路徑：<br />
+              ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線）<br />
+              ✅ <strong>深圳 ⇄ 珠海</strong><br />
+              ✅ <strong>中山 ⇄ 珠海</strong><br />
+              整合各大營運商時間表、票價及購票連結，助您輕鬆對比並出行。
+            </div>
+          )}
         </div>
 
         {/* 搜尋區域 */}
@@ -362,7 +377,7 @@ const App: React.FC = () => {
 
           <div style={{ marginTop: '30px', paddingBottom: '40px' }}>
             <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
-                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '20px', borderRadius: '16px', fontWeight: 'bold', fontSize: '22px' }}>
+                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '18px', borderRadius: '16px', fontWeight: 'bold', fontSize: '22px' }}>
               {detailItem.wechat_app ? '前往微信購票' : '立即線上購票'}
             </button>
           </div>
