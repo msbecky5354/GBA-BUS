@@ -290,28 +290,29 @@ const App: React.FC = () => {
         {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            
+            {/* 只使用 reset.png 圖標的重置按鈕 */}
             <button 
               onClick={handleReset} 
+              title="重置所有選項"
               style={{ 
                 position: 'absolute', 
                 top: '15px', 
                 right: '15px', 
                 backgroundColor: '#fef2f2', 
                 border: '1px solid #fecaca', 
-                borderRadius: '20px', 
-                padding: '4px 12px', 
-                fontSize: '11px', 
-                color: '#ef4444', 
-                cursor: 'pointer', 
-                fontWeight: 'bold',
+                borderRadius: '50%', 
+                padding: '6px', 
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
+                justifyContent: 'center',
+                boxShadow: '0 2px 4px rgba(239, 68, 68, 0.1)'
               }}
             >
-              <img src="/reset.png" alt="Reset" style={{ height: '12px', width: 'auto' }} onError={(e) => {(e.target as HTMLImageElement).style.display = 'none';}}/>
-              重置
+              <img src="/reset.png" alt="Reset" style={{ height: '18px', width: '18px' }} onError={(e) => {(e.target as HTMLImageElement).style.display = 'none';}}/>
             </button>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
@@ -419,7 +420,7 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 & 功能介紹</h2>
           
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (免安裝直接用)</h3>
