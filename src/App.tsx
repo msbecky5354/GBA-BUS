@@ -20,7 +20,6 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -67,8 +66,6 @@ const App: React.FC = () => {
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
-
-  // 詳情放大視窗狀態
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
 
   useEffect(() => {
@@ -136,14 +133,12 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-  // 出發城鎮：按 Sort_DR 降序
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr)); });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 目的城鎮：按 Sort_AR 降序
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar)); });
@@ -171,6 +166,7 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
+  // --- 更新後的核心聲明文案 ---
   const showNotice = (type: string) => {
     let content = null; let title = '';
     switch (type) {
@@ -178,29 +174,42 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
-            <p>我們整合了各大巴士營運商數據，讓您一站式搜尋並比較出行方案。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 是一個由民間發起的資訊整合平台，旨在為穿梭於深圳、中山、珠海、香港及周邊地區的旅客，提供一站式的跨市巴士資訊查詢服務。</p>
+            <p>我們持續收集並更新各大運營商的班次、站點與購票方式，幫助用戶節省對比時間。請注意：本站為<strong>獨立公益平台，並非官方售票點或巴士運營商。</strong></p>
           </>
         );
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = (
+          <>
+            <p>我們非常重視您的反饋！如您發現班次資訊有誤、有新路線建議，或有商業合作意向，歡迎透過以下方式聯絡我們：</p>
+            <p style={{ marginTop: '10px' }}><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>
+            <p style={{ fontSize: '13px', color: '#64748b' }}>團隊會定期查看群組訊息並對懶人包內容進行修正，感謝您的支持。</p>
+          </>
+        );
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense。Cookies 僅用於分析流量及投放廣告。</p>;
+        content = (
+          <>
+            <p>本站重視您的使用體驗與隱私。關於數據處理說明如下：</p>
+            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+              <li><strong>第三方服務：</strong>本站集成了 Google Analytics 分析流量，並通過 Google AdSense 展示廣告，這些服務會使用 Cookie 來優化展示內容。</li>
+              <li><strong>購票安全：</strong>點擊購票連結後，您將被引導至運營商官方平台。所有交易與資料提交均由第三方負責，本站不接觸您的交易資訊。</li>
+            </ul>
+          </>
+        );
         break;
       case 'terms':
         title = '服務條款';
         content = (
           <>
             <p>使用本站即代表您同意以下條款：</p>
-            <ul style={{ lineHeight: '1.8' }}>
-              <li>資訊僅供參考，購票前請務必向官方營運商核實。</li>
-              <li>對於因依賴本站資訊導致的任何損失，本站概不負責。</li>
-              <li>本站設計及資料整合受版權保護，未經許可請勿擅自抓取。</li>
+            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+              <li><strong>資訊參考性：</strong>本站顯示的所有時間、票價、站點資訊僅供參考。強烈建議出發前透過購票連結再次核實官方最新公告。</li>
+              <li><strong>免責聲明：</strong>對於因依賴本站資訊而導致的任何行程延誤、金錢損失或不便，本站概不承擔任何法律責任。</li>
+              <li><strong>版權說明：</strong>本站的數據整理邏輯與界面設計受版權保護，未經書面許可，請勿擅自抓取或商業轉載。</li>
             </ul>
           </>
         );
@@ -228,7 +237,6 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 搜尋區域：已移除左右 Sidebar 廣告位 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -297,11 +305,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {!isMobile && (
-        <div style={{ maxWidth: '1000px', margin: '30px auto', textAlign: 'center' }}>
-          <AdBanner />
-        </div>
-      )}
+      {!isMobile && <div style={{ maxWidth: '1000px', margin: '30px auto', textAlign: 'center' }}><AdBanner /></div>}
 
       <footer style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 16px', borderTop: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px', textAlign: 'center' }}>
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '25px', overflow: 'hidden' }}><AdBanner /></div>
@@ -319,7 +323,7 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 手機版放大詳情彈窗 (核心新功能) */}
+      {/* 手機版放大詳情彈窗 */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1000, display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
