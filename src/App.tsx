@@ -223,11 +223,17 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* Header Banner - 包含 Logo 及 右側 Icons */}
+      {/* 頂頭用戶手冊欄 */}
+      <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
+        💡 新手指南：如何將此網頁加入手機 App &amp; 功能簡介 (點擊查看)
+      </div>
+
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <img src="/logo.png" alt="Logo" style={{ height: '28px' }} />
-          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* 大幅放大 Logo 至 48px，重奪主導地位 */}
+          <img src="/logo.png" alt="Logo" style={{ height: '48px' }} />
+          {/* 字體亦稍微加大以配合大 Logo */}
+          <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
         </div>
         
         {/* 右側：Icons + 最後更新 */}
@@ -274,6 +280,7 @@ const App: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+            {/* 呢個係人客 (廣告)，維持 40px */}
             <img src="/image.png" alt="中山美食地圖" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
             <div>
               <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '4px' }}>
