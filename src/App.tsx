@@ -223,7 +223,11 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* Header Banner - 包含 Logo 及 右側 Icons */}
+      {/* 頂頭用戶手冊欄 */}
+      <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
+        💡 新手指南：如何將此網頁加入手機 免費Apps &amp; 功能簡介 (點擊查看)
+      </div>
+
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '48px' }} />
@@ -253,7 +257,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 🔥 頂部廣告位：中山美食地圖 Web App 推廣 Banner */}
+        {/* 🔥 頂部廣告位：中山美食地圖 免費Apps 推廣 Banner */}
         <a 
           href="https://zhongshan-food-map.vercel.app/" 
           target="_blank" 
@@ -277,7 +281,7 @@ const App: React.FC = () => {
             <img src="/image.png" alt="中山美食地圖" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
             <div>
               <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                中山美食地圖 Web App <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>推薦</span>
+                中山美食地圖 免費Apps <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>推薦</span>
               </div>
               <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px', fontWeight: '500' }}>發掘隱世好店，中山搵食必備！</div>
             </div>
@@ -290,29 +294,7 @@ const App: React.FC = () => {
         {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            
-            {/* 只使用 reset.png 圖標的重置按鈕 */}
-            <button 
-              onClick={handleReset} 
-              title="重置所有選項"
-              style={{ 
-                position: 'absolute', 
-                top: '15px', 
-                right: '15px', 
-                backgroundColor: '#fef2f2', 
-                border: '1px solid #fecaca', 
-                borderRadius: '50%', 
-                padding: '6px', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 4px rgba(239, 68, 68, 0.1)'
-              }}
-            >
-              <img src="/reset.png" alt="Reset" style={{ height: '18px', width: '18px' }} onError={(e) => {(e.target as HTMLImageElement).style.display = 'none';}}/>
-            </button>
-
+            <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
@@ -342,18 +324,18 @@ const App: React.FC = () => {
                    onClick={() => setDetailItem(item)}
                    style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
+                  <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
-                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
+                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
                         <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
                       </a>
                     </div>
-                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
+                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
                     </div>
                   </div>
@@ -420,10 +402,10 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 & 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (免安裝直接用)</h3>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
             <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#334155', marginTop: '12px', backgroundColor: '#f0f9ff', padding: '15px', borderRadius: '12px' }}>
               <strong>📱 iPhone (iOS):</strong><br />
               1. 使用 Safari 打開本站<br />
@@ -440,10 +422,9 @@ const App: React.FC = () => {
             <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
             <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
               <li><strong>三層精準搜索：</strong> 地區 -{'>'} 城鎮 -{'>'} 站點，精確定位。</li>
-              <li><strong>高德地圖導航：</strong> 點擊 <img src="/amap.png" alt="Amap" style={{ height: '16px', verticalAlign: 'middle', margin: '0 4px' }} /> 圖標直接跳轉高德導航。</li>
+              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
               <li><strong>一鍵微信購票：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
-              <li><strong>全路徑對調：</strong> 點擊 <img src="/image_bea913.png" alt="Swap" style={{ height: '18px', verticalAlign: 'middle', margin: '0 4px' }} /> 鍵快速切換往返搜尋條件。</li>
-              <li><strong>一鍵重置篩選：</strong> 點擊 <img src="/reset.png" alt="Reset" style={{ height: '16px', verticalAlign: 'middle', margin: '0 4px' }} /> 鍵清空所有已選擇的條件。</li>
+              <li><strong>全路徑對調：</strong> 點擊 🔄 鍵快速切換往返搜尋。</li>
               <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
               <li><strong>血汗數據庫：</strong> 人手蒐集最新班次，保證資訊實用。</li>
             </ul>
@@ -457,7 +438,7 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <div style={{ borderBottom: '3px solid #3b82f6', paddingBottom: '15px', marginBottom: '25px' }}>
-            <span style={{ fontSize: '20px', backgroundColor: '#fff7ed', color: '#f97316', padding: '6px 16px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
+            <span style={{ fontSize: '15px', backgroundColor: '#fff7ed', color: '#f97316', padding: '5px 15px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
             <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
