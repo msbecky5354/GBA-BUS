@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (對應 18 欄位結構)
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,7 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 擴展 Window 型別以支援 AdSense 並防止 Build Error
+// 擴展 Window 型別支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -31,10 +31,10 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// Google AdSense 組件
+// 廣告組件
 const AdBanner: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
   useEffect(() => {
-    try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) { console.error('Ads Error', err); }
+    try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) {}
   }, []);
   return (
     <ins className="adsbygoogle"
@@ -147,6 +147,10 @@ const App: React.FC = () => {
     setDepRegionFilter(aR); setArrRegionFilter(dR); setDepTownFilter(aT); setArrTownFilter(dT); setPickupFilter(aP); setDropoffFilter(dP);
   };
 
+  const handleReset = () => {
+    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter(''); setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
+  };
+
   const showNotice = (type: string) => {
     let content = null; let title = '';
     switch (type) {
@@ -154,23 +158,23 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線資訊。</p>
-            <p>我們整合各大巴士營運商數據，讓旅客能透過一站式平台快速搜尋並比較方案。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們整合了各大巴士營運商的公開數據，讓旅客能透過一站式平台快速搜尋並比較方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
           </>
         );
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>如有建議，歡迎聯絡：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = <p>如果您對本懶人包有任何建議，歡迎聯絡我們：<br/><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
+        content = <p>本站使用了 Google Analytics 及 Google AdSense。這些服務會使用 Cookies 來收集匿名訪問數據，以提供相關廣告及分析流量。外部連結之隱私政策由第三方網站管轄。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = <p>資訊僅供參考。購票前務必向官方核實。對於任何延誤或損失，本站概不負責。</p>;
+        content = <p>本站資訊僅供參考。雖然我們致力確保資料準確，但不保證絕對正確性。購票前請務必向官方核實。對於任何延誤、損失或不便，本站概不負責。</p>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -190,22 +194,25 @@ const App: React.FC = () => {
         <div style={{ fontSize: '10px', textAlign: 'right' }}><div>最後更新: {lastUpdated}</div></div>
       </header>
 
-      <main style={{ maxWidth: '1440px', margin: '0 auto', padding: '16px 16px 0 16px' }}>
-        {/* 搜尋過濾區：減少 marginBottom */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'flex-start', marginBottom: '8px' }}>
+      {/* 移除頂部 Padding 確保緊貼 Header */}
+      <main style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
+        
+        {/* 搜尋過濾區：marginBottom 設為 0 */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'flex-start', marginBottom: '0', paddingTop: '16px' }}>
           {!isMobile && <div style={{ width: '160px', flexShrink: 0 }}><AdBanner style={{ height: '600px' }} /></div>}
           <div style={{ flex: 1, maxWidth: '1000px', position: 'relative' }}>
             <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>重置</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                  <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => setDepRegionFilter(e.target.value)}><option value="">所有</option>{Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort().map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort().map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                   <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
-                  <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => setArrRegionFilter(e.target.value)}><option value="">所有</option>{Array.from(new Set(busData.map(i => i.arrival_region))).filter(Boolean).sort().map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{Array.from(new Set(busData.map(i => i.arrival_region))).filter(Boolean).sort().map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                  <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => setDepTownFilter(e.target.value)}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                   <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
-                  <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => setArrTownFilter(e.target.value)}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1 }}><span style={labelStyle}>上車站點</span><select style={selectStyle} value={pickupFilter} onChange={e => setPickupFilter(e.target.value)}><option value="">所有</option>{Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort().map(p => <option key={p} value={p}>{p}</option>)}</select></div>
@@ -218,10 +225,10 @@ const App: React.FC = () => {
           {!isMobile && <div style={{ width: '160px', flexShrink: 0 }}><AdBanner style={{ height: '600px' }} /></div>}
         </div>
 
-        {/* 結果顯示區：緊接在 Filter 下方 */}
-        {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '15px', maxWidth: '1000px', margin: '0 auto' }}>
-            {filteredData.map((item, idx) => (
+        {/* 結果區域：直接貼合上方白色搜尋框 */}
+        {loading ? <p style={{ textAlign: 'center', padding: '20px' }}>🚌 資料同步中...</p> : (
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', maxWidth: '1000px', margin: '0 auto', padding: '12px 0' }}>
+            {filteredData.length === 0 ? <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>🔍 暫無相關巴士班次</div> : filteredData.map((item, idx) => (
               <div key={idx} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '16px', borderTop: '6px solid #3b82f6', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', minHeight: '200px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <span style={{ fontSize: '11px', backgroundColor: '#fff7ed', color: '#f97316', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
@@ -251,7 +258,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {!isMobile && <div style={{ maxWidth: '1000px', margin: '20px auto', textAlign: 'center' }}><AdBanner /></div>}
+      {!isMobile && <div style={{ maxWidth: '1000px', margin: '15px auto', textAlign: 'center' }}><AdBanner /></div>}
 
       <footer style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 16px', borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
         <div style={{ marginBottom: '15px' }}><AdBanner /></div>
@@ -261,17 +268,17 @@ const App: React.FC = () => {
           <a onClick={() => showNotice('privacy')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>隱私權政策</a> |
           <a onClick={() => showNotice('terms')} style={{ color: '#3b82f6', cursor: 'pointer', margin: '0 8px' }}>服務條款</a>
         </div>
-        <div style={{ marginTop: '10px' }}>開發者: <img src="/image.png" alt="Dev" style={{ height: '14px', verticalAlign: 'middle' }} /> 中山美食地圖群組團隊</div>
+        <div>開發者: <img src="/image.png" alt="Dev" style={{ height: '14px', verticalAlign: 'middle' }} /> 中山美食地圖群組團隊</div>
       </footer>
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 100 }}>▲</button>}
       
       {noticeInfo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200 }}>
-          <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '20px', maxWidth: '500px', width: '100%' }}>
+          <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '24px', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
             <h2 style={{ color: '#B8860B', marginTop: 0 }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{noticeInfo.content}</div>
-            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '20px', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold' }}>關閉</button>
+            <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
+            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '20px', padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold' }}>關閉</button>
           </div>
         </div>
       )}
@@ -279,7 +286,7 @@ const App: React.FC = () => {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
           <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '20px', maxWidth: '320px', textAlign: 'center' }}>
-            <p>請複製名稱後到微信搜尋：</p><h3>{selectedWechatApp}</h3>
+            <p>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e' }}>{selectedWechatApp}</h3>
             <button onClick={() => { if (navigator.clipboard) { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); } }} style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>一鍵複製</button>
             <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px', cursor: 'pointer' }}>關閉</button>
           </div>
