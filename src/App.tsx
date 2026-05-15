@@ -26,7 +26,7 @@ declare global {
   }
 }
 
-const CSV_URL = '/api/data';
+const CSV_URL = '/API/data';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
