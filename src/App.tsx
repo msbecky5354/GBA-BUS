@@ -225,7 +225,6 @@ const App: React.FC = () => {
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '52px' }} />
-          {/* 🌟 核心修正：將標題分為兩行，避免手機螢幕斷行尷尬 */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>深中珠巴士</h1>
             <span style={{ color: '#FFE600', fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>懶人包</span>
@@ -313,8 +312,8 @@ const App: React.FC = () => {
                   <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
-                  <div style={{ flex: 1, paddingRight: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flex: 1, marginBottom: '15px' }}>
+                  <div style={{ flex: 1, paddingRight: '12px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
@@ -325,11 +324,19 @@ const App: React.FC = () => {
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right', minWidth: '90px' }}>
-                    <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span><span style={{ fontSize: '24px' }}>{item.price}</span></div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.estimated_duration}</div>
+                  
+                  {/* 🌟 核心修正：將右側價錢及預計耗時區域限制闊度，強制耗時文字換行顯示 */}
+                  <div style={{ textAlign: 'right', minWidth: '90px', maxWidth: '120px', flexShrink: 0 }}>
+                    <div style={{ fontWeight: '900', color: '#ef4444' }}>
+                      <span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span>
+                      <span style={{ fontSize: '24px' }}>{item.price}</span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', lineHeight: '1.4', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                      {item.estimated_duration}
+                    </div>
                   </div>
                 </div>
+                
                 <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, paddingRight: '15px' }}>
                     <div style={{ fontSize: '10px', color: '#EAB308', fontWeight: 'bold' }}>巴士資訊</div>
