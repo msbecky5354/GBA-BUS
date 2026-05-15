@@ -66,8 +66,6 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
-  
-  // 新增：通告顯示狀態
   const [showRouteOverview, setShowRouteOverview] = useState(false);
 
   useEffect(() => {
@@ -173,19 +171,19 @@ const App: React.FC = () => {
     switch (type) {
       case 'about':
         title = '關於我們';
-        content = <><p><strong>「深中珠巴士懶人包」</strong> 提供一站式跨市巴士資訊查詢服務。本站為獨立公益平台，並非官方運營商。</p></>;
+        content = <><p><strong>「深中珠巴士懶人包」</strong> 提供一站式跨市巴士資訊。本站由民間自發運作，非官方巴士運營商。</p></>;
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入 Facebook 群組：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = <p>歡迎加入 FB 群組反饋：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。所有交易資料提交均由第三方運營商負責。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense。所有個人交易由第三方連結負責，本站不接觸任何交易資訊。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}><li>資訊僅供參考，請以官方公告為準。</li><li>對於行程延誤或損失，本站不承擔法律責任。</li></ul>;
+        content = <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}><li>資訊僅供參考，強烈建議透過購票連結再次確認。</li><li>因資訊誤差導致的損失本站概不負責。</li><li>版權所有，未經書面授權請勿轉載。</li></ul>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -210,7 +208,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 頂部位置：預留廣告位，目前為按鈕展開路線概覽 */}
+        {/* 頂部按鈕：摺疊式路線通告 + 團隊感言 */}
         <div style={{ marginBottom: '24px' }}>
           <button 
             onClick={() => setShowRouteOverview(!showRouteOverview)}
@@ -228,7 +226,7 @@ const App: React.FC = () => {
               boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
             }}
           >
-            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px' }}>🗺️ 點擊查看：最新跨市巴士路線概覽</span>
+            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px' }}>🗺️ 點擊查看：跨市及機場路線概覽</span>
             <span style={{ color: '#b45309', transform: showRouteOverview ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s' }}>▼</span>
           </button>
 
@@ -239,17 +237,20 @@ const App: React.FC = () => {
               borderTop: 'none',
               borderRadius: '0 0 12px 12px', 
               padding: '20px', 
-              fontSize: '13px', 
-              color: '#b45309', 
-              lineHeight: '1.8',
               marginTop: '-5px'
             }}>
-              本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。<br />
-              涵蓋核心路徑：<br />
-              ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線）<br />
-              ✅ <strong>深圳 ⇄ 珠海</strong><br />
-              ✅ <strong>中山 ⇄ 珠海</strong><br />
-              整合各大營運商時間表、票價及購票連結，助您輕鬆對比並出行。
+              <div style={{ fontSize: '13px', color: '#b45309', lineHeight: '1.8' }}>
+                本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。主要路徑包含：<br />
+                ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線） | ✅ <strong>深圳 ⇄ 珠海</strong><br />
+                ✅ <strong>中山 ⇄ 珠海</strong> | ✅ <strong>深圳市內 ⇄ 深圳機場</strong><br />
+                一站式對比各大營運商時間表、票價與購票方式。
+              </div>
+              
+              {/* 團隊感言區 */}
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px dashed #fef3c7', fontSize: '12px', color: '#92400e', fontStyle: 'italic', lineHeight: '1.5' }}>
+                💡 <strong>編者的話：</strong><br />
+                本站背後的數據庫並非官方接口同步，而是由團隊<strong>人手、人肉地蒐集</strong>各大營辦商的零散時間表，並逐一輸入更新。這項工作耗費了大量血汗時間與心力，只為大家出行更便利。<strong>請大家大力支持「中山美食地圖」團隊！</strong>
+              </div>
             </div>
           )}
         </div>
