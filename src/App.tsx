@@ -225,7 +225,7 @@ const App: React.FC = () => {
       
       {/* 頂頭用戶手冊欄 */}
       <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
-        💡 新手指南：如何將此網頁加入手機 App & 功能簡介 (點擊查看)
+        💡 新手指南：如何將此網頁加入手機 App &amp; 功能簡介 (點擊查看)
       </div>
 
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -302,13 +302,13 @@ const App: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
-                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
+                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
                         <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
                       </a>
                     </div>
-                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
+                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
                     </div>
                   </div>
@@ -375,7 +375,7 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 & 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (像 App 一樣使用)</h3>
@@ -394,7 +394,7 @@ const App: React.FC = () => {
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
             <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
-              <li><strong>三層精準搜索：</strong> 地區 -> 城鎮 -> 站點，精確定位。</li>
+              <li><strong>三層精準搜索：</strong> 地區 -{'>'} 城鎮 -{'>'} 站點，精確定位。</li>
               <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
               <li><strong>一鍵微信購票：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
               <li><strong>全路徑對調：</strong> 點擊 🔄 鍵快速切換往返搜尋。</li>
