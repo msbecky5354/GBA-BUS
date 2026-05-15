@@ -223,16 +223,12 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* 已刪除頂部藍色 Banner */}
-
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          {/* 大幅放大 Logo 至 48px */}
           <img src="/logo.png" alt="Logo" style={{ height: '48px' }} />
           <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
         </div>
         
-        {/* 右側：Icons + 最後更新 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
             <div 
@@ -255,7 +251,6 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 🔥 頂部廣告位：中山美食地圖 免費Apps 推廣 Banner */}
         <a 
           href="https://zhongshan-food-map.vercel.app/" 
           target="_blank" 
@@ -289,7 +284,6 @@ const App: React.FC = () => {
           </div>
         </a>
 
-        {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -322,7 +316,6 @@ const App: React.FC = () => {
                    onClick={() => setDetailItem(item)}
                    style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  {/* 營運商標籤：字體 14px */}
                   <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
@@ -377,14 +370,13 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 核心功能 1：全屏路線概覽放大版 */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。主要路徑包含：<br /><br />
-            ✅ <strong>深圳 ⇄ 中山</strong>（深中通道快線）<br />
+            ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線）<br />
             ✅ <strong>深圳 ⇄ 珠海</strong><br />
             ✅ <strong>中山 ⇄ 珠海</strong><br />
             ✅ <strong>深圳市內 ⇄ 深圳機場</strong><br /><br />
@@ -397,7 +389,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 核心功能 2：新手指南視窗 */}
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
@@ -432,14 +423,16 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 卡片詳情放大 */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          
           <div style={{ borderBottom: '3px solid #3b82f6', paddingBottom: '15px', marginBottom: '25px' }}>
-            <span style={{ fontSize: '15px', backgroundColor: '#fff7ed', color: '#f97316', padding: '5px 15px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
+            {/* 核心修正：放大視窗內的營運商字體調整為 36px，與時間表一致 */}
+            <span style={{ fontSize: '36px', backgroundColor: '#fff7ed', color: '#f97316', padding: '8px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'inline-block' }}>{detailItem.operator}</span>
             <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
           </div>
+
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
             <div><div style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '8px' }}>📍 出發站點</div>
               <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
