@@ -26,24 +26,10 @@ declare global {
   }
 }
 
-// 核心修正：對接後端代理 API 隱藏原始連結
+// 核心修正：對接後端代理 API
 const CSV_URL = '/api/data';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
-
-// 橫向廣告組件
-const AdBanner: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
-  useEffect(() => {
-    try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) {}
-  }, []);
-  return (
-    <ins className="adsbygoogle"
-         style={{ display: 'block', minHeight: '90px', ...style }}
-         data-ad-client="ca-pub-8256903623772163"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-  );
-};
 
 const SwapButtonIcon = () => (
   <img src="/image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -201,7 +187,6 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* Header Banner - 主角 Logo 48px & 右側 Icons */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '48px' }} />
@@ -222,7 +207,6 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 🔥 推廣 Banner：中山美食地圖 免費Apps */}
         <a 
           href="https://zhongshan-food-map.vercel.app/" 
           target="_blank" 
@@ -243,7 +227,6 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: '#f97316', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>免安裝即用</div>
         </a>
 
-        {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -318,16 +301,15 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 核心功能 1：全屏路線概覽 */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
-            ✅ 深圳 &harr; 中山（經深中通道快線）<br />
-            ✅ 深圳 &harr; 珠海<br />
-            ✅ 中山 &harr; 珠海<br />
-            ✅ 深圳市內 &harr; 深圳機場<br />
+            ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
+            ✅ 深圳 &rarr; 珠海<br />
+            ✅ 中山 &rarr; 珠海<br />
+            ✅ 深圳市內 &rarr; 深圳機場<br />
           </div>
           <div style={{ marginTop: '50px', paddingTop: '24px', borderTop: '2px dashed #fef3c7', fontSize: '16px', color: '#92400e', lineHeight: '1.8', backgroundColor: '#fffbeb', padding: '20px', borderRadius: '12px' }}>
             💡 <strong>編者的話：</strong><br />本站數據由團隊人手蒐集，耗費大量血汗時間。請大家支持「中山美食地圖」團隊！
@@ -335,7 +317,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 核心功能 2：新手指南 */}
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
@@ -355,7 +336,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 卡片詳情放大 - Operator 36px 字體對齊 */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
