@@ -223,8 +223,18 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* 頂頭用戶手冊欄 */}
-      <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
+      {/* 頂頭用戶手冊欄 - 手機版隱藏 */}
+      <div style={{ 
+        display: isMobile ? 'none' : 'block',
+        backgroundColor: '#0369a1', 
+        color: 'white', 
+        padding: '12px 16px', 
+        fontSize: '13px', 
+        textAlign: 'center', 
+        cursor: 'pointer', 
+        fontWeight: 'bold', 
+        borderBottom: '1px solid #075985' 
+      }} onClick={() => setShowGuide(true)}>
         💡 新手指南：如何將此網頁加入手機 免費Apps &amp; 功能簡介 (點擊查看)
       </div>
 
