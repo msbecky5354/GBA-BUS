@@ -342,7 +342,6 @@ const App: React.FC = () => {
                    onClick={() => setDetailItem(item)}
                    style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  {/* 放大 Operator 字體至 14px */}
                   <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
@@ -441,9 +440,10 @@ const App: React.FC = () => {
             <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
             <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
               <li><strong>三層精準搜索：</strong> 地區 -{'>'} 城鎮 -{'>'} 站點，精確定位。</li>
-              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
+              <li><strong>高德地圖導航：</strong> 點擊 <img src="/amap.png" alt="Amap" style={{ height: '16px', verticalAlign: 'middle', margin: '0 4px' }} /> 圖標直接跳轉高德導航。</li>
               <li><strong>一鍵微信購票：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
-              <li><strong>全路徑對調：</strong> 點擊 🔄 鍵快速切換往返搜尋。</li>
+              <li><strong>全路徑對調：</strong> 點擊 <img src="/image_bea913.png" alt="Swap" style={{ height: '18px', verticalAlign: 'middle', margin: '0 4px' }} /> 鍵快速切換往返搜尋條件。</li>
+              <li><strong>一鍵重置篩選：</strong> 點擊 <img src="/reset.png" alt="Reset" style={{ height: '16px', verticalAlign: 'middle', margin: '0 4px' }} /> 鍵清空所有已選擇的條件。</li>
               <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
               <li><strong>血汗數據庫：</strong> 人手蒐集最新班次，保證資訊實用。</li>
             </ul>
@@ -457,7 +457,6 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <div style={{ borderBottom: '3px solid #3b82f6', paddingBottom: '15px', marginBottom: '25px' }}>
-            {/* 放大 Operator 字體至 20px */}
             <span style={{ fontSize: '20px', backgroundColor: '#fff7ed', color: '#f97316', padding: '6px 16px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
             <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
           </div>
