@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (適配 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -31,32 +31,14 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// 高德地圖小按鈕組件
-const AmapButton = () => (
-  <span style={{ 
-    display: 'inline-flex', 
-    alignItems: 'center', 
-    gap: '4px', 
-    backgroundColor: '#2563eb', 
-    color: 'white', 
-    padding: '2px 8px', 
-    borderRadius: '12px', 
-    fontSize: '10px', 
-    fontWeight: 'bold',
-    marginLeft: '6px',
-    verticalAlign: 'middle',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-  }}>
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="3 11 22 2 13 21 11 13 3 11" />
-    </svg>
-    地圖
-  </span>
-);
-
+// Google AdSense 組件
 const AdBanner: React.FC = () => {
   useEffect(() => {
-    try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) {}
+    try {
+      if (window.adsbygoogle) {
+        window.adsbygoogle.push({});
+      }
+    } catch (err) {}
   }, []);
   return (
     <ins className="adsbygoogle"
@@ -120,6 +102,7 @@ const App: React.FC = () => {
           }
           v.push(curVal.trim());
           if (v.length < 18) return null;
+
           return {
             operator: (v[0] || '').trim(),
             departure_region: (v[1] || '').trim(),
@@ -139,7 +122,10 @@ const App: React.FC = () => {
             sort_ar: parseInt((v[17] || '').trim(), 10) || 0
           };
         }).filter((item): item is BusItem => item !== null && item.operator !== '');
-        setBusData(result); setFilteredData(result); setLoading(false);
+        
+        setBusData(result);
+        setFilteredData(result);
+        setLoading(false);
       } catch (error) { setLoading(false); }
     };
     fetchData();
@@ -157,13 +143,21 @@ const App: React.FC = () => {
 
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr)); });
+    busData.forEach(i => {
+      if (!depRegionFilter || i.departure_region === depRegionFilter) {
+        townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar)); });
+    busData.forEach(i => {
+      if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
+        townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar));
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, arrRegionFilter]);
 
@@ -178,13 +172,16 @@ const App: React.FC = () => {
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
   const handleFullSwap = () => {
-    const dR = depRegionFilter; const dT = depTownFilter; const dP = pickupFilter;
-    const aR = arrRegionFilter; const aT = arrTownFilter; const aP = dropoffFilter;
-    setDepRegionFilter(aR); setArrRegionFilter(dR); setDepTownFilter(aT); setArrTownFilter(dT); setPickupFilter(aP); setDropoffFilter(dP);
+    const cDepR = depRegionFilter; const cDepT = depTownFilter; const cDepP = pickupFilter;
+    const cArrR = arrRegionFilter; const cArrT = arrTownFilter; const cArrP = dropoffFilter;
+    setDepRegionFilter(cArrR); setArrRegionFilter(cDepR);
+    setDepTownFilter(cArrT); setArrTownFilter(cDepT);
+    setPickupFilter(cArrP); setDropoffFilter(cDepP);
   };
 
   const handleReset = () => {
-    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter(''); setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
+    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
+    setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
   const showNotice = (type: string) => {
@@ -194,54 +191,29 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 致力於為往返深圳、中山、珠海及周邊地區的旅客，提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
-            <p>我們深知跨境及跨市交通的繁瑣，因此整合了各大巴士營運商的數據，讓您一站式搜尋並比較最適合的出行方案。</p>
-            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立的交通資訊整合平台，並非官方巴士營運商。</p>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新跨市巴士交通資訊。</p>
+            <p>我們整合了各大巴士營運商的數據，讓您能一站式搜尋出行方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
           </>
         );
         break;
       case 'contact':
         title = '聯絡我們';
-        content = (
-          <>
-            <p>如果您對本懶人包有任何建議、發現班次資料需要更新，或者有商業合作意向，歡迎透過以下方式與我們聯絡：</p>
-            <ul style={{ lineHeight: '2' }}>
-              <li><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>中山美食地圖群組</a></li>
-            </ul>
-            <p>我們會在收到訊息後盡快回覆您。感謝您協助我們完善這份懶人包！</p>
-          </>
-        );
+        content = <p>歡迎加入：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = (
-          <>
-            <p>本隱私權政策旨在說明我們如何處理您的資訊：</p>
-            <ul style={{ lineHeight: '1.8' }}>
-              <li><strong>資訊收集：</strong>本站主要為資訊展示平台，一般情況下不會主動要求使用者提供個人身分識別資訊。</li>
-              <li><strong>第三方服務與 Cookies：</strong>本站使用了 Google Analytics 及 Google AdSense。這些服務會使用 Cookies 來收集訪問數據，以提供相關廣告及分析流量。</li>
-              <li><strong>外部連結：</strong>點擊購票連結後，您的隱私將受該第三方網站的政策管轄，本站不對其行為負責。</li>
-            </ul>
-          </>
-        );
+        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = (
-          <>
-            <p>歡迎使用「深中珠巴士懶人包」。使用本站即代表您同意以下條款：</p>
-            <ul style={{ lineHeight: '1.8' }}>
-              <li><strong>免責聲明：</strong>本站提供的所有巴士班次、票價、路線等資訊僅供參考。雖然我們致力確保資料準確，但不保證資訊的絕對正確性。購票前請務必向官方核實。</li>
-              <li><strong>責任限制：</strong>對於因依賴本站資訊而導致的任何延誤、損失或不便，本站概不負責。</li>
-              <li><strong>版權聲明：</strong>本站的介面設計及資料整合方式受版權保護。未經許可，請勿擅自抓取或複製本站作商業用途。</li>
-            </ul>
-          </>
-        );
+        content = <p>本站資訊僅供參考。購票前請務必向官方核實最新資訊。</p>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
   };
 
+  // 搜尋選單樣式 (鎖定文字顏色為深色)
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', color: '#1e293b', fontFamily: GLOBAL_FONT };
   const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#1e293b' };
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
@@ -266,12 +238,12 @@ const App: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
+                <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
+                <button onClick={handleFullSwap} style={swapBtnStyle}><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
@@ -297,7 +269,8 @@ const App: React.FC = () => {
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
                       <a href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
-                        📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} <AmapButton />
+                        📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
+                        <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px', verticalAlign: 'middle' }} />
                       </a>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
