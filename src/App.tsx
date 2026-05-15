@@ -223,47 +223,36 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* 頂頭用戶手冊欄 */}
-      <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
-        💡 新手指南：如何將此網頁加入手機 App &amp; 功能簡介 (點擊查看)
-      </div>
-
+      {/* Header Banner - 加入了 Icons */}
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="/logo.png" alt="Logo" style={{ height: '28px' }} />
           <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
         </div>
-        <div style={{ fontSize: '10px', textAlign: 'right' }}>
-          <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
-          <div>{lastUpdated}</div>
+        
+        {/* 右側：Icons + 最後更新 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div 
+              onClick={() => setShowRouteOverview(true)} 
+              style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} 
+              title="路線概覽"
+            >🗺️</div>
+            <div 
+              onClick={() => setShowGuide(true)} 
+              style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} 
+              title="新手指南"
+            >💡</div>
+          </div>
+          <div style={{ fontSize: '10px', textAlign: 'right' }}>
+            <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新:</div>
+            <div>{lastUpdated}</div>
+          </div>
         </div>
       </header>
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 頂部按鈕：路線概覽 */}
-        <div style={{ marginBottom: '24px' }}>
-          <button 
-            onClick={() => setShowRouteOverview(true)}
-            style={{ 
-              width: '100%', 
-              backgroundColor: '#fffbeb', 
-              border: '2px solid #fef3c7', 
-              borderRadius: '12px', 
-              padding: '16px 20px', 
-              textAlign: 'left', 
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
-            }}
-          >
-            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '16px' }}>🗺️ 點擊查看：跨市及機場路線概覽 (放大清晰版)</span>
-            <span style={{ color: '#b45309', fontSize: '20px' }}>▶</span>
-          </button>
-        </div>
-
         {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
