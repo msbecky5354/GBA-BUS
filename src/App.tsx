@@ -223,23 +223,11 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* 頂頭用戶手冊欄 - 手機版隱藏 */}
-      <div style={{ 
-        display: isMobile ? 'none' : 'block',
-        backgroundColor: '#0369a1', 
-        color: 'white', 
-        padding: '12px 16px', 
-        fontSize: '13px', 
-        textAlign: 'center', 
-        cursor: 'pointer', 
-        fontWeight: 'bold', 
-        borderBottom: '1px solid #075985' 
-      }} onClick={() => setShowGuide(true)}>
-        💡 新手指南：如何將此網頁加入手機 免費Apps &amp; 功能簡介 (點擊查看)
-      </div>
+      {/* 已刪除頂部藍色 Banner */}
 
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* 大幅放大 Logo 至 48px */}
           <img src="/logo.png" alt="Logo" style={{ height: '48px' }} />
           <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800 }}>深中珠巴士<span style={{ color: '#FFE600' }}>懶人包</span></h1>
         </div>
@@ -334,7 +322,7 @@ const App: React.FC = () => {
                    onClick={() => setDetailItem(item)}
                    style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  {/* 營運商標籤：字體已改為 14px 與時間表一致 */}
+                  {/* 營運商標籤：字體 14px */}
                   <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
                 </div>
