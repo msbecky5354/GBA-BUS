@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態
+// 1. 定義資料型態 (適配最新 18 欄位)
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -20,6 +20,7 @@ interface BusItem {
   sort_ar: number;
 }
 
+// 擴展 Window 型別以支援 AdSense
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -66,6 +67,8 @@ const App: React.FC = () => {
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // 詳情放大視窗狀態
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
 
   useEffect(() => {
@@ -133,12 +136,14 @@ const App: React.FC = () => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
+  // 出發城鎮：按 Sort_DR 降序
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr)); });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
+  // 目的城鎮：按 Sort_AR 降序
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar)); });
@@ -162,7 +167,8 @@ const App: React.FC = () => {
   };
 
   const handleReset = () => {
-    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter(''); setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
+    setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
+    setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
   const showNotice = (type: string) => {
@@ -170,7 +176,13 @@ const App: React.FC = () => {
     switch (type) {
       case 'about':
         title = '關於我們';
-        content = <><p><strong>「深中珠巴士懶人包」</strong> 提供最新跨市巴士路線、時間表及購票資訊。</p><p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p></>;
+        content = (
+          <>
+            <p><strong>「深中珠巴士懶人包」</strong> 致力於提供最新、最齊全的跨市巴士路線、時間表及購票資訊。</p>
+            <p>我們整合了各大巴士營運商數據，讓您一站式搜尋並比較出行方案。</p>
+            <p style={{ color: '#ef4444', fontWeight: 'bold' }}>請注意：本站為獨立平台，並非官方營運商。</p>
+          </>
+        );
         break;
       case 'contact':
         title = '聯絡我們';
@@ -178,11 +190,20 @@ const App: React.FC = () => {
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense 服務。Cookies 僅用於分析流量及投放廣告。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense。Cookies 僅用於分析流量及投放廣告。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = <p>本站資訊僅供參考。購票前請務必向官方核實。對因依賴本站造成的延誤不負責任。</p>;
+        content = (
+          <>
+            <p>使用本站即代表您同意以下條款：</p>
+            <ul style={{ lineHeight: '1.8' }}>
+              <li>資訊僅供參考，購票前請務必向官方營運商核實。</li>
+              <li>對於因依賴本站資訊導致的任何損失，本站概不負責。</li>
+              <li>本站設計及資料整合受版權保護，未經許可請勿擅自抓取。</li>
+            </ul>
+          </>
+        );
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -207,7 +228,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 搜尋區域 */}
+        {/* 搜尋區域：已移除左右 Sidebar 廣告位 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -298,46 +319,46 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 手機版放大詳情彈窗 */}
+      {/* 手機版放大詳情彈窗 (核心新功能) */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1000, display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           
           <div style={{ borderBottom: '2px solid #3b82f6', paddingBottom: '15px', marginBottom: '20px' }}>
             <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '4px 12px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
-            <h2 style={{ fontSize: '28px', marginTop: '15px', color: '#1e293b' }}>{detailItem.schedule}</h2>
+            <h2 style={{ fontSize: '32px', marginTop: '15px', color: '#1e293b' }}>{detailItem.schedule}</h2>
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '25px' }}>
             <div>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '5px' }}>📍 出發站點</div>
               <div style={{ fontSize: '24px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
-              <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '24px', color: '#2563eb', textDecoration: 'none', marginTop: '5px' }}>
-                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '24px', marginLeft: '10px' }} />
+              <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '28px', color: '#2563eb', textDecoration: 'none', marginTop: '5px', fontWeight: 'bold' }}>
+                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '32px', marginLeft: '10px' }} />
               </a>
             </div>
 
             <div>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '5px' }}>🏁 目的地點</div>
               <div style={{ fontSize: '24px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div>
-              <div style={{ fontSize: '24px', color: '#2563eb' }}>{detailItem.dropoff_point}</div>
+              <div style={{ fontSize: '28px', color: '#2563eb', fontWeight: 'bold' }}>{detailItem.dropoff_point}</div>
             </div>
 
             <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px' }}>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '10px' }}>💰 票價 / 車程</div>
-              <div style={{ fontSize: '32px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div>
-              <div style={{ fontSize: '18px', color: '#64748b', marginTop: '5px' }}>預計耗時: {detailItem.estimated_duration}</div>
+              <div style={{ fontSize: '40px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div>
+              <div style={{ fontSize: '20px', color: '#64748b', marginTop: '5px' }}>預計耗時: {detailItem.estimated_duration}</div>
             </div>
 
             <div>
               <div style={{ color: '#EAB308', fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>巴士資訊</div>
-              <div style={{ fontSize: '18px', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{detailItem.booking_remarks || '--'}</div>
+              <div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{detailItem.booking_remarks || '--'}</div>
             </div>
           </div>
 
           <div style={{ marginTop: '30px', paddingBottom: '40px' }}>
             <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
-                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '18px', borderRadius: '16px', fontWeight: 'bold', fontSize: '20px' }}>
+                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '20px', borderRadius: '16px', fontWeight: 'bold', fontSize: '22px' }}>
               {detailItem.wechat_app ? '前往微信購票' : '立即線上購票'}
             </button>
           </div>
