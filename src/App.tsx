@@ -20,7 +20,13 @@ interface BusItem {
   sort_ar: number;
 }
 
-// 核心修正：對接後端代理 API
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
+// 核心修正：對接後端代理 API 隱藏原始連結
 const CSV_URL = '/api/data';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
@@ -151,7 +157,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 全新強硬防盜 + 血汗數據庫聲明
   const showNotice = (type: string) => {
     let content = null; let title = '';
     switch (type) {
@@ -245,7 +250,13 @@ const App: React.FC = () => {
 
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
+            
+            {/* 🌟 已經將 Emoji 換成你上傳的 reset.png 圖片 */}
+            <button onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '4px', position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>
+              <img src="/reset.png" alt="Reset" style={{ width: '12px', height: '12px' }} />
+              重置
+            </button>
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
@@ -278,8 +289,16 @@ const App: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
-                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point}</div>
-                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}</div>
+                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
+                      {/* 🌟 高德地圖圖標 (amap.png) 已經喺度，點擊跳轉地圖 */}
+                      <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
+                        📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
+                        <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
+                      </a>
+                    </div>
+                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
+                      🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
+                    </div>
                   </div>
                   <div style={{ textAlign: 'right', minWidth: '90px' }}>
                     <div style={{ fontWeight: '900', color: '#ef4444' }}><span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span><span style={{ fontSize: '24px' }}>{item.price}</span></div>
@@ -360,7 +379,14 @@ const App: React.FC = () => {
             <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <div><div style={{ color: '#94a3b8', fontSize: '18px' }}>📍 出發站點</div><div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div><div style={{ fontSize: '32px', color: '#2563eb', fontWeight: 900 }}>{detailItem.pickup_point}</div></div>
+            <div>
+              <div style={{ color: '#94a3b8', fontSize: '18px' }}>📍 出發站點</div>
+              <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
+              {/* 🌟 放大畫面入面嘅高德地圖圖標 (amap.png) */}
+              <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '32px', color: '#2563eb', textDecoration: 'none', marginTop: '10px', fontWeight: 900 }}>
+                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '36px', marginLeft: '12px' }} />
+              </a>
+            </div>
             <div><div style={{ color: '#94a3b8', fontSize: '18px' }}>🏁 目的地點</div><div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div><div style={{ fontSize: '32px', color: '#2563eb', fontWeight: 900 }}>{detailItem.dropoff_point}</div></div>
             <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '20px' }}><div style={{ fontSize: '48px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div><div style={{ fontSize: '22px', color: '#64748b' }}>預計耗時: {detailItem.estimated_duration}</div></div>
             <div><div style={{ color: '#EAB308', fontSize: '18px', fontWeight: 'bold' }}>巴士資訊</div><div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6' }}>{detailItem.booking_remarks || '--'}</div></div>
@@ -376,7 +402,7 @@ const App: React.FC = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 2000 }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
-            <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
+            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{noticeInfo.content}</div>
             <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
           </div>
         </div>
