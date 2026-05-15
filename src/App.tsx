@@ -30,7 +30,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// 廣告組件
+// 橫向廣告組件
 const AdBanner: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
   useEffect(() => {
     try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) {}
@@ -67,6 +67,8 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
+  
+  // 功能狀態
   const [showRouteOverview, setShowRouteOverview] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
@@ -173,19 +175,19 @@ const App: React.FC = () => {
     switch (type) {
       case 'about':
         title = '關於我們';
-        content = <><p><strong>「深中珠巴士懶人包」</strong> 由中山美食地圖團隊開發，透過人手錄入數據，致力提供一站式交通方案。</p></>;
+        content = <><p><strong>「深中珠巴士懶人包」</strong> 提供一站式跨市及機場巴士資訊。本站由民間團隊自發更新，並非官方售票平台。</p></>;
         break;
       case 'contact':
         title = '聯絡我們';
-        content = <p>歡迎加入 Facebook 群組：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
+        content = <p>歡迎加入 FB 群組反饋：<a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>;
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = <p>本站使用 Google Analytics 及 AdSense。購票交易由官方運營商平台處理，本站不接觸付款資訊。</p>;
+        content = <p>本站使用 Google Analytics 及 AdSense 展示廣告，不接觸用戶任何交易及敏感隱私資料。</p>;
         break;
       case 'terms':
         title = '服務條款';
-        content = <ul style={{ paddingLeft: '20px' }}><li>數據手動錄入，請以官方最新公告為準。</li><li>本站不承擔因數據误差導致的法律責任。</li></ul>;
+        content = <ul style={{ paddingLeft: '20px' }}><li>數據為人手錄入，請以營運商最新公告為準。</li><li>對於任何行程延誤，本站概不負責。</li></ul>;
         break;
     }
     if (content) setNoticeInfo({ title, content });
@@ -198,9 +200,9 @@ const App: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '20px', fontFamily: GLOBAL_FONT, letterSpacing: '0.01em' }}>
       
-      {/* 新增：頂頭用戶指南欄 */}
-      <div style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '10px 16px', fontSize: '12px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #bae6fd' }} onClick={() => setShowGuide(true)}>
-        💡 新手指南：如何將此網頁加入手機 App & 功能介紹 (點擊查看)
+      {/* 頂頭用戶手冊欄 */}
+      <div style={{ backgroundColor: '#0369a1', color: 'white', padding: '12px 16px', fontSize: '13px', textAlign: 'center', cursor: 'pointer', fontWeight: 'bold', borderBottom: '1px solid #075985' }} onClick={() => setShowGuide(true)}>
+        💡 新手指南：如何將此網頁加入手機 App & 功能簡介 (點擊查看)
       </div>
 
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -223,19 +225,19 @@ const App: React.FC = () => {
             style={{ 
               width: '100%', 
               backgroundColor: '#fffbeb', 
-              border: '1px solid #fef3c7', 
+              border: '2px solid #fef3c7', 
               borderRadius: '12px', 
-              padding: '14px 20px', 
+              padding: '16px 20px', 
               textAlign: 'left', 
               cursor: 'pointer',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+              boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
             }}
           >
-            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '15px' }}>🗺️ 點擊查看：跨市及機場路線概覽 (放大版)</span>
-            <span style={{ color: '#b45309' }}>▶</span>
+            <span style={{ color: '#92400e', fontWeight: 'bold', fontSize: '16px' }}>🗺️ 點擊查看：跨市及機場路線概覽 (放大清晰版)</span>
+            <span style={{ color: '#b45309', fontSize: '20px' }}>▶</span>
           </button>
         </div>
 
@@ -263,7 +265,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {loading ? <p style={{ textAlign: 'center' }}>🚌 資料同步中...</p> : filteredData.length === 0 ? (
+        {loading ? <p style={{ textAlign: 'center' }}>🚌 數據血汗加載中...</p> : filteredData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>🔍 暫無相關巴士班次</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
@@ -277,13 +279,13 @@ const App: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginBottom: '15px' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
-                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
+                    <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
                         <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
                       </a>
                     </div>
-                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4', fontWeight: 'normal' }}>
+                    <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
                       🏁 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.arrival_region} · {item.arrival_town}</span> {item.dropoff_point}
                     </div>
                   </div>
@@ -326,91 +328,95 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 詳情放大視窗 */}
-      {detailItem && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1000, display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' }}>
-          <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <div style={{ borderBottom: '2px solid #3b82f6', paddingBottom: '15px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '4px 12px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
-            <h2 style={{ fontSize: '32px', marginTop: '15px', color: '#1e293b' }}>{detailItem.schedule}</h2>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '25px' }}>
-            <div><div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '5px' }}>📍 出發站點</div>
-              <div style={{ fontSize: '24px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
-              <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '28px', color: '#2563eb', textDecoration: 'none', marginTop: '5px', fontWeight: 'bold' }}>
-                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '32px', marginLeft: '10px' }} />
-              </a>
-            </div>
-            <div><div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '5px' }}>🏁 目的地點</div>
-              <div style={{ fontSize: '24px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div>
-              <div style={{ fontSize: '28px', color: '#2563eb', fontWeight: 'bold' }}>{detailItem.dropoff_point}</div>
-            </div>
-            <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px' }}>
-              <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '10px' }}>💰 票價 / 車程</div>
-              <div style={{ fontSize: '40px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div>
-              <div style={{ fontSize: '20px', color: '#64748b', marginTop: '5px' }}>預計耗時: {detailItem.estimated_duration}</div>
-            </div>
-            <div><div style={{ color: '#EAB308', fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>巴士資訊</div>
-              <div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{detailItem.booking_remarks || '--'}</div>
-            </div>
-          </div>
-          <div style={{ marginTop: '30px', paddingBottom: '40px' }}>
-            <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
-                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '18px', borderRadius: '16px', fontWeight: 'bold', fontSize: '22px' }}>
-              {detailItem.wechat_app ? '前往微信購票' : '立即線上購票'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 手機版：路線概覽放大視窗 */}
+      {/* 核心功能 1：全屏路線概覽放大版 */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
-          <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px' }}>🚌 跨市及機場路線概覽</h2>
-          <div style={{ fontSize: '20px', color: '#b45309', lineHeight: '2.2', marginTop: '20px' }}>
+          <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
+          <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。主要路徑包含：<br /><br />
-            ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線）<br />
+            ✅ <strong>深圳 ⇄ 中山</strong>（深中通道快線）<br />
             ✅ <strong>深圳 ⇄ 珠海</strong><br />
             ✅ <strong>中山 ⇄ 珠海</strong><br />
             ✅ <strong>深圳市內 ⇄ 深圳機場</strong><br /><br />
             一站式對比各大營運商時間表、票價與購票方式。
           </div>
-          <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '2px dashed #fef3c7', fontSize: '16px', color: '#92400e', lineHeight: '1.8' }}>
+          <div style={{ marginTop: '50px', paddingTop: '24px', borderTop: '2px dashed #fef3c7', fontSize: '16px', color: '#92400e', lineHeight: '1.8', backgroundColor: '#fffbeb', padding: '20px', borderRadius: '12px' }}>
             💡 <strong>編者的話：</strong><br />
             本站背後的數據庫並非官方接口同步，而是由團隊<strong>人手、人肉地蒐集</strong>各大營辦商的零散時間表，並逐一輸入更新。這項工作耗費了大量血汗時間與心力。<strong>請大家大力支持「中山美食地圖」團隊！</strong>
           </div>
         </div>
       )}
 
-      {/* 用戶新手指南視窗 */}
+      {/* 核心功能 2：新手指南視窗 */}
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
-          <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '26px', marginBottom: '20px' }}>💡 使用指南 & 功能簡介</h2>
+          <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 & 功能介紹</h2>
           
-          <div style={{ marginBottom: '30px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '20px' }}>1. 如何加入手機主畫面 (像 App 一樣使用)</h3>
-            <div style={{ fontSize: '16px', lineHeight: '1.8', color: '#334155', marginTop: '10px' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (像 App 一樣使用)</h3>
+            <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#334155', marginTop: '12px', backgroundColor: '#f0f9ff', padding: '15px', borderRadius: '12px' }}>
               <strong>📱 iPhone (iOS):</strong><br />
-              使用 Safari 打開本站 -> 點擊底部的「分享」圖標 (向上箭頭) -> 選擇「加入主畫面」。<br /><br />
+              1. 使用 Safari 打開本站<br />
+              2. 點擊底部的「分享」圖標 (向上箭頭)<br />
+              3. 捲動並選擇<strong>「加入主畫面」</strong>。<br /><br />
               <strong>🤖 Android:</strong><br />
-              使用 Chrome 打開本站 -> 點擊右上角「三個點」菜單 -> 選擇「安裝應用程式」或「加入主畫面」。
+              1. 使用 Chrome 打開本站<br />
+              2. 點擊右上角「三個點」菜單<br />
+              3. 選擇<strong>「安裝應用程式」</strong>或「加入主畫面」。
             </div>
           </div>
 
-          <div style={{ marginBottom: '30px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '20px' }}>2. 核心功能介紹</h3>
-            <ul style={{ fontSize: '16px', lineHeight: '2', color: '#334155', paddingLeft: '20px' }}>
-              <li><strong>三層精準搜索：</strong> 地區、城鎮、站點。</li>
-              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉導航。</li>
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>2. 核心功能簡介</h3>
+            <ul style={{ fontSize: '17px', lineHeight: '2.2', color: '#334155', paddingLeft: '20px', marginTop: '12px' }}>
+              <li><strong>三層精準搜索：</strong> 地區 -> 城鎮 -> 站點，精確定位。</li>
+              <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
               <li><strong>一鍵微信購票：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
-              <li><strong>大字詳情模式：</strong> 點擊卡片任何地方即可放大查看。</li>
-              <li><strong>實時對調 Swap：</strong> 快速切換往返搜尋條件。</li>
+              <li><strong>全路徑對調：</strong> 點擊 🔄 鍵快速切換往返搜尋。</li>
+              <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
+              <li><strong>血汗數據庫：</strong> 人手蒐集最新班次，保證資訊實用。</li>
             </ul>
           </div>
-          
-          <p style={{ color: '#94a3b8', fontSize: '14px', textAlign: 'center' }}>感謝支持中山美食地圖團隊！</p>
+          <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', marginTop: '20px' }}>感謝支持中山美食地圖團隊！</p>
+        </div>
+      )}
+
+      {/* 卡片詳情放大 */}
+      {detailItem && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
+          <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <div style={{ borderBottom: '3px solid #3b82f6', paddingBottom: '15px', marginBottom: '25px' }}>
+            <span style={{ fontSize: '15px', backgroundColor: '#fff7ed', color: '#f97316', padding: '5px 15px', borderRadius: '8px', fontWeight: 'bold' }}>{detailItem.operator}</span>
+            <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+            <div><div style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '8px' }}>📍 出發站點</div>
+              <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
+              <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '32px', color: '#2563eb', textDecoration: 'none', marginTop: '10px', fontWeight: 900 }}>
+                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '36px', marginLeft: '12px' }} />
+              </a>
+            </div>
+            <div><div style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '8px' }}>🏁 目的地點</div>
+              <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div>
+              <div style={{ fontSize: '32px', color: '#2563eb', fontWeight: 900 }}>{detailItem.dropoff_point}</div>
+            </div>
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '20px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '12px' }}>💰 票價 / 車程</div>
+              <div style={{ fontSize: '48px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div>
+              <div style={{ fontSize: '22px', color: '#64748b', marginTop: '8px' }}>預計耗時: {detailItem.estimated_duration}</div>
+            </div>
+            <div><div style={{ color: '#EAB308', fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>巴士資訊</div>
+              <div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{detailItem.booking_remarks || '--'}</div>
+            </div>
+          </div>
+          <div style={{ marginTop: '40px', paddingBottom: '50px' }}>
+            <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
+                    style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '22px', borderRadius: '20px', fontWeight: 'bold', fontSize: '24px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+              {detailItem.wechat_app ? '前往微信購票' : '立即線上購票'}
+            </button>
+          </div>
         </div>
       )}
 
