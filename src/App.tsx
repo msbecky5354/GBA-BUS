@@ -253,7 +253,7 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
-        {/* 🔥 頂部廣告位：中山美食地圖 App 推廣 Banner */}
+        {/* 🔥 頂部廣告位：中山美食地圖 Web App 推廣 Banner */}
         <a 
           href="https://zhongshan-food-map.vercel.app/" 
           target="_blank" 
@@ -277,13 +277,13 @@ const App: React.FC = () => {
             <img src="/image.png" alt="中山美食地圖" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
             <div>
               <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                中山美食地圖 App <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>推薦</span>
+                中山美食地圖 Web App <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>推薦</span>
               </div>
               <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px', fontWeight: '500' }}>發掘隱世好店，中山搵食必備！</div>
             </div>
           </div>
           <div style={{ backgroundColor: '#f97316', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>
-            免費下載
+            免安裝即用
           </div>
         </a>
 
@@ -398,10 +398,10 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 & 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           
           <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (像 App 一樣使用)</h3>
+            <h3 style={{ color: '#0ea5e9', fontSize: '22px', borderLeft: '6px solid #0ea5e9', paddingLeft: '12px' }}>1. 如何加入手機主畫面 (免安裝直接用)</h3>
             <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#334155', marginTop: '12px', backgroundColor: '#f0f9ff', padding: '15px', borderRadius: '12px' }}>
               <strong>📱 iPhone (iOS):</strong><br />
               1. 使用 Safari 打開本站<br />
