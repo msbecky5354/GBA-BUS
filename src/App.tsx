@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// 1. 定義資料型態 (適配最新 18 欄位)
+// 1. 定義資料型態
 interface BusItem {
   operator: string;
   departure_region: string;
@@ -30,7 +30,6 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkmCc9ail_gNr
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
-// 橫向廣告組件
 const AdBanner: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
   useEffect(() => {
     try { if (window.adsbygoogle) window.adsbygoogle.push({}); } catch (err) {}
@@ -166,7 +165,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // --- 更新後的核心聲明文案 ---
   const showNotice = (type: string) => {
     let content = null; let title = '';
     switch (type) {
@@ -174,8 +172,8 @@ const App: React.FC = () => {
         title = '關於我們';
         content = (
           <>
-            <p><strong>「深中珠巴士懶人包」</strong> 是一個由民間發起的資訊整合平台，旨在為穿梭於深圳、中山、珠海、香港及周邊地區的旅客，提供一站式的跨市巴士資訊查詢服務。</p>
-            <p>我們持續收集並更新各大運營商的班次、站點與購票方式，幫助用戶節省對比時間。請注意：本站為<strong>獨立公益平台，並非官方售票點或巴士運營商。</strong></p>
+            <p><strong>「深中珠巴士懶人包」</strong> 是一個民間資訊整合平台，旨在為穿梭於深圳、中山、珠海及周邊地區的旅客，提供一站式的跨市巴士資訊查詢服務。</p>
+            <p>我們持續收集並更新各大運營商的班次、站點與購票方式。請注意：本站為<strong>獨立公益平台，並非官方售票點或巴士運營商。</strong></p>
           </>
         );
         break;
@@ -183,33 +181,24 @@ const App: React.FC = () => {
         title = '聯絡我們';
         content = (
           <>
-            <p>我們非常重視您的反饋！如您發現班次資訊有誤、有新路線建議，或有商業合作意向，歡迎透過以下方式聯絡我們：</p>
+            <p>如您發現資訊有誤、有新路線建議，或有合作意向，歡迎透過以下方式聯絡我們：</p>
             <p style={{ marginTop: '10px' }}><strong>Facebook 群組：</strong> <a href="https://www.facebook.com/groups/998954119219884" target="_blank" rel="noreferrer" style={{ color: '#3b82f6', fontWeight: 'bold' }}>中山美食地圖群組</a></p>
-            <p style={{ fontSize: '13px', color: '#64748b' }}>團隊會定期查看群組訊息並對懶人包內容進行修正，感謝您的支持。</p>
           </>
         );
         break;
       case 'privacy':
         title = '隱私權政策';
-        content = (
-          <>
-            <p>本站重視您的使用體驗與隱私。關於數據處理說明如下：</p>
-            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-              <li><strong>第三方服務：</strong>本站集成了 Google Analytics 分析流量，並通過 Google AdSense 展示廣告，這些服務會使用 Cookie 來優化展示內容。</li>
-              <li><strong>購票安全：</strong>點擊購票連結後，您將被引導至運營商官方平台。所有交易與資料提交均由第三方負責，本站不接觸您的交易資訊。</li>
-            </ul>
-          </>
-        );
+        content = <p>本站集成 Google Analytics 分析流量，並通過 Google AdSense 展示廣告，這些服務會使用 Cookie 來優化內容。本站不接觸您的交易資訊。</p>;
         break;
       case 'terms':
         title = '服務條款';
         content = (
           <>
-            <p>使用本站即代表您同意以下條款：</p>
+            <p>使用本站即代表同意：</p>
             <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-              <li><strong>資訊參考性：</strong>本站顯示的所有時間、票價、站點資訊僅供參考。強烈建議出發前透過購票連結再次核實官方最新公告。</li>
-              <li><strong>免責聲明：</strong>對於因依賴本站資訊而導致的任何行程延誤、金錢損失或不便，本站概不承擔任何法律責任。</li>
-              <li><strong>版權說明：</strong>本站的數據整理邏輯與界面設計受版權保護，未經書面許可，請勿擅自抓取或商業轉載。</li>
+              <li>資訊僅供參考，請務必透過購票連結核實官方最新公告。</li>
+              <li>對於因資訊誤差導致的延誤或損失，本站概不負責。</li>
+              <li>版權所有，未經許可請勿擅自抓取或商業轉載。</li>
             </ul>
           </>
         );
@@ -237,6 +226,20 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
+        {/* 新增：頂部路線通告欄 */}
+        <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '16px', padding: '15px 20px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '18px' }}>🚌</span>
+            <strong style={{ fontSize: '15px', color: '#92400e' }}>深中珠跨市路線概覽</strong>
+          </div>
+          <p style={{ fontSize: '13px', color: '#b45309', lineHeight: '1.6', margin: 0 }}>
+            本站現已全面覆蓋 <strong>深圳、中山、珠海</strong> 三地之往返巴士資訊。涵蓋核心路徑：<br />
+            ✅ <strong>深圳 ⇄ 中山</strong>（經深中通道快線） | ✅ <strong>深圳 ⇄ 珠海</strong> | ✅ <strong>中山 ⇄ 珠海</strong><br />
+            一站式搜尋各大營運商時間表、票價及購票連結，助您輕鬆出行！
+          </p>
+        </div>
+
+        {/* 搜尋區域 */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <button onClick={handleReset} style={{ position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>🔄 重置</button>
@@ -323,7 +326,7 @@ const App: React.FC = () => {
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 手機版放大詳情彈窗 */}
+      {/* 詳情放大視窗 */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1000, display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' }}>
           <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '10px 20px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
@@ -341,19 +344,16 @@ const App: React.FC = () => {
                 {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '32px', marginLeft: '10px' }} />
               </a>
             </div>
-
             <div>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '5px' }}>🏁 目的地點</div>
               <div style={{ fontSize: '24px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div>
               <div style={{ fontSize: '28px', color: '#2563eb', fontWeight: 'bold' }}>{detailItem.dropoff_point}</div>
             </div>
-
             <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px' }}>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '10px' }}>💰 票價 / 車程</div>
               <div style={{ fontSize: '40px', color: '#ef4444', fontWeight: '900' }}>{detailItem.currency} {detailItem.price}</div>
               <div style={{ fontSize: '20px', color: '#64748b', marginTop: '5px' }}>預計耗時: {detailItem.estimated_duration}</div>
             </div>
-
             <div>
               <div style={{ color: '#EAB308', fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>巴士資訊</div>
               <div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{detailItem.booking_remarks || '--'}</div>
