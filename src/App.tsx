@@ -362,7 +362,7 @@ const App: React.FC = () => {
         </div>
         <p>© {new Date().getFullYear()} 深中珠巴士懶人包. All rights reserved.</p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
-          <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} /><span>中山美食地圖團隊</span>
+          <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} /><span>懶人工具駅</span>
         </div>
       </footer>
 
