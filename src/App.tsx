@@ -245,8 +245,9 @@ const App: React.FC = () => {
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
         
+        {/* 🌟 修正點 1：將此頂部連結更新至最新的懶人工具駅網址 */}
         <a 
-          href="https://zhongshan-food-map.vercel.app/" 
+          href="https://lazytoolsstation.vercel.app" 
           target="_blank" 
           rel="noreferrer" 
           style={{
@@ -256,10 +257,10 @@ const App: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <img src="/image.png" alt="中山美食地圖" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
+            <img src="/image.png" alt="懶人工具駅" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
             <div>
-              <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px' }}>中山美食地圖 免費Apps <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>推薦</span></div>
-              <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px' }}>發掘隱世好店，中山搵食必備！</div>
+              <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px' }}>懶人工具駅 免費Apps <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>推薦</span></div>
+              <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px' }}>實用生活工具整合，街坊出行必備！</div>
             </div>
           </div>
           <div style={{ backgroundColor: '#f97316', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>免安裝即用</div>
@@ -325,7 +326,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* 🌟 核心修正：將右側價錢及預計耗時區域限制闊度，強制耗時文字換行顯示 */}
                   <div style={{ textAlign: 'right', minWidth: '90px', maxWidth: '120px', flexShrink: 0 }}>
                     <div style={{ fontWeight: '900', color: '#ef4444' }}>
                       <span style={{ fontSize: '14px', marginRight: '2px' }}>{item.currency}</span>
@@ -362,7 +362,17 @@ const App: React.FC = () => {
         </div>
         <p>© {new Date().getFullYear()} 深中珠巴士懶人包. All rights reserved.</p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', color: '#94a3b8' }}>
-          <span>開發者:</span><img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} /><span>懶人工具駅</span>
+          {/* 🌟 修正點 2：將頁尾開發者文字包裝為正確轉跳網址 */}
+          <span>開發者:</span>
+          <a 
+            href="https://lazytoolsstation.vercel.app" 
+            target="_blank" 
+            rel="noreferrer" 
+            style={{ color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
+          >
+            <img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} />
+            <span style={{ textDecoration: 'underline' }}>懶人工具駅</span>
+          </a>
         </div>
       </footer>
 
