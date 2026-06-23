@@ -166,7 +166,7 @@ const App: React.FC = () => {
           <>
             <p><strong>「深中珠巴士懶人包」</strong> 是一個由民間發起的資訊整合工具。我們的使命是打破跨市交通的資訊隔閡，讓旅客能一站式搜尋深圳、中山、珠海之間的交通方案。</p>
             <p style={{ marginTop: '10px', color: '#92400e', fontWeight: 'bold' }}>💡 背後故事：血汗數據庫</p>
-            <p>本站背後的數據庫並非官方自動同步，而是由<strong>中山美食地圖團隊</strong>透過「人手人肉」方式，逐一從各大營運商官網、小程式蒐集零散時間表並進行校對輸入。這是一項極度耗費心力的工作，只為讓街坊出行更便利。請大家多多支持我們的團隊！</p>
+            <p>本站背後的數據庫並非官方自動同步，而是由<a href="https://lazytoolsstation.vercel.app" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 'bold', textDecoration: 'underline' }}>懶人工具駅</a>透過「人手人肉」方式，逐一從各大營運商官網、小程式蒐集零散時間表並進行校對輸入。這是一項極度耗費心力的工作，只為讓街坊出行更便利。請大家多多支持我們的團隊！</p>
           </>
         );
         break;
