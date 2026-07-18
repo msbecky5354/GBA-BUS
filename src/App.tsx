@@ -27,7 +27,7 @@ declare global {
 }
 
 // 核心修正：對接後端代理 API 隱藏原始連結
-const CSV_URL = '/encrypted-data.json';
+const CSV_URL = './encrypted-data.json';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
@@ -200,7 +200,7 @@ const App: React.FC = () => {
       
       <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <img src="/logo.png" alt="Logo" style={{ height: '52px' }} />
+          <img src="./logo.png" alt="Logo" style={{ height: '52px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>深中珠巴士</h1>
             <span style={{ color: '#FFE600', fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>懶人包</span>
@@ -233,7 +233,7 @@ const App: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <img src="/image.png" alt="懶人工具駅" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
+            <img src="./image.png" alt="懶人工具駅" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
             <div>
               <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px' }}>懶人工具駅 免費Apps <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>推薦</span></div>
               <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px' }}>實用生活工具整合，街坊出行必備！</div>
@@ -294,7 +294,7 @@ const App: React.FC = () => {
                     <div style={{ fontSize: '15px', marginBottom: '8px', color: '#2563eb', lineHeight: '1.4' }}>
                       <a onClick={(e) => e.stopPropagation()} href={`https://www.amap.com/search?query=${item.departure_region}${item.departure_town}${item.pickup_point}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center' }}>
                         📍 <span style={{ color: '#9333ea', fontSize: '13px' }}>{item.departure_region} · {item.departure_town}</span> {item.pickup_point} 
-                        <img src="/amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
+                        <img src="./amap.png" alt="Amap" style={{ height: '18px', marginLeft: '6px' }} />
                       </a>
                     </div>
                     <div style={{ fontSize: '15px', color: '#2563eb', lineHeight: '1.4' }}>
@@ -382,8 +382,8 @@ const App: React.FC = () => {
             <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>2. 核心功能</h3>
             <ul style={{ fontSize: '17px', lineHeight: '2.2' }}>
               <li><strong>三層精準搜索：</strong> 地區 &rarr; 城鎮 &rarr; 站點。</li>
-              <li><strong>全路徑對調：</strong> 點擊 <img src="/image_bea913.png" alt="Swap" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵快速切換往返搜尋。</li>
-              <li><strong>一鍵重置：</strong> 點擊 <img src="/reset.png" alt="Reset" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵清除所有過濾條件。</li>
+              <li><strong>全路徑對調：</strong> 點擊 <img src="./image_bea913.png" alt="Swap" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵快速切換往返搜尋。</li>
+              <li><strong>一鍵重置：</strong> 點擊 <img src="./reset.png" alt="Reset" style={{ width: '18px', height: '18px', verticalAlign: 'middle', margin: '0 4px', display: 'inline-block' }} /> 鍵清除所有過濾條件。</li>
               <li><strong>高德地圖導航：</strong> 點擊站點旁圖標直接跳轉高德地圖。</li>
               <li><strong>一鍵複製微信：</strong> 點擊綠色按鈕自動複製小程式名稱。</li>
               <li><strong>放大詳情模式：</strong> 點擊卡片任何地方即可放大查看超大字體。</li>
