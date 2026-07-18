@@ -32,7 +32,7 @@ const CSV_URL = './encrypted-data.json';
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
 const SwapButtonIcon = () => (
-  <img src="/image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+  <img src="./image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
 );
 
 const App: React.FC = () => {
@@ -256,7 +256,7 @@ const App: React.FC = () => {
               }} 
               title="重置搜尋"
             >
-              <img src="/reset.png" alt="Reset" style={{ width: '16px', height: '16px' }} />
+              <img src="./reset.png" alt="Reset" style={{ width: '16px', height: '16px' }} />
             </button>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
@@ -346,7 +346,7 @@ const App: React.FC = () => {
             rel="noreferrer" 
             style={{ color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
           >
-            <img src="/image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} />
+            <img src="./image.png" alt="Dev Logo" style={{ height: '16px', width: 'auto' }} />
             <span style={{ textDecoration: 'underline' }}>懶人工具駅</span>
           </a>
         </div>
@@ -404,7 +404,7 @@ const App: React.FC = () => {
               <div style={{ color: '#94a3b8', fontSize: '18px' }}>📍 出發站點</div>
               <div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.departure_region} · {detailItem.departure_town}</div>
               <a href={`https://www.amap.com/search?query=${detailItem.departure_region}${detailItem.departure_town}${detailItem.pickup_point}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '32px', color: '#2563eb', textDecoration: 'none', marginTop: '10px', fontWeight: 900 }}>
-                {detailItem.pickup_point} <img src="/amap.png" alt="Amap" style={{ height: '36px', marginLeft: '12px' }} />
+                {detailItem.pickup_point} <img src="./amap.png" alt="Amap" style={{ height: '36px', marginLeft: '12px' }} />
               </a>
             </div>
             <div><div style={{ color: '#94a3b8', fontSize: '18px' }}>🏁 目的地點</div><div style={{ fontSize: '28px', color: '#9333ea', fontWeight: 'bold' }}>{detailItem.arrival_region} · {detailItem.arrival_town}</div><div style={{ fontSize: '32px', color: '#2563eb', fontWeight: 900 }}>{detailItem.dropoff_point}</div></div>
