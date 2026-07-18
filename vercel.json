@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://msbecky5354.github.io/GBA-BUS/",
+      "permanent": true
+    }
+  ]
+}
