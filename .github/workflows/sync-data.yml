@@ -19,7 +19,7 @@ jobs:
         run: |
           # 用 curl 指令去 Google 攞數據，-L 代表跟隨跳轉，-o 代表儲存檔案
           # 請將下面條 Link 換成你真正嘅 Google Script Web App URL
-          curl -L -o public/encrypted-data.json "YOUR_GOOGLE_SCRIPT_URL"
+          curl -L -o public/encrypted-data.json "https://script.google.com/macros/s/AKfycbxZbsC7Jz5hZ29WmG3lUHTPO4dhRX-vZxHF1Bz7TAf_jdwgOoLqW8Yhtmy95ie7pgzDDg/exec"
           
           # 備註：如果個 json 係放喺 root 目錄，就將儲存路徑改為 ./encrypted-data.json
 
