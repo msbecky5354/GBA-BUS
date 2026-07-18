@@ -27,7 +27,7 @@ declare global {
 }
 
 // 核心修正：對接後端代理 API 隱藏原始連結
-const CSV_URL = '/api/data';
+const CSV_URL = '/encrypted-data.json';
 
 const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
 
@@ -74,42 +74,18 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
-        const csvText = await response.text();
-        const lines = csvText.split('\n').filter(line => line.trim() !== '');
-        const result = lines.slice(1).map(line => {
-          const v: string[] = []; let curVal = '', inQuotes = false;
-          for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"' && line[i + 1] === '"') { curVal += '"'; i++; }
-            else if (char === '"') { inQuotes = !inQuotes; }
-            else if (char === ',' && !inQuotes) { v.push(curVal.trim()); curVal = ''; }
-            else { curVal += char; }
-          }
-          v.push(curVal.trim());
-          if (v.length < 18) return null;
-          return {
-            operator: (v[0] || '').trim(),
-            departure_region: (v[1] || '').trim(),
-            departure_town: (v[2] || '').trim(),
-            pickup_point: (v[3] || '').trim(),
-            arrival_region: (v[4] || '').trim(),
-            arrival_town: (v[5] || '').trim(),
-            dropoff_point: (v[6] || '').trim(),
-            schedule: (v[7] || '').trim(),
-            estimated_duration: (v[10] || '').trim(),
-            price: (v[11] || '').trim(),
-            currency: (v[12] || '').trim(),
-            booking_remarks: (v[13] || '').trim(),
-            source_url: (v[14] || '').trim(),
-            wechat_app: (v[15] || '').replace(/\r$/, '').trim(),
-            sort_dr: parseInt((v[16] || '').trim(), 10) || 0,
-            sort_ar: parseInt((v[17] || '').trim(), 10) || 0
-          };
-        }).filter((item): item is BusItem => item !== null && item.operator !== '');
-        setBusData(result); setFilteredData(result); setLoading(false);
+        const result = await response.json(); // 核心修正：直接用 JSON 方式讀取
+        
+        setBusData(result); 
+        setFilteredData(result); 
+        setLoading(false);
+        
         const now = new Date();
         setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
-      } catch (error) { setLoading(false); }
+      } catch (error) { 
+        console.error("Fetch error:", error);
+        setLoading(false); 
+      }
     };
     fetchData();
   }, []);
