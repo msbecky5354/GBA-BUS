@@ -1,0 +1,38 @@
+name: Sync Encrypted Data from Google
+
+on:
+  # 允許你喺 GitHub 網頁手動撳掣執行 (測試用)
+  workflow_dispatch:
+  # 設定自動定時執行 (例如每 6 小時一次)
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  fetch-and-save:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Data from Google Apps Script
+        run: |
+          # 用 curl 指令去 Google 攞數據，-L 代表跟隨跳轉，-o 代表儲存檔案
+          # 請將下面條 Link 換成你真正嘅 Google Script Web App URL
+          curl -L -o public/encrypted-data.json "YOUR_GOOGLE_SCRIPT_URL"
+          
+          # 備註：如果個 json 係放喺 root 目錄，就將儲存路徑改為 ./encrypted-data.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          
+          # 檢查檔案有冇更新，有先至 Commit
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "Auto-sync encrypted data from Google [skip ci]"
+            git push
+          else
+            echo "數據冇改變，無需更新"
+          fi
