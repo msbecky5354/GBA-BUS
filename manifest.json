@@ -1,7 +1,8 @@
 {
   "name": "深中珠巴士通 - 攻略",
   "short_name": "深中珠巴士通 - 攻略",
-  "start_url": "/",
+ "start_url": "/GBA-BUS/",
+  "scope": "/GBA-BUS/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e40af",
