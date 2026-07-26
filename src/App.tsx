@@ -353,26 +353,7 @@ const App: React.FC = () => {
           )}
         </div>
         
-        {/* 🌟 頂部懶人工具駅網址 Banner */}
-        <a 
-          href="https://lazytoolsstation.vercel.app" 
-          target="_blank" 
-          rel="noreferrer" 
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
-            backgroundColor: '#ffffff', border: '2px solid #fef3c7', borderRadius: '16px', padding: '12px 16px',
-            textDecoration: 'none', marginBottom: '24px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <img src="./image.png" alt="懶人工具駅" style={{ height: '40px', width: '40px', borderRadius: '10px', objectFit: 'contain' }} />
-            <div>
-              <div style={{ color: '#92400e', fontWeight: '900', fontSize: '15px' }}>懶人工具駅 免費Apps <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>推薦</span></div>
-              <div style={{ color: '#d97706', fontSize: '12px', marginTop: '3px' }}>實用生活工具整合，街坊出行必備！</div>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#f97316', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>免安裝即用</div>
-        </a>
+    
 
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
