@@ -527,7 +527,7 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
             <p style={{ fontSize: '17px', lineHeight: '1.8' }}>iPhone: Safari 點擊「分享」&rarr;「加入主畫面」。<br />Android: Chrome 點擊「三個點」&rarr;「安裝應用程式」。</p>
