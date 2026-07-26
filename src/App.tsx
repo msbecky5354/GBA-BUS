@@ -51,7 +51,15 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedWechatApp, setSelectedWechatApp] = useState('');
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+
+  // 🚨 修正 1：預設 Mobile-First (小螢幕優先)，防止載入時閃爍/卡死喺電腦版
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1000;
+    }
+    return true; // 預設為手機模式
+  });
+
   const [showBackToTop, setShowBackToTop] = useState(false);
   
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
@@ -65,13 +73,12 @@ const App: React.FC = () => {
   const [showWeatherModal, setShowWeatherModal] = useState<boolean>(false);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 1000);
     const handleResize = () => setIsMobile(window.innerWidth < 1000);
     window.addEventListener('resize', handleResize);
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // 注入走馬燈動畫 Keyframes
+    // 🚨 修正 2：注入純 CSS 強制手機版單欄規則 (不依賴 JS 渲染)
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes weatherScroll {
@@ -82,6 +89,11 @@ const App: React.FC = () => {
         display: inline-block;
         white-space: nowrap;
         animation: weatherScroll 18s linear infinite;
+      }
+      @media (max-width: 999px) {
+        .bus-card-grid {
+          grid-template-columns: 1fr !important;
+        }
       }
     `;
     document.head.appendChild(styleSheet);
@@ -296,7 +308,7 @@ const App: React.FC = () => {
           </div>
         </div>
         
-        {/* 🚨 啡色 Header 內部的特別天氣預警標籤（僅在有預警時顯示，解封/無預警時自動隱藏） */}
+        {/* 🚨 啡色 Header 內部的特別天氣預警標籤（僅在有預警時顯示，無預警時自動隱藏） */}
         {specialMsg && (
           <div
             onClick={() => setShowWeatherModal(true)}
@@ -335,7 +347,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* 🌤️ Header 正下方極簡日常天氣走馬燈（只有有天氣數據時顯示） */}
+      {/* 🌤️ Header 正下方極簡日常天氣走馬燈（無天氣數據時自動隱藏） */}
       {weatherMsg && (
         <div 
           style={{
@@ -402,7 +414,8 @@ const App: React.FC = () => {
         {loading ? <p style={{ textAlign: 'center' }}>🚌 數據血汗加載中...</p> : filteredData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>🔍 暫無相關巴士班次</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
+          /* 🚨 加上 class 名稱 bus-card-grid，配合 CSS Media Query 強制鎖定手機單欄 */
+          <div className="bus-card-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
               <div key={idx} onClick={() => setDetailItem(item)} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
