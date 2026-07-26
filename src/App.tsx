@@ -52,12 +52,12 @@ const App: React.FC = () => {
   const [selectedWechatApp, setSelectedWechatApp] = useState('');
   const [noticeInfo, setNoticeInfo] = useState<{ title: string, content: React.ReactNode } | null>(null);
 
-  // 🚨 手機版預設
+  // 🚨 修正 1：預設 Mobile-First (小螢幕優先)，防止載入時閃爍/卡死喺電腦版
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 1000;
     }
-    return true;
+    return true; // 預設為手機模式
   });
 
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -65,10 +65,6 @@ const App: React.FC = () => {
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
   const [showRouteOverview, setShowRouteOverview] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
-  
-  // 🌟 新增：分享 Modal State
-  const [showShareModal, setShowShareModal] = useState(false);
-  const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://lazytoolsstation.vercel.app';
 
   // 🌤️ 天氣相關 State
   const [weatherMsg, setWeatherMsg] = useState<string>('');
@@ -82,43 +78,33 @@ const App: React.FC = () => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // 🚨 注入純 CSS (整合參考 Code 嘅 Mobile UI 優化)
+    // 🚨 修正 2：注入純 CSS 強制手機版單欄規則 (不依賴 JS 渲染)
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
-      /* 天氣走馬燈 45s 超平滑捲動 */
+      /* 🌟 核心修復：強制鎖死全域及 body 闊度，防止 Banner 撐爆 Mobile View */
+      html, body {
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+      
+      /* 🌟 滿足要求：特別天氣警告 Box 閃吓閃吓特效 */
+      @keyframes flashWarning {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      .flash-warning-box {
+        animation: flashWarning 1.5s infinite ease-in-out;
+      }
+
       @keyframes weatherScroll {
         0% { transform: translateX(100%); }
-        100% { transform: translateX(-150%); }
+        100% { transform: translateX(-100%); }
       }
       .animate-weather-scroll {
         display: inline-block;
         white-space: nowrap;
-        animation: weatherScroll 45s linear infinite;
+        animation: weatherScroll 18s linear infinite;
       }
-      /* 走馬燈左右兩側漸變遮罩 */
-      .mask-gradient {
-        mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-      }
-      /* 隱藏原生捲軸 */
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      
-      /* 呼吸燈效果 (特別天氣警告用) */
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-      }
-      .animate-pulse-fast {
-        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
-      
-      /* 按鈕點擊微縮放 */
-      .active-scale:active {
-        transform: scale(0.95);
-        transition: transform 0.1s;
-      }
-
       @media (max-width: 999px) {
         .bus-card-grid {
           grid-template-columns: 1fr !important;
@@ -259,28 +245,6 @@ const App: React.FC = () => {
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 🌟 處理原生分享與複製連結邏輯
-  const copyShareLink = async (url: string) => {
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        alert('🔗 連結已複製到剪貼簿！');
-        setShowShareModal(false);
-      }
-    } catch (e) {
-      console.error('Copy failed:', e);
-    }
-  };
-
-  const nativeShare = (title: string, text: string, url: string) => {
-    if (navigator.share) {
-      navigator.share({ title, text, url }).catch(err => console.log('Share cancelled', err));
-      setShowShareModal(false);
-    } else {
-      copyShareLink(url);
-    }
-  };
-
   const showNotice = (type: string) => {
     let content = null; let title = '';
     switch (type) {
@@ -340,6 +304,7 @@ const App: React.FC = () => {
         userSelect: 'none', 
         minHeight: '100vh', 
         width: '100%',
+        maxWidth: '100vw', /* 🌟 確保主容器唔會越界 */
         overflowX: 'hidden', 
         backgroundColor: '#f8fafc', 
         paddingBottom: '20px', 
@@ -349,8 +314,8 @@ const App: React.FC = () => {
       }}
     >
       
-      {/* 啡色 Header */}
-      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)', width: '100%', boxSizing: 'border-box' }}>
+      {/* 啡色 Header (內置 Transit Hub 風格特別天氣標籤) */}
+      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="./logo.png" alt="Logo" style={{ height: '52px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -359,10 +324,10 @@ const App: React.FC = () => {
           </div>
         </div>
         
-        {/* 🚨 啡色 Header 內部的特別天氣預警標籤 (加入呼吸燈特效 animate-pulse-fast) */}
+        {/* 🚨 啡色 Header 內部的特別天氣預警標籤（加入 flash-warning-box 閃爍） */}
         {specialMsg && (
           <div
-            className="animate-pulse-fast active-scale"
+            className="flash-warning-box"
             onClick={() => setShowWeatherModal(true)}
             style={{
               backgroundColor: specialTheme.bg,
@@ -379,33 +344,27 @@ const App: React.FC = () => {
               boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
               border: '1px solid rgba(255,255,255,0.2)',
               margin: '0 8px',
-              flexShrink: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              flexShrink: 1
             }}
             title={specialMsg}
           >
-            <span style={{ fontSize: '12px' }}>⚠️</span>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{specialMsg}</span>
+            ⚠️ {specialMsg}
           </div>
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          {/* 🌟 加入分享按鈕 */}
           <div style={{ display: 'flex', gap: '8px' }}>
-            <div className="active-scale" onClick={() => setShowRouteOverview(true)} style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="路線概覽">🗺️</div>
-            <div className="active-scale" onClick={() => setShowGuide(true)} style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="新手指南">💡</div>
-            <div className="active-scale" onClick={() => setShowShareModal(true)} style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="分享工具">🔗</div>
+            <div onClick={() => setShowRouteOverview(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="路線概覽">🗺️</div>
+            <div onClick={() => setShowGuide(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="新手指南">💡</div>
           </div>
-          <div style={{ fontSize: '10px', textAlign: 'right', display: isMobile ? 'none' : 'block' }}>
+          <div style={{ fontSize: '10px', textAlign: 'right' }}>
             <div style={{ fontWeight: 'bold', color: '#FFE600' }}>最後更新</div>
             <div>{lastUpdated.split(' ')[0]}</div>
           </div>
         </div>
       </header>
 
-      {/* 🌤️ Header 正下方日常天氣走馬燈（套用 mask-gradient 漸變遮罩） */}
+      {/* 🌤️ Header 正下方極簡日常天氣走馬燈（無天氣數據時自動隱藏） */}
       {weatherMsg && (
         <div 
           style={{
@@ -414,17 +373,18 @@ const App: React.FC = () => {
             height: '32px',
             display: 'flex',
             alignItems: 'center',
+            overflow: 'hidden',
             fontSize: '12px',
             color: '#0369a1',
-            padding: '0 8px',
+            padding: '0 16px',
             width: '100%',
+            maxWidth: '100vw', /* 🌟 防止走馬燈撐爆 Mobile View */
             boxSizing: 'border-box'
           }}
         >
-          <div style={{ marginRight: '6px', flexShrink: 0, fontWeight: 'bold' }}>🌤️</div>
-          <div className="mask-gradient no-scrollbar" style={{ overflow: 'hidden', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', height: '100%' }}>
+          <div style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
             <div className="animate-weather-scroll" style={{ fontWeight: 600 }}>
-               中山天氣：{weatherMsg}
+              🌤️ 中山天氣：{weatherMsg}
             </div>
           </div>
         </div>
@@ -436,7 +396,6 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             
             <button 
-              className="active-scale"
               onClick={handleReset} 
               style={{ 
                 position: 'absolute', top: '15px', right: '15px', 
@@ -453,12 +412,12 @@ const App: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發地區</span><select style={selectStyle} value={depRegionFilter} onChange={e => {setDepRegionFilter(e.target.value); setDepTownFilter(''); setPickupFilter('');}}><option value="">所有</option>{depRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                <button className="active-scale" onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
+                <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的地區</span><select style={selectStyle} value={arrRegionFilter} onChange={e => {setArrRegionFilter(e.target.value); setArrTownFilter(''); setDropoffFilter('');}}><option value="">所有</option>{arrRegions.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1 }}><span style={labelStyle}>出發城鎮</span><select style={selectStyle} value={depTownFilter} onChange={e => {setDepTownFilter(e.target.value); setPickupFilter('');}}><option value="">所有</option>{depTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                <button className="active-scale" onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
+                <button onClick={handleFullSwap} style={swapBtnStyle} title="對調出發與目的地"><SwapButtonIcon /></button>
                 <div style={{ flex: 1 }}><span style={labelStyle}>目的城鎮</span><select style={selectStyle} value={arrTownFilter} onChange={e => {setArrTownFilter(e.target.value); setDropoffFilter('');}}><option value="">所有</option>{arrTowns.map(r => <option key={r} value={r}>{r}</option>)}</select></div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
@@ -473,10 +432,10 @@ const App: React.FC = () => {
         {loading ? <p style={{ textAlign: 'center' }}>🚌 數據血汗加載中...</p> : filteredData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>🔍 暫無相關巴士班次</div>
         ) : (
-          /* 🚨 配合 CSS Media Query 強制鎖定手機單欄 */
+          /* 🚨 加上 class 名稱 bus-card-grid，配合 CSS Media Query 強制鎖定手機單欄 */
           <div className="bus-card-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
             {filteredData.map((item, idx) => (
-              <div key={idx} className="active-scale" onClick={() => setDetailItem(item)} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
+              <div key={idx} onClick={() => setDetailItem(item)} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', borderTop: '6px solid #3b82f6', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative', minHeight: '210px', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <span style={{ fontSize: '14px', backgroundColor: '#fff7ed', color: '#f97316', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>{item.operator}</span>
                   <div style={{ fontSize: '14px', color: '#1e293b', textAlign: 'right' }}>{item.schedule}</div>
@@ -543,23 +502,22 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {showBackToTop && <button className="active-scale" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
+      {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
 
-      {/* 🌟 升級版極端天氣 Modal 彈窗 (Native App 級別) */}
+      {/* 🌟 極端天氣 Modal 彈窗 */}
       {showWeatherModal && (
         <div 
           onClick={() => setShowWeatherModal(false)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 20000, transition: 'opacity 0.3s' }}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 20000 }}
         >
           <div 
             onClick={(e) => e.stopPropagation()}
             style={{ backgroundColor: 'white', borderRadius: '24px', maxWidth: '380px', width: '100%', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
           >
             <div style={{ backgroundColor: specialTheme.bg, color: specialTheme.text, padding: '24px', textAlign: 'center', position: 'relative' }}>
-              <div style={{ fontSize: '32px', marginBottom: '8px' }} className="animate-pulse-fast">⚠️</div>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>⚠️</div>
               <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>極端天氣預警</h3>
               <button 
-                className="active-scale"
                 onClick={() => setShowWeatherModal(false)}
                 style={{ position: 'absolute', top: '12px', right: '12px', border: 'none', background: 'rgba(0,0,0,0.1)', color: specialTheme.text, borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -573,9 +531,8 @@ const App: React.FC = () => {
             </div>
             <div style={{ padding: '16px', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
               <button 
-                className="active-scale"
                 onClick={() => setShowWeatherModal(false)}
-                style={{ width: '100%', backgroundColor: specialTheme.bg, color: specialTheme.text, padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}
+                style={{ width: '100%', backgroundColor: specialTheme.bg, color: specialTheme.text, padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}
               >
                 我明白咗
               </button>
@@ -584,52 +541,9 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 🌟 全新 Share Modal (動態 QR Code 視窗) */}
-      {showShareModal && (
-        <div 
-          onClick={() => setShowShareModal(false)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 20000 }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            style={{ backgroundColor: 'white', borderRadius: '24px', maxWidth: '340px', width: '100%', padding: '24px', position: 'relative', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}
-          >
-            <button className="active-scale" onClick={() => setShowShareModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
-            
-            <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#1e293b', textAlign: 'center', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <span style={{ color: '#B8860B' }}>🔗</span> 分享應用程式
-            </h3>
-            <p style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '20px' }}>一站式搜尋深中珠交通方案！</p>
-            
-            <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '16px', display: 'flex', justifyContent: 'center', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-              {/* 調用外部 API 生成 QR Code */}
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`} alt="QR Code" style={{ width: '180px', height: '180px', borderRadius: '8px' }} />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button 
-                className="active-scale"
-                onClick={() => copyShareLink(currentUrl)}
-                style={{ flex: 1, backgroundColor: '#f1f5f9', color: '#334155', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-              >
-                📋 複製
-              </button>
-              <button 
-                className="active-scale"
-                onClick={() => nativeShare('深中珠巴士懶人包', '一站式搜尋深圳、中山、珠海之間的交通方案！', currentUrl)}
-                style={{ flex: 1, backgroundColor: '#B8860B', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-              >
-                🚀 傳送
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 原有其他 Modal (路線圖、指南、巴士詳情、一般提示、微信提示) */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
-          <button className="active-scale" onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
@@ -645,7 +559,7 @@ const App: React.FC = () => {
 
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
-          <button className="active-scale" onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
@@ -667,7 +581,7 @@ const App: React.FC = () => {
 
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1050, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
-          <button className="active-scale" onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
+          <button onClick={() => setDetailItem(null)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
           <div style={{ borderBottom: '3px solid #3b82f6', paddingBottom: '15px', marginBottom: '25px' }}>
             <span style={{ fontSize: '36px', backgroundColor: '#fff7ed', color: '#f97316', padding: '8px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'inline-block' }}>{detailItem.operator}</span>
             <h2 style={{ fontSize: '36px', marginTop: '15px', color: '#1e293b', fontWeight: 900 }}>{detailItem.schedule}</h2>
@@ -685,7 +599,7 @@ const App: React.FC = () => {
             <div><div style={{ color: '#EAB308', fontSize: '18px', fontWeight: 'bold' }}>巴士資訊</div><div style={{ fontSize: '20px', color: '#475569', lineHeight: '1.6' }}>{detailItem.booking_remarks || '--'}</div></div>
           </div>
           
-          <button className="active-scale" onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
+          <button onClick={() => detailItem.wechat_app ? (setSelectedWechatApp(detailItem.wechat_app), setShowModal(true)) : window.open(detailItem.source_url, '_blank')} 
                   style={{ width: '100%', backgroundColor: detailItem.wechat_app ? '#22c55e' : '#2563eb', color: 'white', border: 'none', padding: '22px', borderRadius: '20px', fontWeight: 'bold', fontSize: '20px', marginTop: '40px', cursor: 'pointer' }}>
             {detailItem.wechat_app ? `🔍 點擊複製小程序：${detailItem.wechat_app}` : '🌐 前往官網查看'}
           </button>
@@ -697,7 +611,7 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%' }}>
             <h2 style={{ color: '#B8860B', marginBottom: '15px' }}>{noticeInfo.title}</h2>
             <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>{noticeInfo.content}</div>
-            <button className="active-scale" onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
+            <button onClick={() => setNoticeInfo(null)} style={{ width: '100%', marginTop: '25px', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', backgroundColor: '#f1f5f9' }}>關閉</button>
           </div>
         </div>
       )}
@@ -707,14 +621,13 @@ const App: React.FC = () => {
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
             <p>請複製名稱後到微信搜尋：</p><h3 style={{ color: '#22c55e', margin: '15px 0' }}>{selectedWechatApp}</h3>
             <button 
-              className="active-scale"
               onCopy={(e) => e.stopPropagation()} 
               onClick={() => { if (navigator.clipboard) { navigator.clipboard.writeText(selectedWechatApp); alert('已複製！'); } }} 
               style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
             >
               一鍵複製
             </button>
-            <button className="active-scale" onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px', cursor: 'pointer' }}>暫時關閉</button>
+            <button onClick={() => setShowModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', marginTop: '10px', cursor: 'pointer' }}>暫時關閉</button>
           </div>
         </div>
       )}
