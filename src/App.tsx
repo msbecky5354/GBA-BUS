@@ -511,7 +511,7 @@ const App: React.FC = () => {
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight 900 }}>🚌 跨市及機場路線概覽</h2>
+         <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
             ✅ 深圳 &rarr; 珠海<br />
