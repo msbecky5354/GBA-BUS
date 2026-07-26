@@ -71,7 +71,7 @@ const App: React.FC = () => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // 注入天氣走馬燈滾動動畫 CSS
+    // 注入天氣走馬燈滾動動畫 CSS (防止手機版橫向溢出)
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes weatherScroll {
@@ -271,15 +271,18 @@ const App: React.FC = () => {
         msUserSelect: 'none', 
         userSelect: 'none', 
         minHeight: '100vh', 
+        width: '100%',
+        overflowX: 'hidden', // 🚨 防溢出關鍵：確保手機版不拉寬走位
         backgroundColor: '#f8fafc', 
         paddingBottom: '20px', 
         fontFamily: GLOBAL_FONT, 
-        letterSpacing: '0.01em' 
+        letterSpacing: '0.01em',
+        boxSizing: 'border-box'
       }}
     >
       
-      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="./logo.png" alt="Logo" style={{ height: '52px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>深中珠巴士</h1>
@@ -287,7 +290,34 @@ const App: React.FC = () => {
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* 🚨 移入啡色 Header 內部的特別天氣小通告 (Transit-Hub 風格) */}
+        {specialMsg && (
+          <div
+            onClick={() => setShowWeatherModal(true)}
+            style={{
+              backgroundColor: specialTheme.bg,
+              color: specialTheme.text,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? '130px' : '260px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              margin: '0 8px',
+              flexShrink: 1
+            }}
+            title={specialMsg}
+          >
+            ⚠️ {specialMsg}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <div onClick={() => setShowRouteOverview(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="路線概覽">🗺️</div>
             <div onClick={() => setShowGuide(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="新手指南">💡</div>
@@ -299,59 +329,34 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px', boxSizing: 'border-box', width: '100%' }}>
 
-        {/* 🌤️ 中山天氣與極端天氣動態標籤區 */}
-        {(specialMsg || weatherMsg) && (
-          <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* 🚨 極端天氣 Alert 標籤 */}
-            {specialMsg && (
-              <div
-                onClick={() => setShowWeatherModal(true)}
-                style={{
-                  backgroundColor: specialTheme.bg,
-                  color: specialTheme.text,
-                  padding: '6px 12px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  border: '1px solid rgba(0,0,0,0.1)'
-                }}
-              >
-                <span style={{ marginRight: '6px' }}>⚠️</span>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{specialMsg}</span>
+        {/* 🌤️ 常規天氣走馬燈 Ticker */}
+        {weatherMsg && (
+          <div
+            style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #dbeafe',
+              borderRadius: '12px',
+              padding: '0 12px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '12px',
+              color: '#1e40af',
+              overflow: 'hidden',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <span style={{ marginRight: '8px', flexShrink: 0, fontSize: '14px' }}>🌤️</span>
+            <div style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
+              <div className="animate-weather-scroll" style={{ fontWeight: 500 }}>
+                {weatherMsg}
               </div>
-            )}
-
-            {/* 🌤️ 日常天氣走馬燈 Ticker */}
-            {weatherMsg && (
-              <div
-                style={{
-                  backgroundColor: '#eff6ff',
-                  border: '1px solid #dbeafe',
-                  borderRadius: '12px',
-                  padding: '0 12px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '12px',
-                  color: '#1e40af',
-                  overflow: 'hidden',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                }}
-              >
-                <span style={{ marginRight: '8px', flexShrink: 0, fontSize: '14px' }}>🌤️</span>
-                <div style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
-                  <div className="animate-weather-scroll" style={{ fontWeight: 500 }}>
-                    {weatherMsg}
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -506,7 +511,7 @@ const App: React.FC = () => {
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
+          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
             ✅ 深圳 &rarr; 珠海<br />
@@ -522,7 +527,7 @@ const App: React.FC = () => {
       {showGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1200, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowGuide(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight: 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
+          <h2 style={{ color: '#0369a1', fontSize: '28px', fontWeight 900, marginBottom: '24px', borderBottom: '3px solid #0369a1', paddingBottom: '10px' }}>💡 使用指南 &amp; 功能介紹</h2>
           <div style={{ marginBottom: '32px' }}>
             <h3 style={{ color: '#0ea5e9', fontSize: '22px' }}>1. 如何加入手機 免費Apps (免安裝直接用)</h3>
             <p style={{ fontSize: '17px', lineHeight: '1.8' }}>iPhone: Safari 點擊「分享」&rarr;「加入主畫面」。<br />Android: Chrome 點擊「三個點」&rarr;「安裝應用程式」。</p>
