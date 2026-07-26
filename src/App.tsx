@@ -58,8 +58,11 @@ const App: React.FC = () => {
   const [showRouteOverview, setShowRouteOverview] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
-  // 🌤️ Transit Hub 風格：極簡天氣文字
-  const [weatherNotice, setWeatherNotice] = useState<string>('');
+  // 🌤️ 天氣相關 State
+  const [weatherMsg, setWeatherMsg] = useState<string>('');
+  const [specialMsg, setSpecialMsg] = useState<string>('');
+  const [specialTheme, setSpecialTheme] = useState<{ bg: string; text: string }>({ bg: '#dc2626', text: '#ffffff' });
+  const [showWeatherModal, setShowWeatherModal] = useState<boolean>(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 1000);
@@ -68,7 +71,7 @@ const App: React.FC = () => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // 走馬燈關鍵幀 CSS
+    // 注入走馬燈動畫 Keyframes
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes weatherScroll {
@@ -89,39 +92,67 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // 🌤️ 讀取天氣（先讀取特殊預警，若無則讀取日常天氣）
+  // 🌤️ 讀取日常天氣 (zs_weather.json)
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        // 1. 優先嘗試讀取特別天氣
-        const spRes = await fetch(`https://msbecky5354.github.io/JSON/data/zs_special_weather.json?v=${Date.now()}`);
-        if (spRes.ok) {
-          const spText = await spRes.text();
-          if (spText && spText.trim() !== '') {
-            const spData = JSON.parse(spText);
-            const spMsg = spData.zs_message || spData.hk_message || spData.special_message || spData.message || '';
-            if (spMsg.trim() !== '') {
-              setWeatherNotice(`⚠️ ${spMsg.replace(/\n/g, ' ')}`);
-              return;
-            }
-          }
-        }
-
-        // 2. 若無特殊天氣，讀取日常天氣
         const res = await fetch(`https://msbecky5354.github.io/JSON/data/zs_weather.json?v=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
           let msg = data.zs_message || data.hk_message || data.message || '';
-          if (msg) {
+          if (msg && msg.trim() !== '') {
             msg = msg.replace(/\n/g, ' | ').replace(/\*(.*?)\*/g, '$1');
-            setWeatherNotice(`🌤️ 中山天氣：${msg}`);
+            setWeatherMsg(msg);
           }
         }
       } catch (e) {
-        console.error('Weather fetch error:', e);
+        console.error('Routine weather fetch failed:', e);
       }
     };
     fetchWeather();
+  }, []);
+
+  // 🚨 讀取特別天氣預警 (zs_special_weather.json)
+  useEffect(() => {
+    const fetchSpecial = async () => {
+      try {
+        const res = await fetch(`https://msbecky5354.github.io/JSON/data/zs_special_weather.json?v=${Date.now()}`);
+        if (res.ok) {
+          const textData = await res.text();
+          if (!textData || textData.trim() === '') {
+            setSpecialMsg('');
+            return;
+          }
+
+          const data = JSON.parse(textData);
+          const msg = data.zs_message || data.hk_message || data.special_message || data.message || '';
+
+          if (msg && msg.trim() !== '') {
+            setSpecialMsg(msg);
+
+            let bg = '#dc2626';
+            let text = '#ffffff';
+            if (msg.includes('一號')) { bg = '#fca5a5'; text = '#1e293b'; }
+            else if (msg.includes('三號') || msg.includes('橙')) { bg = '#f97316'; }
+            else if (msg.includes('八號')) { bg = '#b91c1c'; }
+            else if (msg.includes('九號') || msg.includes('十號')) { bg = '#450a0a'; }
+            else if (msg.includes('黃色')) { bg = '#d97706'; }
+            else if (msg.includes('黑色')) { bg = '#09090b'; }
+            else if (msg.includes('白')) { bg = '#ffffff'; text = '#1e293b'; }
+            else if (msg.includes('藍') || msg.includes('蓝')) { bg = '#2563eb'; }
+            else if (msg.includes('黃') || msg.includes('黄')) { bg = '#eab308'; text = '#1e293b'; }
+
+            setSpecialTheme({ bg, text });
+          } else {
+            setSpecialMsg('');
+          }
+        }
+      } catch (e) {
+        console.error('Special weather fetch failed:', e);
+        setSpecialMsg('');
+      }
+    };
+    fetchSpecial();
   }, []);
 
   useEffect(() => {
@@ -246,7 +277,7 @@ const App: React.FC = () => {
         userSelect: 'none', 
         minHeight: '100vh', 
         width: '100%',
-        overflowX: 'hidden', // 鎖死防溢出，確保手機版排版穩定
+        overflowX: 'hidden', 
         backgroundColor: '#f8fafc', 
         paddingBottom: '20px', 
         fontFamily: GLOBAL_FONT, 
@@ -255,9 +286,9 @@ const App: React.FC = () => {
       }}
     >
       
-      {/* 啡色原版 Header */}
-      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      {/* 啡色 Header (內置 Transit Hub 風格特別天氣標籤) */}
+      <header style={{ backgroundColor: '#B8860B', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 4px rgba(0,0,0,0.1)', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <img src="./logo.png" alt="Logo" style={{ height: '52px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, lineHeight: '1.2' }}>深中珠巴士</h1>
@@ -265,7 +296,34 @@ const App: React.FC = () => {
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* 🚨 啡色 Header 內部的特別天氣預警標籤（僅在有預警時顯示，解封/無預警時自動隱藏） */}
+        {specialMsg && (
+          <div
+            onClick={() => setShowWeatherModal(true)}
+            style={{
+              backgroundColor: specialTheme.bg,
+              color: specialTheme.text,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? '110px' : '260px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              margin: '0 8px',
+              flexShrink: 1
+            }}
+            title={specialMsg}
+          >
+            ⚠️ {specialMsg}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <div onClick={() => setShowRouteOverview(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="路線概覽">🗺️</div>
             <div onClick={() => setShowGuide(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="新手指南">💡</div>
@@ -277,8 +335,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* 🌤️ HK Transit Hub 風格：Header 正下方極簡天氣走馬燈 (高度僅 32px) */}
-      {weatherNotice && (
+      {/* 🌤️ Header 正下方極簡日常天氣走馬燈（只有有天氣數據時顯示） */}
+      {weatherMsg && (
         <div 
           style={{
             backgroundColor: '#f0f9ff',
@@ -296,13 +354,13 @@ const App: React.FC = () => {
         >
           <div style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
             <div className="animate-weather-scroll" style={{ fontWeight: 600 }}>
-              {weatherNotice}
+              🌤️ 中山天氣：{weatherMsg}
             </div>
           </div>
         </div>
       )}
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px' }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px', boxSizing: 'border-box', width: '100%' }}>
 
         <div style={{ position: 'relative', marginBottom: '24px' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
@@ -414,6 +472,43 @@ const App: React.FC = () => {
       </footer>
 
       {showBackToTop && <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: '30px', right: '30px', width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#B8860B', color: 'white', border: 'none', cursor: 'pointer', zIndex: 90, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▲</button>}
+
+      {/* 🌟 極端天氣 Modal 彈窗 */}
+      {showWeatherModal && (
+        <div 
+          onClick={() => setShowWeatherModal(false)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 20000 }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{ backgroundColor: 'white', borderRadius: '24px', maxWidth: '380px', width: '100%', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+          >
+            <div style={{ backgroundColor: specialTheme.bg, color: specialTheme.text, padding: '24px', textAlign: 'center', position: 'relative' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>⚠️</div>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>極端天氣預警</h3>
+              <button 
+                onClick={() => setShowWeatherModal(false)}
+                style={{ position: 'absolute', top: '12px', right: '12px', border: 'none', background: 'rgba(0,0,0,0.1)', color: specialTheme.text, borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ padding: '24px', maxHeight: '50vh', overflowY: 'auto', fontSize: '14px', lineHeight: '1.6', color: '#1e293b', fontWeight: 'bold', backgroundColor: '#f8fafc' }}>
+              {specialMsg.split('\n').map((line, idx) => (
+                <p key={idx} style={{ margin: '0 0 8px 0' }}>{line}</p>
+              ))}
+            </div>
+            <div style={{ padding: '16px', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+              <button 
+                onClick={() => setShowWeatherModal(false)}
+                style={{ width: '100%', backgroundColor: specialTheme.bg, color: specialTheme.text, padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}
+              >
+                我明白咗
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
