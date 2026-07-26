@@ -71,7 +71,7 @@ const App: React.FC = () => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // 注入天氣走馬燈滾動動畫 CSS (防止手機版橫向溢出)
+    // 注入天氣走馬燈滾動動畫 CSS (鎖定容器防止溢出)
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes weatherScroll {
@@ -154,7 +154,7 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
-        const result = await response.json(); // 核心修正：直接用 JSON 方式讀取
+        const result = await response.json();
         
         setBusData(result); 
         setFilteredData(result); 
@@ -272,7 +272,7 @@ const App: React.FC = () => {
         userSelect: 'none', 
         minHeight: '100vh', 
         width: '100%',
-        overflowX: 'hidden', // 🚨 防溢出關鍵：確保手機版不拉寬走位
+        overflowX: 'hidden', // 🚨 鎖死防溢出：防止手機版畫面變形左右晃動
         backgroundColor: '#f8fafc', 
         paddingBottom: '20px', 
         fontFamily: GLOBAL_FONT, 
@@ -305,7 +305,7 @@ const App: React.FC = () => {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: isMobile ? '130px' : '260px',
+              maxWidth: isMobile ? '120px' : '260px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
               border: '1px solid rgba(255,255,255,0.2)',
               margin: '0 8px',
@@ -511,7 +511,7 @@ const App: React.FC = () => {
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
-         <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
+          <h2 style={{ color: '#B8860B', borderBottom: '3px solid #B8860B', paddingBottom: '10px', fontSize: '28px', fontWeight: 900 }}>🚌 跨市及機場路線概覽</h2>
           <div style={{ fontSize: '22px', color: '#b45309', lineHeight: '2.2', marginTop: '24px' }}>
             ✅ 深圳 &rarr; 中山（經深中通道快線）<br />
             ✅ 深圳 &rarr; 珠海<br />
