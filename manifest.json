@@ -1,21 +1,22 @@
 {
   "name": "深中珠巴士通 - 攻略",
   "short_name": "深中珠巴士通 - 攻略",
- "start_url": "/GBA-BUS/",
+  "start_url": "/GBA-BUS/",
   "scope": "/GBA-BUS/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e40af",
   "icons": [
     {
-      "src": "/image_48c638.jpg",
+      "src": "/GBA-BUS/image_48c638.jpg",
       "sizes": "192x192",
       "type": "image/jpeg"
     },
     {
-      "src": "/image_48c638.jpg",
+      "src": "/GBA-BUS/image_48c638.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
