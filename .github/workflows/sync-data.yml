@@ -4,8 +4,8 @@ on:
   workflow_dispatch: # 保持手動執行
 
 env:
-  # 永久模板設計：將 API 網址變數化，絕不寫死 (Hardcode)。日後需要更改只需修改此行。
-  GAS_API_URL: "https://script.google.com/macros/s/AKfycbwQ3RdAhOvY_vMMpibItdVg4CuzuX6_kJlnw_d2BoL8NBqZYEiLoeuwpUe-jIxoE7ocwA/exec"
+  # 真正嘅永久解決方案：完全唔 Hardcode，由 GitHub Secrets 動態讀取
+  GAS_API_URL: ${{ secrets.GAS_API_URL }}
 
 jobs:
   fetch-and-save:
@@ -16,19 +16,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # 完美對齊：解決 Line 12 報錯，並載入真人權限以喚醒 GitHub Pages
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Fetch Data from Google Apps Script
         run: |
           mkdir -p public
-          # 靈活調用頂部變數，將數據輸出為 JSON
+          # 動態讀取環境變數，完美抓取 JSON
           curl -L -o public/encrypted-data.json "${{ env.GAS_API_URL }}"
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
+          
+          # 強制將 PAT Token 注入 remote URL，徹底解決 git push 403 權限不足問題
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/msbecky5354/GBA-BUS.git
+          
           git add public/encrypted-data.json
           
           # 檢查是否有內容更新，避免無意義嘅 commit
