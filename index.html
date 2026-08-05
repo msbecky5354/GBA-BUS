@@ -31,15 +31,21 @@
     </script>
 
     <!-- 🌟 PWA Service Worker 自動註冊腳本 -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('PWA Service Worker 註冊成功:', reg.scope))
-            .catch(err => console.error('PWA Service Worker 註冊失敗:', err));
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // 使用相對路徑 ./sw.js 及相對作用域 ./ ，適應 https://msbecky5354.github.io/GBA-BUS/
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then((reg) => {
+          console.log('PWA Service Worker 註冊成功，Scope為:', reg.scope);
+        })
+        .catch((err) => {
+          console.error('PWA Service Worker 註冊失敗:', err);
         });
-      }
-    </script>
+    });
+  }
+</script>
 
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NM6S3XRJB"></script>
