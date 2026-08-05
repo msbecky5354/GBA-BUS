@@ -176,9 +176,14 @@ const App: React.FC = () => {
    useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
-        const encodedText = await response.text();
-        const result = JSON.parse(atob(encodedText));
+               const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
+        const text = await response.text();
+        let result;
+        try {
+          result = JSON.parse(atob(text));      // 新格式：Base64
+        } catch {
+          result = JSON.parse(text);             // 舊格式：明文 JSON
+        }
         
         setBusData(result); 
         setFilteredData(result); 
