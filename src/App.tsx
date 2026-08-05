@@ -173,30 +173,35 @@ const App: React.FC = () => {
     fetchSpecial();
   }, []);
 
- // App.tsx
+// App.tsx
 useEffect(() => {
   const fetchData = async () => {
     try {
-      // 保持相對路徑，確保喺 GitHub Pages 子目錄（/GBA-BUS/）正常運作[cite: 1]
-      const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
+      // 加上 cache: 'no-store' 及 Headers，強制瀏覽器與 SW 直達伺服器抓取最新資料
+      const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       
-      // 1. 檢查 HTTP 狀態碼
       if (!response.ok) {
         throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
       }
 
       const text = await response.text();
 
-      // 2. 防禦機制：若抓取到 <!DOCTYPE... HTML 網頁（例如 404 頁面），主動拋出錯誤[cite: 1]
+      // 防禦機制：若抓取到 HTML 網頁（例如 404/警告頁面），主動拋出錯誤
       if (text.trim().startsWith('<')) {
         throw new Error('伺服器返回 HTML 頁面（非 JSON），請確認 public/encrypted-data.json 檔案是否存在');
       }
 
       let result;
       try {
-        result = JSON.parse(atob(text));      // 新格式：Base64[cite: 1]
+        result = JSON.parse(atob(text));      // 新格式：Base64
       } catch {
-        result = JSON.parse(text);             // 舊格式：明文 JSON[cite: 1]
+        result = JSON.parse(text);             // 舊格式：明文 JSON
       }
       
       setBusData(result); 
