@@ -1,4 +1,3 @@
-// public/sw.js
 const CACHE_NAME = 'bus-app-cache-v1';
 
 self.addEventListener('install', (event) => {
