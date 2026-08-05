@@ -8,10 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+     - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # 👇 加入以下呢行，載入真人權限，強制喚醒 GitHub Pages 自動部署
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Align Remote Branch (Prevent Conflict)
         run: |
