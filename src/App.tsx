@@ -173,31 +173,45 @@ const App: React.FC = () => {
     fetchSpecial();
   }, []);
 
-   useEffect(() => {
-    const fetchData = async () => {
-      try {
-               const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
-        const text = await response.text();
-        let result;
-        try {
-          result = JSON.parse(atob(text));      // 新格式：Base64
-        } catch {
-          result = JSON.parse(text);             // 舊格式：明文 JSON
-        }
-        
-        setBusData(result); 
-        setFilteredData(result); 
-        setLoading(false);
-        
-        const now = new Date();
-        setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
-      } catch (error) { 
-        console.error("Fetch error:", error);
-        setLoading(false); 
+ // App.tsx
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // 保持相對路徑，確保喺 GitHub Pages 子目錄（/GBA-BUS/）正常運作[cite: 1]
+      const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
+      
+      // 1. 檢查 HTTP 狀態碼
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
       }
-    };
-    fetchData();
-  }, []);
+
+      const text = await response.text();
+
+      // 2. 防禦機制：若抓取到 <!DOCTYPE... HTML 網頁（例如 404 頁面），主動拋出錯誤[cite: 1]
+      if (text.trim().startsWith('<')) {
+        throw new Error('伺服器返回 HTML 頁面（非 JSON），請確認 public/encrypted-data.json 檔案是否存在');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(atob(text));      // 新格式：Base64[cite: 1]
+      } catch {
+        result = JSON.parse(text);             // 舊格式：明文 JSON[cite: 1]
+      }
+      
+      setBusData(result); 
+      setFilteredData(result); 
+      setLoading(false);
+      
+      const now = new Date();
+      setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
+    } catch (error) { 
+      console.error("Fetch error:", error);
+      setLoading(false); 
+    }
+  };
+  fetchData();
+}, []);
 
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
