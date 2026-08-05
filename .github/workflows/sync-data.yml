@@ -6,17 +6,24 @@ on:
 jobs:
   fetch-and-save:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Align Remote Branch (Prevent Conflict)
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          git fetch origin main
+          git reset --hard origin/main
 
       - name: Fetch Data from Google Apps Script
         run: |
           mkdir -p public
-          curl -L -o public/encrypted-data.json " https://script.google.com/macros/s/AKfycbwQ3RdAhOvY_vMMpibItdVg4CuzuX6_kJlnw_d2BoL8NBqZYEiLoeuwpUe-jIxoE7ocwA/exec"
-
-  
+          curl -L -o public/encrypted-data.json "https://script.google.com/macros/s/AKfycbwQ3RdAhOvY_vMMpibItdVg4CuzuX6_kJlnw_d2BoL8NBqZYEiLoeuwpUe-jIxoE7ocwA/exec"
 
       - name: Verify Data Content (Prevent Saving HTML Error Page)
         run: |
@@ -30,14 +37,10 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          git config --global user.name "GitHub Action Bot"
-          git config --global user.email "action@github.com"
-          
           if [[ -n "$(git status --porcelain)" ]]; then
-            git add .
+            git add public/encrypted-data.json
             git commit -m "Manual sync encrypted data from Google"
-            git pull --rebase origin main
-            git push
+            git push origin main
           else
             echo "數據冇改變，無需更新"
           fi
