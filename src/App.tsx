@@ -173,11 +173,12 @@ const App: React.FC = () => {
     fetchSpecial();
   }, []);
 
-  useEffect(() => {
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
-        const result = await response.json();
+        const encodedText = await response.text();
+        const result = JSON.parse(atob(encodedText));
         
         setBusData(result); 
         setFilteredData(result); 
