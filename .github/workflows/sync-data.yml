@@ -33,7 +33,7 @@ jobs:
           
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "Manual sync encrypted data from Google [skip ci]"
+            git commit -m "Manual sync encrypted data from Google"
             git push
           else
             echo "數據冇改變，無需更新"
