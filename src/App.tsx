@@ -228,28 +228,34 @@ useEffect(() => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-  // 1. 拆分並收集所有出發城鎮（支援 "/" 分割）
+// 1. 拆分並收集所有出發城鎮（支援 "/" 分割，並過濾無效描述詞如「交車站」）
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
+    const invalidTowns = ['交車站', '地鐵口', '地鐵口/交車站'];
     busData.forEach(i => {
       if (!depRegionFilter || i.departure_region === depRegionFilter) {
         const rawTowns = i.departure_town ? i.departure_town.split('/').map(t => t.trim()) : [''];
         rawTowns.forEach(t => {
-          if (t) townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_dr));
+          if (t && !invalidTowns.includes(t)) {
+            townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_dr));
+          }
         });
       }
     });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 2. 拆分並收集所有目的城鎮（支援 "/" 分割）
+  // 2. 拆分並收集所有目的城鎮（支援 "/" 分割，並過濾無效描述詞）
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
+    const invalidTowns = ['交車站', '地鐵口', '地鐵口/交車站'];
     busData.forEach(i => {
       if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
         const rawTowns = i.arrival_town ? i.arrival_town.split('/').map(t => t.trim()) : [''];
         rawTowns.forEach(t => {
-          if (t) townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_ar));
+          if (t && !invalidTowns.includes(t)) {
+            townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_ar));
+          }
         });
       }
     });
