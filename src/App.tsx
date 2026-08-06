@@ -228,75 +228,83 @@ useEffect(() => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-// 1. 拆分並收集所有出發城鎮（支援 "/" 分割，並過濾無效描述詞如「交車站」）
+// 1. 拆分並收集所有出發城鎮（精準對應 C 欄 departure_town，支援 "/" 拆分）
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    const invalidTowns = ['交車站', '地鐵口', '地鐵口/交車站'];
     busData.forEach(i => {
       if (!depRegionFilter || i.departure_region === depRegionFilter) {
-        const rawTowns = i.departure_town ? i.departure_town.split('/').map(t => t.trim()) : [''];
-        rawTowns.forEach(t => {
-          if (t && !invalidTowns.includes(t)) {
-            townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_dr));
-          }
-        });
+        if (i.departure_town) {
+          i.departure_town.split('/').forEach(t => {
+            const cleanT = t.trim();
+            if (cleanT) townMap.set(cleanT, Math.max(townMap.get(cleanT) || 0, i.sort_dr));
+          });
+        }
       }
     });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 2. 拆分並收集所有目的城鎮（支援 "/" 分割，並過濾無效描述詞）
+  // 2. 拆分並收集所有目的城鎮（精準對應 F 欄 arrival_town，支援 "/" 拆分）
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    const invalidTowns = ['交車站', '地鐵口', '地鐵口/交車站'];
     busData.forEach(i => {
       if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
-        const rawTowns = i.arrival_town ? i.arrival_town.split('/').map(t => t.trim()) : [''];
-        rawTowns.forEach(t => {
-          if (t && !invalidTowns.includes(t)) {
-            townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_ar));
-          }
-        });
+        if (i.arrival_town) {
+          i.arrival_town.split('/').forEach(t => {
+            const cleanT = t.trim();
+            if (cleanT) townMap.set(cleanT, Math.max(townMap.get(cleanT) || 0, i.sort_ar));
+          });
+        }
       }
     });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, arrRegionFilter]);
 
-  const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
-  const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
+  // 3. 收集上車站點（對應 D 欄 pickup_point）
+  const availablePickups = useMemo(() => {
+    return Array.from(new Set(
+      busData
+        .filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || (i.departure_town && i.departure_town.split('/').map(t => t.trim()).includes(depTownFilter))))
+        .map(i => i.pickup_point)
+    )).filter(Boolean).sort();
+  }, [busData, depRegionFilter, depTownFilter]);
 
- // 升級過濾條件：支援簡繁字體容錯、斜線 "/" 拆分及模糊包含匹配
+  // 4. 收集落車站點（對應 G 欄 dropoff_point）
+  const availableDropoffs = useMemo(() => {
+    return Array.from(new Set(
+      busData
+        .filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || (i.arrival_town && i.arrival_town.split('/').map(t => t.trim()).includes(arrTownFilter))))
+        .map(i => i.dropoff_point)
+    )).filter(Boolean).sort();
+  }, [busData, arrRegionFilter, arrTownFilter]);
+
+  // 5. 鐵壁級過濾邏輯（嚴格對應 C、D、F、G 欄位，支援斜線拆分與包含匹配）
   useEffect(() => {
     setFilteredData(busData.filter(i => {
       const matchDepRegion = !depRegionFilter || i.departure_region === depRegionFilter;
       const matchArrRegion = !arrRegionFilter || i.arrival_region === arrRegionFilter;
       
-      // 輔助函數：簡化字串比對（忽略空格及支援部分包含）
-      const isMatched = (target: string, filter: string) => {
-        if (!target || !filter) return false;
-        const cleanTarget = target.trim();
-        const cleanFilter = filter.trim();
-        if (cleanTarget === cleanFilter || cleanTarget.includes(cleanFilter)) return true;
-        // 檢查經 "/" 拆分後嘅每一項
-        const parts = cleanTarget.split('/').map(p => p.trim());
-        if (parts.includes(cleanFilter)) return true;
-        return false;
+      const checkTownMatch = (fieldVal: string, filterVal: string) => {
+        if (!filterVal) return true;
+        if (!fieldVal) return false;
+        const parts = fieldVal.split('/').map(p => p.trim());
+        return parts.includes(filterVal.trim()) || fieldVal.includes(filterVal.trim());
       };
 
-      const matchDepTown = !depTownFilter || isMatched(i.departure_town, depTownFilter);
-      const matchArrTown = !arrTownFilter || isMatched(i.arrival_town, arrTownFilter);
+      const checkPointMatch = (fieldVal: string, filterVal: string) => {
+        if (!filterVal) return true;
+        if (!fieldVal) return false;
+        return fieldVal === filterVal || fieldVal.includes(filterVal) || fieldVal.split('/').map(s => s.trim()).includes(filterVal);
+      };
 
-      const matchPickup = !pickupFilter || isMatched(i.pickup_point, pickupFilter);
-      const matchDropoff = !dropoffFilter || isMatched(i.dropoff_point, dropoffFilter);
+      const matchDepTown = checkTownMatch(i.departure_town, depTownFilter);
+      const matchArrTown = checkTownMatch(i.arrival_town, arrTownFilter);
+      const matchPickup = checkPointMatch(i.pickup_point, pickupFilter);
+      const matchDropoff = checkPointMatch(i.dropoff_point, dropoffFilter);
 
       return matchDepRegion && matchArrRegion && matchDepTown && matchArrTown && matchPickup && matchDropoff;
     }));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
-  const handleFullSwap = () => {
-    const dR = depRegionFilter, dT = depTownFilter, dP = pickupFilter;
-    const aR = arrRegionFilter, aT = arrTownFilter, aP = dropoffFilter;
-    setDepRegionFilter(aR); setArrRegionFilter(dR); setDepTownFilter(aT); setArrTownFilter(dT); setPickupFilter(aP); setDropoffFilter(dP);
-  };
 
   const handleReset = () => {
     setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
