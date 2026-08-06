@@ -29,7 +29,7 @@ declare global {
 // 核心修正：對接後端代理 API 隱藏原始連結
 const CSV_URL = './encrypted-data.json';
 
-const GLOBAL_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans", sans-serif';
+const GLOBAL_FONT = '"Noto Sans HK", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "PingFang TC", sans-serif';
 
 const SwapButtonIcon = () => (
   <img src="./image_bea913.png" alt="Swap" style={{ width: '32px', height: '32px', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
