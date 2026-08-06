@@ -63,7 +63,6 @@ const App: React.FC = () => {
   
   const [detailItem, setDetailItem] = useState<BusItem | null>(null);
   
-  // 🌟 更新 Modal State：保留路線概覽(已合併指南)，新增分享 Modal，剷除獨立 Guide
   const [showRouteOverview, setShowRouteOverview] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://lazytoolsstation.vercel.app';
@@ -173,50 +172,46 @@ const App: React.FC = () => {
     fetchSpecial();
   }, []);
 
-// App.tsx
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // 加上 cache: 'no-store' 及 Headers，強制瀏覽器與 SW 直達伺服器抓取最新資料
-      const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
-      }
-
-      const text = await response.text();
-
-      // 防禦機制：若抓取到 HTML 網頁（例如 404/警告頁面），主動拋出錯誤
-      if (text.trim().startsWith('<')) {
-        throw new Error('伺服器返回 HTML 頁面（非 JSON），請確認 public/encrypted-data.json 檔案是否存在');
-      }
-
-      let result;
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        result = JSON.parse(atob(text));      // 新格式：Base64
-      } catch {
-        result = JSON.parse(text);             // 舊格式：明文 JSON
+        const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
+        }
+
+        const text = await response.text();
+        if (text.trim().startsWith('<')) {
+          throw new Error('伺服器返回 HTML 頁面（非 JSON）');
+        }
+
+        let result;
+        try {
+          result = JSON.parse(atob(text));
+        } catch {
+          result = JSON.parse(text);
+        }
+        
+        setBusData(result); 
+        setFilteredData(result); 
+        setLoading(false);
+        
+        const now = new Date();
+        setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
+      } catch (error) { 
+        console.error("Fetch error:", error);
+        setLoading(false); 
       }
-      
-      setBusData(result); 
-      setFilteredData(result); 
-      setLoading(false);
-      
-      const now = new Date();
-      setLastUpdated(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
-    } catch (error) { 
-      console.error("Fetch error:", error);
-      setLoading(false); 
-    }
-  };
-  fetchData();
-}, []);
+    };
+    fetchData();
+  }, []);
 
   const depRegions = useMemo(() => {
     const all = Array.from(new Set(busData.map(i => i.departure_region))).filter(Boolean).sort();
@@ -228,7 +223,7 @@ useEffect(() => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
-// 1. 拆分並收集所有出發城鎮（精準對應 C 欄 departure_town，支援 "/" 拆分）
+  // 1. 拆分並收集所有出發城鎮（支援 "/" 拆分）
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -244,7 +239,7 @@ useEffect(() => {
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
-  // 2. 拆分並收集所有目的城鎮（精準對應 F 欄 arrival_town，支援 "/" 拆分）
+  // 2. 拆分並收集所有目的城鎮（支援 "/" 拆分）
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
     busData.forEach(i => {
@@ -260,58 +255,73 @@ useEffect(() => {
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, arrRegionFilter]);
 
-  // 3. 收集上車站點（對應 D 欄 pickup_point）
+  // 3. 收集上車站點
   const availablePickups = useMemo(() => {
     return Array.from(new Set(
       busData
-        .filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || (i.departure_town && i.departure_town.split('/').map(t => t.trim()).includes(depTownFilter))))
+        .filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || (i.departure_town && i.departure_town.includes(depTownFilter))))
         .map(i => i.pickup_point)
     )).filter(Boolean).sort();
   }, [busData, depRegionFilter, depTownFilter]);
 
-  // 4. 收集落車站點（對應 G 欄 dropoff_point）
+  // 4. 收集落車站點
   const availableDropoffs = useMemo(() => {
     return Array.from(new Set(
       busData
-        .filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || (i.arrival_town && i.arrival_town.split('/').map(t => t.trim()).includes(arrTownFilter))))
+        .filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || (i.arrival_town && i.arrival_town.includes(arrTownFilter))))
         .map(i => i.dropoff_point)
     )).filter(Boolean).sort();
   }, [busData, arrRegionFilter, arrTownFilter]);
 
-  // 5. 鐵壁級過濾邏輯（嚴格對應 C、D、F、G 欄位，支援斜線拆分與包含匹配）
+  // 5. 簡繁體與斜線容錯匹配過濾器
   useEffect(() => {
     setFilteredData(busData.filter(i => {
       const matchDepRegion = !depRegionFilter || i.departure_region === depRegionFilter;
       const matchArrRegion = !arrRegionFilter || i.arrival_region === arrRegionFilter;
       
-      const checkTownMatch = (fieldVal: string, filterVal: string) => {
+      const checkMatch = (fieldVal: string, filterVal: string) => {
         if (!filterVal) return true;
         if (!fieldVal) return false;
-        const parts = fieldVal.split('/').map(p => p.trim());
-        return parts.includes(filterVal.trim()) || fieldVal.includes(filterVal.trim());
+        
+        // 核心容錯：將常見繁簡字眼統一轉換或直接進行包含比對
+        const cleanField = fieldVal.trim();
+        const cleanFilter = filterVal.trim();
+
+        if (cleanField.includes(cleanFilter)) return true;
+
+        // 經斜線拆分後比對
+        const parts = cleanField.split('/').map(p => p.trim());
+        if (parts.some(p => p.includes(cleanFilter) || cleanFilter.includes(p))) return true;
+
+        // 針對「鐵」與「铁」等常見簡繁差異的特別映射容錯
+        const tradToSimp = cleanFilter.replace(/鐵/g, '铁');
+        const simpToTrad = cleanFilter.replace(/铁/g, '鐵');
+        if (cleanField.includes(tradToSimp) || cleanField.includes(simpToTrad)) return true;
+
+        return false;
       };
 
-      const checkPointMatch = (fieldVal: string, filterVal: string) => {
-        if (!filterVal) return true;
-        if (!fieldVal) return false;
-        return fieldVal === filterVal || fieldVal.includes(filterVal) || fieldVal.split('/').map(s => s.trim()).includes(filterVal);
-      };
-
-      const matchDepTown = checkTownMatch(i.departure_town, depTownFilter);
-      const matchArrTown = checkTownMatch(i.arrival_town, arrTownFilter);
-      const matchPickup = checkPointMatch(i.pickup_point, pickupFilter);
-      const matchDropoff = checkPointMatch(i.dropoff_point, dropoffFilter);
+      const matchDepTown = checkMatch(i.departure_town, depTownFilter);
+      const matchArrTown = checkMatch(i.arrival_town, arrTownFilter);
+      const matchPickup = checkMatch(i.pickup_point, pickupFilter);
+      const matchDropoff = checkMatch(i.dropoff_point, dropoffFilter);
 
       return matchDepRegion && matchArrRegion && matchDepTown && matchArrTown && matchPickup && matchDropoff;
     }));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
+
+  // 補回先前遺失的 handleFullSwap 函數，防止點擊對調按鈕時報錯
+  const handleFullSwap = () => {
+    const dR = depRegionFilter, dT = depTownFilter, dP = pickupFilter;
+    const aR = arrRegionFilter, aT = arrTownFilter, aP = dropoffFilter;
+    setDepRegionFilter(aR); setArrRegionFilter(dR); setDepTownFilter(aT); setArrTownFilter(dT); setPickupFilter(aP); setDropoffFilter(dP);
+  };
 
   const handleReset = () => {
     setDepRegionFilter(''); setDepTownFilter(''); setPickupFilter('');
     setArrRegionFilter(''); setArrTownFilter(''); setDropoffFilter('');
   };
 
-  // 🌟 分享與複製功能
   const copyShareLink = async (url: string) => {
     try {
       if (navigator.clipboard) {
@@ -412,7 +422,6 @@ useEffect(() => {
           </div>
         </div>
         
-        {/* 特別天氣預警標籤 */}
         {specialMsg && (
           <div
             className="flash-warning-box"
@@ -442,7 +451,6 @@ useEffect(() => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
           <div style={{ display: 'flex', gap: '8px' }}>
-            {/* 🌟 修改圖示：改用 📖 代表合體後嘅「路線及指南」，新增 🔗 代表「分享」 */}
             <div onClick={() => setShowRouteOverview(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="路線及指南">📖</div>
             <div onClick={() => setShowShareModal(true)} style={{ cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} title="分享應用程式">🔗</div>
           </div>
@@ -453,7 +461,6 @@ useEffect(() => {
         </div>
       </header>
 
-      {/* 天氣走馬燈 */}
       {weatherMsg && (
         <div 
           style={{
@@ -626,7 +633,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* 🌟 路線概覽 + 使用指南 (合體版) */}
       {showRouteOverview && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 1100, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto', WebkitTransform: 'translateZ(0)' }}>
           <button onClick={() => setShowRouteOverview(false)} style={{ alignSelf: 'flex-end', padding: '12px 24px', backgroundColor: '#f1f5f9', color: '#334155', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>關閉 ✕</button>
@@ -663,7 +669,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* 🌟 全新 Share Modal (有 QR Code) */}
       {showShareModal && (
         <div 
           onClick={() => setShowShareModal(false)}
@@ -681,7 +686,6 @@ useEffect(() => {
             <p style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '20px' }}>一站式搜尋深中珠交通方案！</p>
             
             <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '16px', display: 'flex', justifyContent: 'center', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-              {/* 自動生成 QR Code */}
               <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`} alt="QR Code" style={{ width: '180px', height: '180px', borderRadius: '8px' }} />
             </div>
             
