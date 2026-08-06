@@ -388,7 +388,16 @@ const App: React.FC = () => {
   };
 
   const selectStyle: React.CSSProperties = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px', fontSize: '14px', backgroundColor: 'white', color: '#1e293b', fontFamily: GLOBAL_FONT };
-  const labelStyle: React.CSSProperties = { backgroundColor: '#FFE600', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: '#1e293b' };
+  const labelStyle: React.CSSProperties = { 
+  backgroundColor: '#FFE600', 
+  padding: '4px 12px', 
+  borderRadius: '20px', // 變成圓滾滾的 bubble 膠囊外型
+  fontSize: '11px', 
+  fontWeight: 'bold', 
+  color: '#1e293b',
+  display: 'inline-block',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)' // 加上微小陰影增加立體感
+};
   const swapBtnStyle: React.CSSProperties = { width: '32px', height: '32px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 };
 
   return (
