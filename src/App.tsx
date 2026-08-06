@@ -228,26 +228,54 @@ useEffect(() => {
     return (depRegionFilter && depRegionFilter !== '深圳') ? all.filter(r => r !== depRegionFilter) : all;
   }, [busData, depRegionFilter]);
 
+  // 1. 拆分並收集所有出發城鎮（支援 "/" 分割）
   const depTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!depRegionFilter || i.departure_region === depRegionFilter) townMap.set(i.departure_town, Math.max(townMap.get(i.departure_town) || 0, i.sort_dr)); });
+    busData.forEach(i => {
+      if (!depRegionFilter || i.departure_region === depRegionFilter) {
+        const rawTowns = i.departure_town ? i.departure_town.split('/').map(t => t.trim()) : [''];
+        rawTowns.forEach(t => {
+          if (t) townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_dr));
+        });
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, depRegionFilter]);
 
+  // 2. 拆分並收集所有目的城鎮（支援 "/" 分割）
   const arrTowns = useMemo(() => {
     const townMap = new Map<string, number>();
-    busData.forEach(i => { if (!arrRegionFilter || i.arrival_region === arrRegionFilter) townMap.set(i.arrival_town, Math.max(townMap.get(i.arrival_town) || 0, i.sort_ar)); });
+    busData.forEach(i => {
+      if (!arrRegionFilter || i.arrival_region === arrRegionFilter) {
+        const rawTowns = i.arrival_town ? i.arrival_town.split('/').map(t => t.trim()) : [''];
+        rawTowns.forEach(t => {
+          if (t) townMap.set(t, Math.max(townMap.get(t) || 0, i.sort_ar));
+        });
+      }
+    });
     return Array.from(townMap.entries()).filter(e => Boolean(e[0])).sort((a, b) => b[1] - a[1]).map(e => e[0]);
   }, [busData, arrRegionFilter]);
 
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
 
+  // 3. 升級過濾條件（支援單獨選取雙城鎮其中一個也能被搜尋出）
   useEffect(() => {
-    setFilteredData(busData.filter(i => (
-      (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter) && (!pickupFilter || i.pickup_point === pickupFilter) &&
-      (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter) && (!dropoffFilter || i.dropoff_point === dropoffFilter)
-    )));
+    setFilteredData(busData.filter(i => {
+      const matchDepRegion = !depRegionFilter || i.departure_region === depRegionFilter;
+      const matchArrRegion = !arrRegionFilter || i.arrival_region === arrRegionFilter;
+      
+      // 檢查出發城鎮是否包含選中的篩選條件（支援包含關係或完整匹配）
+      const matchDepTown = !depTownFilter || (i.departure_town && i.departure_town.split('/').map(t => t.trim()).includes(depTownFilter));
+      
+      // 檢查目的城鎮是否包含選中的篩選條件
+      const matchArrTown = !arrTownFilter || (i.arrival_town && i.arrival_town.split('/').map(t => t.trim()).includes(arrTownFilter));
+
+      const matchPickup = !pickupFilter || i.pickup_point === pickupFilter;
+      const matchDropoff = !dropoffFilter || i.dropoff_point === dropoffFilter;
+
+      return matchDepRegion && matchArrRegion && matchDepTown && matchArrTown && matchPickup && matchDropoff;
+    }));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
 
   const handleFullSwap = () => {
