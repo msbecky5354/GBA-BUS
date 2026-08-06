@@ -265,33 +265,29 @@ useEffect(() => {
   const availablePickups = useMemo(() => Array.from(new Set(busData.filter(i => (!depRegionFilter || i.departure_region === depRegionFilter) && (!depTownFilter || i.departure_town === depTownFilter)).map(i => i.pickup_point))).filter(Boolean).sort(), [busData, depRegionFilter, depTownFilter]);
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
 
-  // 3. 升級過濾條件（支援單獨選取雙城鎮其中一個也能被搜尋出）
- // 升級過濾條件：同時支援城鎮與站點的 "/" 拆分及模糊包含匹配
+ // 升級過濾條件：支援簡繁字體容錯、斜線 "/" 拆分及模糊包含匹配
   useEffect(() => {
     setFilteredData(busData.filter(i => {
       const matchDepRegion = !depRegionFilter || i.departure_region === depRegionFilter;
       const matchArrRegion = !arrRegionFilter || i.arrival_region === arrRegionFilter;
       
-      // 出發/目的城鎮匹配（支援 "/" 拆分比對）
-      const matchDepTown = !depTownFilter || (i.departure_town && i.departure_town.split('/').map(t => t.trim()).includes(depTownFilter));
-      const matchArrTown = !arrTownFilter || (i.arrival_town && i.arrival_town.split('/').map(t => t.trim()).includes(arrTownFilter));
+      // 輔助函數：簡化字串比對（忽略空格及支援部分包含）
+      const isMatched = (target: string, filter: string) => {
+        if (!target || !filter) return false;
+        const cleanTarget = target.trim();
+        const cleanFilter = filter.trim();
+        if (cleanTarget === cleanFilter || cleanTarget.includes(cleanFilter)) return true;
+        // 檢查經 "/" 拆分後嘅每一項
+        const parts = cleanTarget.split('/').map(p => p.trim());
+        if (parts.includes(cleanFilter)) return true;
+        return false;
+      };
 
-      // 上下車站點匹配（升級支援：精準匹配、包含關係、以及 "/" 拆分後包含）
-      const matchPickup = !pickupFilter || (
-        i.pickup_point && (
-          i.pickup_point === pickupFilter || 
-          i.pickup_point.includes(pickupFilter) || 
-          i.pickup_point.split('/').map(s => s.trim()).includes(pickupFilter)
-        )
-      );
+      const matchDepTown = !depTownFilter || isMatched(i.departure_town, depTownFilter);
+      const matchArrTown = !arrTownFilter || isMatched(i.arrival_town, arrTownFilter);
 
-      const matchDropoff = !dropoffFilter || (
-        i.dropoff_point && (
-          i.dropoff_point === dropoffFilter || 
-          i.dropoff_point.includes(dropoffFilter) || 
-          i.dropoff_point.split('/').map(s => s.trim()).includes(dropoffFilter)
-        )
-      );
+      const matchPickup = !pickupFilter || isMatched(i.pickup_point, pickupFilter);
+      const matchDropoff = !dropoffFilter || isMatched(i.dropoff_point, dropoffFilter);
 
       return matchDepRegion && matchArrRegion && matchDepTown && matchArrTown && matchPickup && matchDropoff;
     }));
