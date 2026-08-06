@@ -260,24 +260,36 @@ useEffect(() => {
   const availableDropoffs = useMemo(() => Array.from(new Set(busData.filter(i => (!arrRegionFilter || i.arrival_region === arrRegionFilter) && (!arrTownFilter || i.arrival_town === arrTownFilter)).map(i => i.dropoff_point))).filter(Boolean).sort(), [busData, arrRegionFilter, arrTownFilter]);
 
   // 3. 升級過濾條件（支援單獨選取雙城鎮其中一個也能被搜尋出）
+ // 升級過濾條件：同時支援城鎮與站點的 "/" 拆分及模糊包含匹配
   useEffect(() => {
     setFilteredData(busData.filter(i => {
       const matchDepRegion = !depRegionFilter || i.departure_region === depRegionFilter;
       const matchArrRegion = !arrRegionFilter || i.arrival_region === arrRegionFilter;
       
-      // 檢查出發城鎮是否包含選中的篩選條件（支援包含關係或完整匹配）
+      // 出發/目的城鎮匹配（支援 "/" 拆分比對）
       const matchDepTown = !depTownFilter || (i.departure_town && i.departure_town.split('/').map(t => t.trim()).includes(depTownFilter));
-      
-      // 檢查目的城鎮是否包含選中的篩選條件
       const matchArrTown = !arrTownFilter || (i.arrival_town && i.arrival_town.split('/').map(t => t.trim()).includes(arrTownFilter));
 
-      const matchPickup = !pickupFilter || i.pickup_point === pickupFilter;
-      const matchDropoff = !dropoffFilter || i.dropoff_point === dropoffFilter;
+      // 上下車站點匹配（升級支援：精準匹配、包含關係、以及 "/" 拆分後包含）
+      const matchPickup = !pickupFilter || (
+        i.pickup_point && (
+          i.pickup_point === pickupFilter || 
+          i.pickup_point.includes(pickupFilter) || 
+          i.pickup_point.split('/').map(s => s.trim()).includes(pickupFilter)
+        )
+      );
+
+      const matchDropoff = !dropoffFilter || (
+        i.dropoff_point && (
+          i.dropoff_point === dropoffFilter || 
+          i.dropoff_point.includes(dropoffFilter) || 
+          i.dropoff_point.split('/').map(s => s.trim()).includes(dropoffFilter)
+        )
+      );
 
       return matchDepRegion && matchArrRegion && matchDepTown && matchArrTown && matchPickup && matchDropoff;
     }));
   }, [depRegionFilter, depTownFilter, pickupFilter, arrRegionFilter, arrTownFilter, dropoffFilter, busData]);
-
   const handleFullSwap = () => {
     const dR = depRegionFilter, dT = depTownFilter, dP = pickupFilter;
     const aR = arrRegionFilter, aT = arrTownFilter, aP = dropoffFilter;
